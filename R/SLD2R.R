@@ -1,9 +1,18 @@
-#' A function to load, clean and standardize SLD data for SPDT analysis
+#' A function to load, clean and standardize SLD data for SPDT analysis. 
+#' Function only usable by FFSBC staff who have a direct or vpn connection to SLD.
 #'
 #'
-#' This is the first step in doing and SPDT analyses. Loads, cleans all standard data tables for SPDT type analysis
+#' This is the first step in doing and SPDT analyses, and is the rawest form of data. 
+#' Loads, cleans all formats data tables for SPDT type analysis.
 #' Make sure your VPN is running, so that the database can be accessed by the function.
-#' Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
+#' The data sets returned to the RStudio Environment are: Assessments, Lakes, Biological, Nets, Releases.
+#' The data sets have minor filtering at this stage.
+#' Assessments are filtered to only fishery related assessments, none of: ("GC","UNK","UP","WQ")
+#' Lakes are filtered to lakes that appear in this list of assessments (have had some sort of fishery type assessment at some point in their history).
+#' Biological is filtered to records that have known year and species.
+#' Releases are filtered to releases into lakes (not streams).
+#' Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU.
+#' Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 #'
 #' @title SLD2R
 #' @name SLD2R
@@ -73,8 +82,8 @@ Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone))%>%dropleve
                 Lat = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$y))
 
 #_______________________________________________________________________________
-#Reformatting to consistent column naming and data coding
-#Column names are generally consistent among SLD Tables, but Paris (Releases) is different from SLD, so we will make those match
+#Reformat to consistent column naming and data coding
+#Column names are generally consistent among SLD Tables, but Paris (Releases) is different, so we will make those match
 
 #For naming of ploidy and sex together I beleive we agreed that "Genotype" is the best term, so change both dataset to that. Then for all Releases columns we will make consistent with Biological
 Biological<-Biological%>%dplyr::rename(Genotype = .data$Ploidy, Strain = .data$Strain_Species)
@@ -146,7 +155,7 @@ Biological$Age <- gsub('\\s+', '', Biological$Age)
 
 #dplyr::filter out records without year or species and create a Lake_WBID and Region_Name column
 Biological <- Biological%>%
-                dplyr::filter(Capture_Method == "GN",!is.na(.data$Year),!is.na(.data$Species))%>%
+                dplyr::filter(!is.na(.data$Year),!is.na(.data$Species))%>%
                 dplyr::mutate(Lake_WBID = paste(.data$Waterbody_Name,"_",.data$WBID, sep = ""),
                               Region_Name = plyr::mapvalues(Region, from=Lakes$Region,
                                                                     to=as.character(Lakes$Region_Name),
@@ -167,7 +176,7 @@ fall_spwn = as.character(expression(AS, BL, BT, DV, EB, GB, KO, LT, LW))
 #Add in a lake year and a brood year column for filtering and matching to releases
 Biological<- Biological%>%
               dplyr::mutate(
-                      Lk_yr = paste(Biological$WBID,"_",Biological$Year, sep = ""),
+                      Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""),
                       sby_code = dplyr::case_when(
                         .data$Species %in% spring_spwn & .data$Strain == "FV"& .data$Year < 2013 ~ .data$Year - .data$Int.Age + 1L,
                         .data$Species %in% fall_spwn ~ .data$Year - .data$Int.Age - 1L,#1L is integer type
@@ -192,10 +201,14 @@ Biological <- Biological%>%
 #RELEASES
 #Couple minor adjustments
 
-#Remove stream releases as generally do not apply to SPDT
+#Remove stream releases as generally do not apply to SPDT type analyses
 Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
 #Create column for release year
 Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
+#Add in lake brood year and lake stocking year grouping variables that can match Biological
+Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
+                                    Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")  
+                                      )
 
 #_______________________________________________________________________________
 #Use droplevels() to make sure not retaining any factor levels that are no longer in use after filtering steps above

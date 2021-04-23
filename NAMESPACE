@@ -3,6 +3,7 @@
 export("%>%")
 export(SLD2R)
 export(UTM_to_latlong)
+export(linkClips)
 importFrom(magrittr,"%>%")
 importFrom(rlang,.data)
 importFrom(sp,CRS)

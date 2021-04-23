@@ -7,12 +7,21 @@
 SLD2R()
 }
 \description{
-A function to load, clean and standardize SLD data for SPDT analysis
+A function to load, clean and standardize SLD data for SPDT analysis. 
+Function only usable by FFSBC staff who have a direct or vpn connection to SLD.
 }
 \details{
-This is the first step in doing and SPDT analyses. Loads, cleans all standard data tables for SPDT type analysis
+This is the first step in doing and SPDT analyses, and is the rawest form of data. 
+Loads, cleans all formats data tables for SPDT type analysis.
 Make sure your VPN is running, so that the database can be accessed by the function.
-Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
+The data sets returned to the RStudio Environment are: Assessments, Lakes, Biological, Nets, Releases.
+The data sets have minor filtering at this stage.
+Assessments are filtered to only fishery related assessments, none of: ("GC","UNK","UP","WQ")
+Lakes are filtered to lakes that appear in this list of assessments (have had some sort of fishery type assessment at some point in their history).
+Biological is filtered to records that have known year and species.
+Releases are filtered to releases into lakes (not streams).
+Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU.
+Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 }
 \examples{
 SLD2R()
