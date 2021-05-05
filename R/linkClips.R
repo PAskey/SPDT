@@ -6,9 +6,10 @@
 #' Takes SLD2R() data and uses clip information to tie fish back to stocking event, age, strain, gentotype where possible.
 #' Make sure your VPN is running, so that the database can be accessed by the function.
 #' The Biological record count remains the same, but includes information about the potential stocking event(s) tied to each fish.
-#' IN cases where clips are unique, then fields for age, strain, genotype are updated if black. Otherwise a list of possibilities can be found
+#' In cases where clips are unique, then fields for age, strain, genotype are updated if black. Otherwise a list of possibilities can be found
 #' in "clipAges, clipStrains, clipGenos. 
 #' All other data tables only include data that can be linked to the Biological data, either same Assessment_Key, or rel_id.
+#' Anydata Tables you have open as Assessments, Nets, Lakes, Biological, Releases will be replaced with versions form this function.
 #' Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
 #' Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 #'
@@ -27,7 +28,8 @@
 #Open channel to SLD and download data
 linkClips <- function(){
 
-
+SLD2R()
+  
 #Just look at releases that are from lakes in the Biological Table
 Releases <- Releases[Releases$WBID%in%Biological$WBID,]
 #Only Releases that have brood year or release size info included.
@@ -106,15 +108,16 @@ clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$
                                     clipStrains = paste(unique(.data$Strain), collapse = ","),
                                     clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                     clipAges = paste(unique(.data$Int.Age), collapse = ","),
+                                    clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                     N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calculate number released if unique group
                                     SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight released if unique group
                                     avg_rel_date = mean(.data$rel_Date))%>%
-                        ungroup()
+                        dplyr::ungroup()
 
 
 #reduce summary to cases where clip leads to unique stocking group
 Uniqueclips <-clipsum%>%
-  dplyr::filter_at(vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
+  dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
@@ -143,10 +146,11 @@ clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$
                                   clipStrains = paste(unique(.data$Strain), collapse = ","),
                                   clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                   clipAges = paste(unique(.data$Int.Age), collapse = ","),
+                                  clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                   N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calcualte number released if unique group
                                   SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calcualte mean weight released if unique group
                                   avg_rel_date = mean(.data$rel_Date))%>%
-                        ungroup()
+                        dplyr::ungroup()
 
 
 #Now we can match these to Biological data that had ages whether cases are unique or not.
@@ -157,33 +161,33 @@ Bioaged = dplyr::left_join(Bioaged, clipsum, by = c("WBID", "Lk_yr", "Species", 
 
 Biological = rbind(Bio_unique, Biounaged, Bioaged)
 
-#OK NOW HAEV CLIP BASED RELEASES DATA.
+#OK NOW HAVE CLIP BASED RELEASES DATA.
 #THE ONY THING MAYBE NOT 100% ACCURATE WOULD BE FV BECASUE OF THEIR WEIRD BROOD YEARS
 
 #Now for all cases where the clip makes strain, genotype, or age unique, then insert and/or replace values in those columns. In the case of age, put clip as aeg method.
 
 #Add data where a single possible outcome from clip information. This does not currently attempt to correct erroneous ages, and only infills NA values in that case.
-Biological<-Biological%>%
+Biological<-suppressWarnings(Biological%>%
   dplyr::mutate(
-  Strain = as.character(.data$Strain),
-  Genotype = as.character(.data$Genotype)
-)%>%
-  suppressWarnings(
-  dplyr::mutate(
-  Int.Age = replace(.data$Int.Age, .data$n_sby == 1L&is.na(.data$Int.Age)&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges)),
+  #Int.Age = replace(.data$Int.Age, .data$n_sby == 1L&is.na(.data$Int.Age)&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges)),
+  sby_code = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
+  Int.Age = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
   Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
   Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   ))
 #I think the warning NA introduced by coercion can safely be ignored form google research. There are less NA values at the end of this code than when started.
+#suppressWarnings() must wrape everything, otherwise does not run, and warning is suppressed
 
-
-#remove all data calumns that are just tallies, and othe rcolumns not needed for growth/survival data analysis
+#remove all data columns that are just tallies, and othe rcolumns not needed for growth/survival data analysis
 Biological<-Biological%>%dplyr::select(-c(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos, .data$Scale, .data$Otolith, .data$DNA_ID, .data$ATUS, .data$Family_Group))
+#Update Lk_sby with new age info.
+Biological$Lk_sby = paste(paste(Biological$WBID,"_",Biological$sby_code, sep = ""))
 
 Assessments<<- Assessments[Assessments$Assessment_Key%in%Biological$Assessment_Key,]
 Lakes<<-Lakes[Lakes$WBID%in%Biological$WBID,]
 Nets<<-Nets[Nets$Assessment_Key%in%Biological$Assessment_Key,]
 Biological<<-Biological
 Releases<<-Releases
+Xnew<<-Xnew
 
 }
