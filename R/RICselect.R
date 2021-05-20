@@ -17,8 +17,7 @@
 #' @importFrom rlang .data
 #' 
 
-RICselect<- function(Length_mm){
-  
-  p = select_lookup$p[select_lookup$Length_mm %in% Length_mm]
-  return(p)
+RICselect<- function(FLengths){
+  p = select_lookup$p[fastmatch::fmatch(FLengths, select_lookup$Length_mm)]
+  p
 }

@@ -32,15 +32,16 @@ linkClips()
   
   
 idf <- Biological%>%
-          dplyr::filter(!is.na(.data$Clip)&!is.null(.data$Clip)&.data$Clip != "NONE")#remove non-clips
-
+          dplyr::filter(!is.na(.data$Clip)&!is.null(.data$Clip)&.data$Clip != "NONE")%>%#remove non-clips
+          dplyr::mutate(NetX = 1/RICselect(Length_mm))
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
   dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code)%>%
   dplyr::summarize(mean_FL = mean(.data$Length_mm, na.rm = TRUE),sd_FL = sd(.data$Length_mm, na.rm = TRUE),
                     mean_wt = mean(Weight_g, na.rm = TRUE), sd_wt = sd(Weight_g, na.rm = TRUE),
-                    N = dplyr::n(), 
+                    N = dplyr::n(),
+                    NextXN = sum(NetX),
                     p_mat = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE)/sum(.data$Maturity != 'UNK', na.rm = TRUE),
                     avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'),
                     avg_rel_date=as.Date(mean(.data$avg_rel_date),format='%d%b%Y'),
@@ -63,5 +64,7 @@ gdf = dplyr::full_join(gdf, Xnew,
 
 idf<<-idf
 gdf<<-gdf
+
+rm(Xnew)
 
 }
