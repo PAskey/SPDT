@@ -3,7 +3,7 @@
 #'
 #'
 #' This is the final data filtering and cleaning process after SLD2R(), and linkClips(). 
-#' These two previous functions are called within this function, so their is no need to repeat.
+#' These two previous functions are called within this function, so there is no need to repeat.
 #' This function returns the data tables from linkClips, plus new refined data sets.
 #' "idf" is the individual level data frame, for all clipped fish meeting your filtering selections.
 #' "gdf" is the grouped data frame, for all clipped groups meeting your filtering selections.

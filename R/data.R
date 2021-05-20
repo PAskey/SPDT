@@ -21,3 +21,15 @@
 #' }
 #' @source PAskey personal copy
 "Strain_code_LU"
+
+#' Lookup table to find relative vulnerability to capture by gillnet dependent on fish size
+#'
+#' Aids in standardization of strain comparisons when groups area  different size.
+#'
+#' @format A data frame with 700 rows and 2 variables:
+#' \describe{
+#'   \item{Length_mm}{Fork length in mm, Integer value}
+#'   \item{p}{Relative probability of capture, based on GAM model stop gap method until more mark-recap information available}
+#' }
+#' @source PAskey personal copy
+"select_lookup"
