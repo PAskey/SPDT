@@ -10,7 +10,7 @@
 #' @name SPDTdata
 #' @keywords SPDT
 #' @export
-#' @param panels a vector of mesh sizes used in the gillnet assessment. This is assumed constant across nets.
+#' @param Length_mm an integer or vector of lengths for which to calculate relative probability of capture by RIC gillnet.
 #' @examples
 #' RICselect()
 #' @importFrom magrittr "%>%"
@@ -19,5 +19,6 @@
 
 RICselect<- function(Length_mm){
   
-  p = fastmatch::fmatch(Length_mm, gn_select_lookup$p)
+  p = select_lookup$p[select_lookup$Length_mm %in% Length_mm]
+  return(p)
 }
