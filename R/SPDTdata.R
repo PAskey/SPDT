@@ -41,7 +41,7 @@ gdf <- idf%>%
   dplyr::summarize(mean_FL = mean(.data$Length_mm, na.rm = TRUE),sd_FL = sd(.data$Length_mm, na.rm = TRUE),
                     mean_wt = mean(Weight_g, na.rm = TRUE), sd_wt = sd(Weight_g, na.rm = TRUE),
                     N = dplyr::n(),
-                    NextXN = sum(NetX),
+                    NetXN = sum(NetX),
                     p_mat = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE)/sum(.data$Maturity != 'UNK', na.rm = TRUE),
                     avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'),
                     avg_rel_date=as.Date(mean(.data$avg_rel_date),format='%d%b%Y'),
@@ -49,18 +49,11 @@ gdf <- idf%>%
                   )%>%
   dplyr::ungroup()
 
-#Add 0 observations into grouped df. DOn't need these actually.
-#gdf <- gdf%>%dplyr::mutate(Lk_yr_age = paste(.data$Lk_yr, "_", .data$Int.Age, sep = ""))
-#Xnew <- Xnew%>%dplyr::mutate(Lk_yr_age = paste(.data$Lk_yr, "_", .data$Int.Age, sep = ""))
-#Xnew = Xnew%>%dplyr::filter(.data$Lk_yr_age %in% gdf$Lk_yr_age)
 
-#add lk_sby?
 gdf = dplyr::full_join(gdf, Xnew, 
                 by = c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip"))%>%
                 dplyr::filter(Clip != "")%>%
-                dplyr::mutate(N = replace(N, is.na(N), 0))#%>%
-                #dplyr::select(-c("Lk_yr_age.x", "Lk_yr_age.y"))%>%
-                #dplyr::mutate_at(c("WBID", "Year", "Lk_yr", "Lk_sby", "Species", "Strain","Genotype",  "Clip"), dplyr::funs(factor(.)))
+                dplyr::mutate(N = replace(N, is.na(N), 0))
 
 idf<<-idf
 gdf<<-gdf
