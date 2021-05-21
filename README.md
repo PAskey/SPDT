@@ -1,5 +1,5 @@
 # SPDT
-A package to support SPDT data analyses. 
+A package to support SPDT data analyses. Source code at: https://github.com/PAskey/SPDT
 
 # Installation
 Install with devtools package from PAskey github account
