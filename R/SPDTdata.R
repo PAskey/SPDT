@@ -8,23 +8,20 @@
 #' "idf" is the individual level data frame, for all clipped fish meeting your filtering selections.
 #' "gdf" is the grouped data frame, for all clipped groups meeting your filtering selections.
 #' Our database will not likely ever have filtered summaries to this level, so this function will be used and updated in to the future.
-#' #Data is filtered by the experimental contrast (Genotype, Strain, SAR) being investigated,
-#' and the performance metric of interest (Growth, Survival, Maturation).
 #'
 #' @title SPDTdata
 #' @name SPDTdata
 #' @keywords SPDT
 #' @export
-#' @param Species species (use standard code in quotations) to select, default is "RB"
-#' @param Contrast contrast of interest can be any of: "Genotype", "Strain", "SAR". Default is "Strain". 
-#' @param Metric Performance metric of interest, can be any of: "Growth" (default), "Survival" or "Maturation"
 #' @examples
+#' #' Must be connected to VPN if working remotely
+#' 
 #' SPDTdata()
 #' @importFrom magrittr "%>%"
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Species = "RB", Contrast = "Strain", Metric = "Growth"){
+SPDTdata <- function(){
 
 linkClips()
   

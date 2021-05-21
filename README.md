@@ -24,6 +24,8 @@ SPDTdata()
 
 # Main functions and uses
 
+  * More detailed explanations of any of the functions below can be founds by typing ?function into the R console. E.g. ?SPDTdata. If you want to see the raw source code for any of the functions type View(function name) e.g. View(SPDTdata). If you would like to make changes of that code, ideally you go to my Github account to get the source code and create a branch with your potential edits.
+
   * **SPDTdata()** The main function to use from the package is SPDTdata(), 
   which will upload all necessary SLD data for SPDT type analyses. The main dataframes of interest are:
   **"idf"**, which is the individual level data frame with a row for each fish, and **"gdf"** which is grouped by
@@ -47,7 +49,7 @@ pvals = RICselect(Fish_lengths)
 #Plot the selectivity function
 plot(pvals~Fish_lengths)
 
-#However, you can access this selectivity funciton directly by simply typing
+#However, you can access this selectivity function directly by simply typing
 select_lookup
 ```
 

@@ -13,11 +13,13 @@
 #' Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
 #' Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 #'
-#' @title SPDTdata
+#' @title linkClips
 #' @name linkClips
-#' @keywords SPDT
+#' @keywords SPDT; clips
 #' @export
 #' @examples
+#' #' Must be connected to VPN if working remotely
+#' 
 #' linkClips()
 #' @importFrom magrittr "%>%"
 #' @importFrom rlang .data

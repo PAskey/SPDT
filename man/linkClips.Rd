@@ -2,7 +2,7 @@
 % Please edit documentation in R/linkClips.R
 \name{linkClips}
 \alias{linkClips}
-\title{SPDTdata}
+\title{linkClips}
 \usage{
 linkClips()
 }
@@ -23,6 +23,9 @@ Lookup tables for integer ages and strain codes are included as part of package 
 Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 }
 \examples{
+#' Must be connected to VPN if working remotely
+
 linkClips()
 }
-\keyword{SPDT}
+\keyword{SPDT;}
+\keyword{clips}

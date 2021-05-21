@@ -3,16 +3,30 @@
 #' This function estimates the relative size-dependent vulnerability of trout to the standard RIC gillnets.
 #' The function is used to multiply observed catches by a multiplier proportional to the fish fork length. 
 #' In the future the selectivity function can be made more robust to account for non-standard combinations of gillnet panels.
-#' Using a simply multiplier to correct for selectivity, only works with good sample sizes, because 0 * anything = 0.
+#' Using a simple multiplier to correct for selectivity only works with good sample sizes, because 0 * anything = 0.
 #' 
 #' 
 #' @title RICselect
-#' @name SPDTdata
-#' @keywords SPDT
+#' @name RICselect
+#' @keywords SPDT; gillnet; selectivity
 #' @export
-#' @param Length_mm an integer or vector of lengths for which to calculate relative probability of capture by RIC gillnet.
+#' @param FLengths an integer or vector of fork lengths in mm for which to calculate relative probability of capture by RIC gillnet.
 #' @examples
-#' RICselect()
+#' Must be connected to VPN if working remotely
+#' 
+#'
+#'#Create a vector of fish lengths from 50 to 650mm
+#'Fish_lengths = c(50:650)
+#'
+#'#Estimate the relative probability of capture for each of the fish lengths
+#'pvals = RICselect(Fish_lengths)
+#'
+#'#Plot the selectivity function
+#'plot(pvals~Fish_lengths)
+#'
+#'#However, you can access this selectivity function directly by simply typing
+#'select_lookup
+#'
 #' @importFrom magrittr "%>%"
 #' @importFrom rlang .data
 #' 
