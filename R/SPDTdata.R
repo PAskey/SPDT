@@ -58,4 +58,8 @@ gdf = dplyr::full_join(gdf, Xnew,
 idf<<-idf
 gdf<<-gdf
 
+#no longer need Xnew from linkClips
+rm(Xnew, envir = .GlobalEnv)
+
+
 }
