@@ -29,28 +29,28 @@ linkClips()
   
   
 idf <- Biological%>%
-          dplyr::filter(!is.na(.data$Clip)&!is.null(.data$Clip)&.data$Clip != "NONE")%>%#remove non-clips
-          dplyr::mutate(NetX = 1/RICselect(Length_mm))
+          dplyr::filter(!is.na(.data$Clip)&!is.null(.data$Clip)&.data$Clip != "NONE")#remove non-clips
+
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
-  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code)%>%
+  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code, .data$N_rel, .data$SAR, .data$avg_rel_date)%>%
   dplyr::summarize(mean_FL = mean(.data$Length_mm, na.rm = TRUE),sd_FL = sd(.data$Length_mm, na.rm = TRUE),
                     mean_wt = mean(Weight_g, na.rm = TRUE), sd_wt = sd(Weight_g, na.rm = TRUE),
                     N = dplyr::n(),
+                    NetX_FL = stats::weighted.mean(.data$Length_mm, .data$NetX, na.rm = TRUE),
+                    NetX_wt = stats::weighted.mean(.data$Weight_g, .data$NetX, na.rm = TRUE),
                     NetXN = sum(NetX),
                     p_mat = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE)/sum(.data$Maturity != 'UNK', na.rm = TRUE),
-                    avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'),
-                    avg_rel_date=as.Date(mean(.data$avg_rel_date),format='%d%b%Y'),
-                    SAR = mean(.data$SAR)#SAR is size at release in grams
+                    avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y')
                   )%>%
   dplyr::ungroup()
 
-
-gdf = dplyr::full_join(gdf, Xnew, 
-                by = c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip"))%>%
+#The only reason for this full_join() is to add in the 0 counts.
+gdf = dplyr::full_join(gdf, Xnew[,c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "Quantity", "g_size")], 
+                by = c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "N_rel"="Quantity", "SAR"="g_size"))%>%
                 dplyr::filter(Clip != "")%>%
-                dplyr::mutate(N = replace(N, is.na(N), 0))
+                dplyr::mutate(N = replace(N, is.na(N), 0), NetXN = replace(NetXN, is.na(NetXN), 0))
 
 idf<<-idf
 gdf<<-gdf

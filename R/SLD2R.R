@@ -197,6 +197,10 @@ Biological <- Biological%>%
                               0.7 > .data$K | 2.2 < .data$K),1,0)
                               )
 
+#Last, let's add an expansion factor for gillnet selectivity
+Biological <- Biological%>%
+                dplyr::mutate(NetX = 1/RICselect(.data$Length_mm))%>%
+                tidyr::replace_na(list(NetX = 1))
 #_______________________________________________________________________________
 #RELEASES
 #Couple minor adjustments

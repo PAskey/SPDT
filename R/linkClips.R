@@ -44,8 +44,8 @@ Releases <- Releases[!(Releases$sby_code==0&Releases$g_size==0),]
 spring_spwn = as.character(expression(ACT, BS, CRS, CT, GR, MG, RB, ST, TR, WCT, WP, WSG))#expression adds quotations to each element
 fall_spwn = as.character(expression(AS, BL, BT, DV, EB, GB, KO, LT, LW))
 
-#age whens is a straight forward calculation
-#In case, when statement, later statements do not replace earlier, so go from specific to general. Basically start with the exceptions
+#INclude age at release when it is a straight forward calculation
+#In "case, when" statement, later statements do not replace earlier, so go from specific to general. Basically start with the exceptions
 Releases <- Releases%>%dplyr::mutate(
                               Int.Age = dplyr::case_when(
                                 #there are a few specific cases where we know age for sure just based on the age description, but only a few (some are not accurate)
@@ -70,7 +70,7 @@ Releases <- Releases%>%dplyr::mutate(
 #Expand releases dataframe into future, so we create a row of data for each potential age that a release group may exist in a lake
 #All possible lake_years where a given release may be observed "xage" years into the future
 
-maxxage = 6#the max age you expect to retreive stocked fish.
+maxxage = 6#the max age you expect to retrieve stocked fish.
 X <- Releases#Set up starting dataframe X for loop
 Xnew <- NULL#Add an additional dataframe for each year projected
 #Loop thru each projected year and append updated dataframe rows (mostly repeated data, except for age, year and lake_year)
@@ -99,7 +99,7 @@ Biological$Clip[Biological$Clip == "NONE"]<-NA
 Xnew$Clip[Xnew$Clip == ""]<-NA
 
 #How many clips are unique so that age does not need to be known?
-#Group release data by lake, year, species, clip to create a summary
+#Group release data by lake, year, species, clip to create a summary (this will allow for replacing erroneous ages)
 #of potential stocking records that could be assigned to those grouping variables (ideally just one - if unique clip or consistent stocking prescription)
 clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$Clip)%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
@@ -107,6 +107,7 @@ clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$
                                     n_sry = length(unique(.data$Year)), #number of release years
                                     nStrains = length(unique(.data$Strain)), #number of Strains
                                     nGenos = length(unique(.data$Genotype)), #number of genotypes
+                                    cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
                                     clipStrains = paste(unique(.data$Strain), collapse = ","),
                                     clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                     clipAges = paste(unique(.data$Int.Age), collapse = ","),
@@ -145,12 +146,13 @@ clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$
                                   n_sry = length(unique(.data$Year)), #number of release years
                                   nStrains = length(unique(.data$Strain)), #number of Strains
                                   nGenos = length(unique(.data$Genotype)),
+                                  cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
                                   clipStrains = paste(unique(.data$Strain), collapse = ","),
                                   clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                   clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                   clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                   N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calcualte number released if unique group
-                                  SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calcualte mean weight released if unique group
+                                  SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight released if unique group
                                   avg_rel_date = mean(.data$rel_Date))%>%
                         dplyr::ungroup()
 
@@ -166,19 +168,20 @@ Biological = rbind(Bio_unique, Biounaged, Bioaged)
 #OK NOW HAVE CLIP BASED RELEASES DATA.
 #THE ONY THING MAYBE NOT 100% ACCURATE WOULD BE FV BECASUE OF THEIR WEIRD BROOD YEARS
 
-#Now for all cases where the clip makes strain, genotype, or age unique, then insert and/or replace values in those columns. In the case of age, put clip as aeg method.
+#Now for all cases where the clip makes strain, genotype, or age unique, then insert and/or replace values in those columns. In the case of age, put clip as age method.
 
 #Add data where a single possible outcome from clip information. This does not currently attempt to correct erroneous ages, and only infills NA values in that case.
 Biological<-suppressWarnings(Biological%>%
   dplyr::mutate(
-  #Int.Age = replace(.data$Int.Age, .data$n_sby == 1L&is.na(.data$Int.Age)&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges)),
   sby_code = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
   Int.Age = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
   Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
-  Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
+  #Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
+  #Because of known cases of mix of AF and 2N with same clip but recorded as one in data (see Premier 2014), replace data clips with true mix
+  Genotype = dplyr::if_else(!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   ))
-#I think the warning NA introduced by coercion can safely be ignored form google research. There are less NA values at the end of this code than when started.
-#suppressWarnings() must wrape everything, otherwise does not run, and warning is suppressed
+#I think the warning NA introduced by coercion can safely be ignored from google research. There are less NA values at the end of this code than when started.
+#suppressWarnings() must wrap everything, otherwise does not run, and warning is suppressed
 
 #remove all data columns that are just tallies, and othe rcolumns not needed for growth/survival data analysis
 Biological<-Biological%>%dplyr::select(-c(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos, .data$Scale, .data$Otolith, .data$DNA_ID, .data$ATUS, .data$Family_Group))
