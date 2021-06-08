@@ -41,22 +41,38 @@ gdf <- idf%>%
                     NetX_FL = stats::weighted.mean(.data$Length_mm, .data$NetX, na.rm = TRUE),
                     NetX_wt = stats::weighted.mean(.data$Weight_g, .data$NetX, na.rm = TRUE),
                     NetXN = sum(NetX),
-                    p_mat = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE)/sum(.data$Maturity != 'UNK', na.rm = TRUE),
-                    avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y')
+                    p_mat = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE)/sum(.data$Maturity != 'UNK', na.rm = TRUE)
                   )%>%
   dplyr::ungroup()
 
 #The only reason for this full_join() is to add in the 0 counts.
-gdf = dplyr::full_join(gdf, Xnew[,c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "Quantity", "g_size")], 
-                by = c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "N_rel"="Quantity", "SAR"="g_size"))%>%
-                dplyr::filter(Clip != "")%>%
-                dplyr::mutate(N = replace(N, is.na(N), 0), NetXN = replace(NetXN, is.na(NetXN), 0))
+#gdf = dplyr::full_join(gdf, Xnew[,c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "Quantity", "g_size")], 
+#                by = c("Waterbody_Name", "WBID", "Year", "Lk_yr", "Int.Age", "Species", "Strain","Genotype", "sby_code", "Clip", "N_rel"="Quantity", "SAR"="g_size"))%>%
+#                dplyr::filter(Clip != "")%>%
+#                dplyr::mutate(N = replace(N, is.na(N), 0), NetXN = replace(NetXN, is.na(NetXN), 0))
+
+
+#Using clipsum instead should keep release date and sample date and better cross reference when multiple release ids for one release group.
+clipsum<-clipsum%>%filter(n_sby == 1)%>%mutate(clipsbys = as.integer(clipsbys))
+
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "avg_rel_date")], 
+                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
+  dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
+  dplyr::mutate(N = replace(N, is.na(N), 0), 
+                NetXN = replace(NetXN, is.na(NetXN), 0),
+                avg_rel_date = max(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE))%>%
+  dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
+
+#A lookup to add in average sampling date for each lake year.
+quick_Lu <-idf%>%group_by(Lk_yr)%>%summarize(avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'))%>%ungroup()
+
+gdf = left_join(gdf, quick_Lu, by = c("Lk_yr"))
+
+
+
 
 idf<<-idf
 gdf<<-gdf
-
-#no longer need Xnew from linkClips
-rm(Xnew, envir = .GlobalEnv)
 
 
 }

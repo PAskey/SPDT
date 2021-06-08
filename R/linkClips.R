@@ -101,7 +101,10 @@ Xnew$Clip[Xnew$Clip == ""]<-NA
 #How many clips are unique so that age does not need to be known?
 #Group release data by lake, year, species, clip to create a summary (this will allow for replacing erroneous ages)
 #of potential stocking records that could be assigned to those grouping variables (ideally just one - if unique clip or consistent stocking prescription)
-clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$Clip)%>%
+
+group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip")
+
+clipsum <- Xnew%>%dplyr::group_by(!!!syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                    n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
                                     n_sry = length(unique(.data$Year)), #number of release years
@@ -126,21 +129,23 @@ Uniqueclips <-clipsum%>%
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
 #It is known that there are at least some cases where clipped fish have the wrong age entered (See Englishman Lake)
 #That is why we first do a join with all the data regardless of whether age is entered, and then fill out the rest for just unaged fish
-Bio_unique = dplyr::inner_join(Biological, Uniqueclips, by = c("WBID", "Lk_yr", "Species", "Clip"))
+Bio_unique = dplyr::inner_join(Biological, Uniqueclips, by = group_cols)
 
 #We create a subset of the Biological data without these uniquely assigned individuals to continue refining
 Biosub = dplyr::anti_join(Biological, Bio_unique, by = colnames(Biological))
 
 Biounaged = Biosub%>%dplyr::filter(is.na(.data$Int.Age))#All of the unaged fish that do not have unique group can at least be linked with possibilities
 
-Biounaged = dplyr::left_join(Biounaged, clipsum, by = c("WBID", "Lk_yr", "Species", "Clip"))
+Biounaged = dplyr::left_join(Biounaged, clipsum, by = group_cols)
 
 Bioaged = Biosub%>%dplyr::filter(!is.na(.data$Int.Age))
 
 #Also could possibly add ages from clips if there is a gap of 1 year or more between just 2 or 3 possible ages
 
-#New clip summary that includes ages as a grouping variable
-clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$Clip, .data$Int.Age)%>%
+#New (overwriting) clip summary that includes ages as a grouping variable
+group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip", "Int.Age")
+
+clipsum <- Xnew%>%dplyr::group_by(!!!syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                   n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
                                   n_sry = length(unique(.data$Year)), #number of release years
@@ -159,7 +164,7 @@ clipsum <- Xnew%>%dplyr::group_by(.data$WBID, .data$Lk_yr, .data$Species, .data$
 
 #Now we can match these to Biological data that had ages whether cases are unique or not.
 #in non-unique cases it will list potential options.
-Bioaged = dplyr::left_join(Bioaged, clipsum, by = c("WBID", "Lk_yr", "Species", "Clip", "Int.Age"))
+Bioaged = dplyr::left_join(Bioaged, clipsum, by = group_cols)
 
 #We now have three different data sub sets that add up to the same total records as Biological
 
@@ -193,6 +198,6 @@ Lakes<<-Lakes[Lakes$WBID%in%Biological$WBID,]
 Nets<<-Nets[Nets$Assessment_Key%in%Biological$Assessment_Key,]
 Biological<<-Biological
 Releases<<-Releases
-Xnew<<-Xnew
+clipsum<<-clipsum
 
 }
