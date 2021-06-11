@@ -104,7 +104,7 @@ Xnew$Clip[Xnew$Clip == ""]<-NA
 
 group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip")
 
-clipsum <- Xnew%>%dplyr::group_by(!!!syms(group_cols))%>%
+clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                    n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
                                     n_sry = length(unique(.data$Year)), #number of release years
@@ -145,7 +145,7 @@ Bioaged = Biosub%>%dplyr::filter(!is.na(.data$Int.Age))
 #New (overwriting) clip summary that includes ages as a grouping variable
 group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip", "Int.Age")
 
-clipsum <- Xnew%>%dplyr::group_by(!!!syms(group_cols))%>%
+clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                   n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
                                   n_sry = length(unique(.data$Year)), #number of release years

@@ -53,7 +53,9 @@ gdf <- idf%>%
 
 
 #Using clipsum instead should keep release date and sample date and better cross reference when multiple release ids for one release group.
-clipsum<-clipsum%>%filter(n_sby == 1)%>%mutate(clipsbys = as.integer(clipsbys))
+clipsum<-clipsum%>%
+  dplyr::filter(n_sby == 1)%>%
+  dplyr::mutate(clipsbys = as.integer(clipsbys))
 
 gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "avg_rel_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
@@ -64,9 +66,11 @@ gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year"
   dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
 
 #A lookup to add in average sampling date for each lake year.
-quick_Lu <-idf%>%group_by(Lk_yr)%>%summarize(avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'))%>%ungroup()
+quick_Lu <-idf%>%dplyr::group_by(Lk_yr)%>%
+  dplyr::summarize(avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'))%>%
+  dplyr::ungroup()
 
-gdf = left_join(gdf, quick_Lu, by = c("Lk_yr"))
+gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr"))
 
 
 

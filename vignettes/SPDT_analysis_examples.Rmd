@@ -1,0 +1,275 @@
+---
+title: "SPDT analysis examples"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SPDT analysis examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(knitr)
+library(formatR)
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+
+```
+
+## Getting Started
+
+See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. ONce installed use following code make tha package available for use.
+
+```{r setup}
+library(SPDT)
+```
+
+OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips>
+
+```{r}
+SPDTdata()
+```
+
+This creates several different data frames that may be of use for data analyses. Most of the data frames are simply cleaned and standardized versions of tables already existing in the SLD. However, two tables that are a bit more refined are "idf" which is the "individual data frame" resulting form the SLD Biological table and "gdf" (grouped data frame) which summarizes the individual data by the stocking group (same brood year, lake, year, clip, etc.), which is the typical unit of measurement for SPDT when looking at survival, etc. To see how we use these tables, let's take an example data set and analyze it. 
+
+Data for further analyses could be extracted many ways, e.g. by strain, species, lake type, etc. and can include historical contrasts that might not have been in your original experiment. As an example lets extract all the grouped data associated with the 3 gram fry experiments.
+
+## Example: Using 3g fry experimental data and the SPDT grouped data frame (gdf)
+
+The grouped data frame produced by SPDT summarizes the total number and average sizes for a given stocking group. There are several columns preceded by "NetX". **NetX before any field name means that column has been expanded to correct for gillnet selectivity.** 
+
+ONe way to get the subset of data form the fry experiments is to create a vector of the lake-years from the experiments, and filter the data set to only include data from those years.
+
+```{r}
+#Vector of fry experiment lake years
+fry_lks <- c("00607THOM_2018", "00607THOM_2019", "00492OKAN_2018", "00072STHM_2018", "00072STHM_2019", "01602OKAN_2018", "01602OKAN_2019", "00719THOM_2018", "00719THOM_2019", "00512SIML_2018", "00714SIML_2018", "00714SIML_2019","01308LNTH_2018", "01308LNTH_2019", "01248KETL_2019")
+
+```
+
+The 3 gram fry experiments co-stocked several sizes of fry and standard yearling size in different combinations across different lakes. In other words these were "size-at-release" experiments, and the **size at release in grams is included in the data sets under the field name "SAR"**. 
+
+Although SAR is a continuous variable, the experimental design was to create categories of fish sizes: 1g, 2g, 3g and yearling (8g). If we treat SAR as continuous, then we have to either assume survival is a linear function of size (highly unlikely), or create a custom non-linear function based on theory about size-dependent survival. Another option, is to just treat the release size categories as factors and make no assumptions about the functional relationship. This option is most straight forward (so we will use it here), although it has the downside of not allowing predictions for intermediate sizes that were not tested.
+
+We can create a new data frame column that groups release sizes that are approximately the same (group as 1,2,3 and 8g classes). **We will call these size-at-release categories "SAR_cat".**
+
+Let's apply these filters and categories to create a data set that might be useable in a glm type analysis. To do this we create a factor variable of the release categories, and we round the expanded NetXN to an integer, since some distributions for count data (binomial, negative binomial will require a whole number).
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)#For data manipulation and plotting
+
+glmdata = gdf%>%
+  filter(Lk_yr%in%fry_lks)%>%
+  mutate(SAR_cat = factor(FSA::lencat(plyr::round_any(SAR,1),breaks = c(0.5,1,1.5,2,2.5,3,4,5,6,8,10,15,20,30,40,50,75,100))),
+         NetXN = round(NetXN,0))
+#Note some extra release categories were included in case we add other data later(60g data)
+```
+
+##  Plotting raw data
+
+OK, now let's go ahead and plot the data. There are many, many ways to look at the data. Here we are just trying to keep it simple. In the most simple sense, we are stocking different products to provide the most and best quality recruits to the fishery possible. Recruits for BC small lakes fisheries are most typically age-2 fish. Age-2s typically recruit to being caught half way through the growing season.
+
+```{r fig.width = 7, warning = FALSE}
+
+plotdata <-glmdata%>%filter(Int.Age==2)
+#Note some ages are missing on Rampart despite having clips. #It looks like this is because correct clips are not entered into Paris/Releases table.
+
+#The RIC selectivity corrected abundances
+p1 = ggplot(plotdata, aes(x = Waterbody_Name, y = NetXN, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
+  geom_point(position = position_dodge(0.5), aes(size = SAR_cat))+
+  scale_shape_manual(values = c(21:24))+
+  scale_size_manual(values = c(3,3.5,4,5))+
+  scale_y_continuous(trans = 'log2')+
+  guides(fill=FALSE)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#The RIC selectivity corrected sizes
+p2 = ggplot(plotdata, aes(x = Waterbody_Name, y = NetX_wt, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
+  geom_point(position = position_dodge(0.5), aes(size = SAR_cat))+
+  scale_size_manual(values = c(3,3.5,4,5))+
+    geom_errorbar(aes(ymin=NetX_wt-sd_wt, ymax=NetX_wt+sd_wt), width=.2,
+                 position=position_dodge(.5))+
+  scale_shape_manual(values = c(21:24))+
+  guides(fill=FALSE)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Note p1 has a log2 y axis scaling to mainly account for an apparently very large catch of age-2 yearlings in Duffy.
+p1
+p2
+
+```
+
+In general we can see things came out as we might expect. There were always as many or more age-2s caught from groups that were released at a larger size than another group. Size we not as clearly different, as we also might expect fish catch up after two years in a lake. HOwever, as is often the case, we can spot some errors in the data. The notable standout is Duffy. In the upper plot, there ware very many more yearlings captures, which isn't a concern on it's own, but then when we look at the average weight of that group, we see the difference just isn't possible. So what is the issue? Reviewing the raw data it is possible to see that the same clips for 2s (AD) were also released 8 years earlier. Therefore, at least some (or one) of these extremely large "Age-2s" are actually age-8s (they are AF3N). The error is due to the age actually being entered as 2 in some cases, but the current code to match clips to ages would probably make this error as well, since the others are 8 years old and would not be considered.
+
+**Recommendation: Before using SPDTdata() to do reporting and analysis for a specific experiment, review the raw data in SLD Biological to ensure that all possible clip based ages have been correctly entered.**
+
+For now we will just continue to push forward, because correcting the errors here with code will not deal with the source issue anyways. This vignette can be updated once the errors have been addressed.
+
+## Analaysis of recruits per stocking prescription
+
+Probably the most fundamental analysis we want to know from stocking experiments is (relatively) how many and how big are the fishery recruits that result from a given stocking prescription. As mentioned above this is the age-2 cohort.
+
+Let's do some glm type stats that test this. However, instead of a standard glm we will do a mixed model that allows for random effects for lake-years. I have done these tests with regular glm as well, and it doesn't make much difference to the estimates, but the mixed model approach seems to be more appropriate for the random effects associated with different lake years, but you can look this up on your own to check for yourself.
+
+First lets lokk at the relative abndance of age-2s stocked at different sizes.
+
+```{r warning = FALSE, message = FALSE}
+library(lme4)
+
+#NOte there is some tehcnical jargon after "control=" in the model call below that is not noramlly needed. I set up an optimizer that is non-default due to a non-convergence warning that appeared. After reviewing it wasan't a serious issue, but I changed anyways.
+#I followed the tips at: https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html
+
+#Fit the model
+model = glmer.nb(NetXN ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata, control=glmerControl(optimizer="nlminbwrap", optCtrl=list(maxfun=1e5)))
+
+#Display results
+summary(model)
+
+
+```
+
+
+OK, so we have a model fit and and all the parameter estiamtes for the different size at release groups. We can use the package sjPlot to quickly plot results in an intuitive visual format.
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+sjPlot::plot_model(model, type = "pred", terms = "SAR_cat")+
+  theme_classic()
+```
+
+
+We can also get the data they use to make the plot.
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+
+sjPlot::get_model_data(model, type = "pred")
+
+
+#and store as a data frame
+ests = data.frame(sjPlot::get_model_data(model, type = "pred"))
+ests = ests%>%rename("SAR_cat"= SAR_cat.x)%>%dplyr::select(1:5)
+```
+
+
+One thing that production staff and biologists would be most interested in, is how many extra fry must be stocked to lead to an equivalent fishery as stocking yearlings (or vice-versa). For the types of lakes where these experiments we conducted (monoculture lakes) we can summarize that as follows.
+
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+
+ests = ests%>%mutate( 
+                     fry.1g_equivalents = SAR_cat.predicted[SAR_cat==1]/SAR_cat.predicted,
+                     fry.2g_equivalents = SAR_cat.predicted[SAR_cat==2]/SAR_cat.predicted,
+                     fry.3g_equivalents = SAR_cat.predicted[SAR_cat==3]/SAR_cat.predicted,
+                     yrlg.8g_equivalents = SAR_cat.predicted[SAR_cat==8]/SAR_cat.predicted
+                     )
+
+
+```
+
+
+Create a nice html table of results that summarizes the relative number of fish needed to stock (a coefficient/expansion factor) to acheive the same number of age-2s as would have been expected for the benchmark size. 
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+library(kableExtra)
+table = ests%>%dplyr::select(1,6:9)
+
+table %>%
+  kbl(align = "c", digits = 2) %>%
+  kable_paper(full_width = T)
+
+
+```
+
+
+## Analysis of the size of recruits
+
+We can essentially replicate the analysis above, but looking at the size instead of numbers of fish. In this case we are not working with count data and do not need a negative binomial model, just a regular lmer will do.
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+#Start looking at lengths
+model= lmer(NetX_FL ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata)
+
+
+summary(model)
+
+
+sjPlot::plot_model(model, type = "pred", terms = "SAR_cat")+theme_classic()
+
+#Now look at weights
+model= lmer(NetX_wt ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata)
+
+
+summary(model)
+
+
+sjPlot::plot_model(model, type = "pred", terms = "SAR_cat")+theme_classic()
+
+
+```
+
+
+Really nothing too interesting on the size front. Seems like for the most part that different size at release doesn't lead to much size difference by age-2. There is a lot of variation within a group. A better way to look at this is just model on the individual level data directly. For simplicity, we will leave it out of here for now.
+
+##  Does release stage or size impact the maturation rate?
+
+Lastly, let's do a quick check on maturity. Since these are AF3N fish we wouldn't expect this to be too interesting, but worth a check...
+
+```{r fig.width = 7, warning = FALSE, message = FALSE}
+
+model= glmer(p_mat ~ (1|Lk_yr) + 0 + SAR_cat, family = binomial, weights = N, data = plotdata)
+
+summary(model)
+
+sjPlot::plot_model(model, type = "pred", terms = "SAR_cat")+theme_classic()
+
+sjPlot::get_model_data(model, type = "pred")
+
+```
+
+Indeed very few fish are maturing and there is no obvious link between the release size or stage and the maturation rates observed.
+
+## Conclusions
+
+This quick review of the grouped fry data seems to provide some pretty good guidance on stocking rates at different sizes (**although there are known errors in the data set which may have some influence**). Production staff can look at the expansion factors for stocking rate equivalents to see if holding fish is cost effective. Intuitively, it looks like holding fish is generally more efficient, but water, capacity and timing logisitics are all other factors that might come into play.
+
+
+```{r include = FALSE, echo = FALSE, eval = FALSE}
+
+model@optinfo[c("optimizer","control")]
+
+# A bunch of tips when convergence not occurring from: https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html
+
+tt <- getME(model,"theta")
+ll <- getME(model,"lower")
+min(tt[ll==0])
+
+library(afex)
+aa <- allFit(model)
+
+is.OK <- sapply(aa,is,"merMod")  ## nlopt NELDERMEAD failed, others succeeded
+aa.OK <- aa[is.OK]
+lapply(aa.OK,function(x) x@optinfo$conv$lme4$messages)
+
+(lliks <- sort(sapply(aa.OK,logLik)))
+
+library(reshape2)
+aa.fixef <- t(sapply(aa.OK,fixef))
+aa.fixef.m <- melt(aa.fixef)
+models <- levels(aa.fixef.m$Var1)
+ylabs <- substr(models,1,3)
+aa.fixef.m <- transform(aa.fixef.m,Var1=factor(Var1,levels=names(lliks)))
+(gplot1 <- ggplot(aa.fixef.m,aes(x=value,y=Var1,colour=Var1))+geom_point()+
+     facet_wrap(~Var2,scale="free")+
+         scale_colour_brewer(palette="Dark2")+
+             scale_y_discrete(breaks=models,
+                              labels=ylabs)+
+                                  labs(x="",y=""))
+
+
+summary(unlist(plyr::daply(aa.fixef.m,"Var2",summarise,sd(value)/abs(mean(value)))))
+
+```
+
