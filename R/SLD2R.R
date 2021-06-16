@@ -211,8 +211,18 @@ Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!=""
 Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake brood year and lake stocking year grouping variables that can match Biological
 Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
-                                    Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")  
+                                    Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
                                       )
+
+#_______________________________________________________________________________
+#NETS
+#Similar minor adjustments
+
+
+#Create column for sampleyear
+Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
+#Add in lake-year that can match Biological and Releases
+Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
 
 #_______________________________________________________________________________
 #Use droplevels() to make sure not retaining any factor levels that are no longer in use after filtering steps above

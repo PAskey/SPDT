@@ -4,7 +4,15 @@
 \alias{SPDTdata}
 \title{SPDTdata}
 \usage{
-SPDTdata()
+SPDTdata(Spp = NULL, Strains = NULL, Contrast = NULL)
+}
+\arguments{
+\item{Spp}{a character string or character vector for BC species code. This will filter data to only that species.}
+
+\item{Contrast}{a character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
+Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.}
+
+\item{Strain}{a character string or character vector describing the strain code (SPDTdata format) for source population. This will filter to only those strains listed}
 }
 \description{
 A function to filter and format SLD data to cases with clipped experimental stocking groups. 
@@ -17,10 +25,32 @@ This function returns the data tables from linkClips, plus new refined data sets
 "idf" is the individual level data frame, for all clipped fish meeting your filtering selections.
 "gdf" is the grouped data frame, for all clipped groups meeting your filtering selections.
 Our database will not likely ever have filtered summaries to this level, so this function will be used and updated in to the future.
+
+Several new columns are present. Anything prefixed by "NetX" means that variable has been expanded to account for gillnet selectivity.
+SAR if for size-at-release in grams, and SAR_cat has categorized those release sizes.
+The code creating categories for the SAR_cat has bigger categories as the size increases and is as follows:
+
+dplyr::mutate(SAR_cat = dplyr::case_when(SAR<=6 ~ plyr::round_any(SAR,1),
+                                        SAR>6&SAR<=14.5 ~ plyr::round_any(SAR,2),
+                                        SAR>14.5&SAR<=27.5 ~ plyr::round_any(SAR,5),
+                                        SAR>27.5&SAR<65 ~ plyr::round_any(SAR,10),
+                                        TRUE ~ plyr::round_any(SAR, 25))
+You could create our own categorical system and column if needed
 }
 \examples{
-#' Must be connected to VPN if working remotely
+#Must be connected to VPN if working remotely
 
+#Download all data with clipped fish
 SPDTdata()
+
+#Download only KO data
+SPDTdata(Spp = "KO")
+
+#Download any data from RB, of either HF, CL or BW strain that were stocked as a strain comparison
+SPDTdata(Spp = "RB", Strains = c("HF", "CL", "BW"), Contrast = "Strain")
+
+#Download all data from lake years that had a size-at-release comparison for RB
+SPDTdata(Spp = "RB", Contrast = "SAR_cat")
+
 }
 \keyword{SPDT}

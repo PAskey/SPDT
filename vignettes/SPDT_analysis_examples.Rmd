@@ -21,7 +21,7 @@ opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 
 ## Getting Started
 
-See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. ONce installed use following code make tha package available for use.
+See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. Once installed use following code to load the package for use.
 
 ```{r setup}
 library(SPDT)
@@ -55,12 +55,12 @@ Although SAR is a continuous variable, the experimental design was to create cat
 
 We can create a new data frame column that groups release sizes that are approximately the same (group as 1,2,3 and 8g classes). **We will call these size-at-release categories "SAR_cat".**
 
-Let's apply these filters and categories to create a data set that might be useable in a glm type analysis. To do this we create a factor variable of the release categories, and we round the expanded NetXN to an integer, since some distributions for count data (binomial, negative binomial will require a whole number).
+Let's apply these filters and categories to create a data set that might be usable in a glm type analysis. To do this we create a factor variable of the release categories, and we round the expanded NetXN to an integer, since analysis of count data (binomial, negative binomial) will require a whole number.
 
 ```{r warning = FALSE, message = FALSE}
 library(tidyverse)#For data manipulation and plotting
 
-glmdata = gdf%>%
+frydata = gdf%>%
   filter(Lk_yr%in%fry_lks)%>%
   mutate(SAR_cat = factor(FSA::lencat(plyr::round_any(SAR,1),breaks = c(0.5,1,1.5,2,2.5,3,4,5,6,8,10,15,20,30,40,50,75,100))),
          NetXN = round(NetXN,0))
@@ -73,11 +73,11 @@ OK, now let's go ahead and plot the data. There are many, many ways to look at t
 
 ```{r fig.width = 7, warning = FALSE}
 
-plotdata <-glmdata%>%filter(Int.Age==2)
+age2data <-frydata%>%filter(Int.Age==2)
 #Note some ages are missing on Rampart despite having clips. #It looks like this is because correct clips are not entered into Paris/Releases table.
 
 #The RIC selectivity corrected abundances
-p1 = ggplot(plotdata, aes(x = Waterbody_Name, y = NetXN, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
+p1 = ggplot(age2data, aes(x = Waterbody_Name, y = NetXN, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
   geom_point(position = position_dodge(0.5), aes(size = SAR_cat))+
   scale_shape_manual(values = c(21:24))+
   scale_size_manual(values = c(3,3.5,4,5))+
@@ -87,7 +87,7 @@ p1 = ggplot(plotdata, aes(x = Waterbody_Name, y = NetXN, group = Lk_yr, fill = L
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #The RIC selectivity corrected sizes
-p2 = ggplot(plotdata, aes(x = Waterbody_Name, y = NetX_wt, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
+p2 = ggplot(age2data, aes(x = Waterbody_Name, y = NetX_wt, group = Lk_yr, fill = Lk_yr, shape = SAR_cat))+
   geom_point(position = position_dodge(0.5), aes(size = SAR_cat))+
   scale_size_manual(values = c(3,3.5,4,5))+
     geom_errorbar(aes(ymin=NetX_wt-sd_wt, ymax=NetX_wt+sd_wt), width=.2,
@@ -124,7 +124,7 @@ library(lme4)
 #I followed the tips at: https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html
 
 #Fit the model
-model = glmer.nb(NetXN ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata, control=glmerControl(optimizer="nlminbwrap", optCtrl=list(maxfun=1e5)))
+model = glmer.nb(NetXN ~ (1|Lk_yr) + 0 + SAR_cat, data = age2data, control=glmerControl(optimizer="nlminbwrap", optCtrl=list(maxfun=1e5)))
 
 #Display results
 summary(model)
@@ -190,7 +190,7 @@ We can essentially replicate the analysis above, but looking at the size instead
 
 ```{r fig.width = 7, warning = FALSE, message = FALSE}
 #Start looking at lengths
-model= lmer(NetX_FL ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata)
+model= lmer(NetX_FL ~ (1|Lk_yr) + 0 + SAR_cat, data = age2data)
 
 
 summary(model)
@@ -199,7 +199,7 @@ summary(model)
 sjPlot::plot_model(model, type = "pred", terms = "SAR_cat")+theme_classic()
 
 #Now look at weights
-model= lmer(NetX_wt ~ (1|Lk_yr) + 0 + SAR_cat, data = plotdata)
+model= lmer(NetX_wt ~ (1|Lk_yr) + 0 + SAR_cat, data = age2data)
 
 
 summary(model)
@@ -219,7 +219,7 @@ Lastly, let's do a quick check on maturity. Since these are AF3N fish we wouldn'
 
 ```{r fig.width = 7, warning = FALSE, message = FALSE}
 
-model= glmer(p_mat ~ (1|Lk_yr) + 0 + SAR_cat, family = binomial, weights = N, data = plotdata)
+model= glmer(p_mat ~ (1|Lk_yr) + 0 + SAR_cat, family = binomial, weights = N, data = age2data)
 
 summary(model)
 
@@ -229,11 +229,11 @@ sjPlot::get_model_data(model, type = "pred")
 
 ```
 
-Indeed very few fish are maturing and there is no obvious link between the release size or stage and the maturation rates observed.
+Indeed very few fish are maturing and there is no obvious link between the release size or stage and the maturation rates observed. ONly 3 lake-years had fish released at 1g and in total only 1 or 2 of those fish were recaptured in each of the lakes. That is why the error is so wide.
 
 ## Conclusions
 
-This quick review of the grouped fry data seems to provide some pretty good guidance on stocking rates at different sizes (**although there are known errors in the data set which may have some influence**). Production staff can look at the expansion factors for stocking rate equivalents to see if holding fish is cost effective. Intuitively, it looks like holding fish is generally more efficient, but water, capacity and timing logisitics are all other factors that might come into play.
+This quick review of the grouped fry data seems to provide some pretty good guidance on stocking rates at different sizes (**although there are known errors in the data set which may have some influence**). Production staff can look at the expansion factors for stocking rate equivalents to see if holding fish is cost effective. Intuitively, it looks like holding fish is generally more efficient, but water, capacity and timing logistics are all other factors that might come into play.
 
 
 ```{r include = FALSE, echo = FALSE, eval = FALSE}
