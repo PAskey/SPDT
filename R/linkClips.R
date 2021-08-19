@@ -116,7 +116,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                     clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                     N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calculate number released if unique group
-                                    SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight released if unique group
+                                    SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
+                                    cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                     avg_rel_date = mean(.data$rel_Date))%>%
                         dplyr::ungroup()
 
@@ -158,6 +159,7 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                   clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                   N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calcualte number released if unique group
                                   SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight released if unique group
+                                  cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                   avg_rel_date = mean(.data$rel_Date))%>%
                         dplyr::ungroup()
 
@@ -188,7 +190,7 @@ Biological<-suppressWarnings(Biological%>%
 #I think the warning NA introduced by coercion can safely be ignored from google research. There are less NA values at the end of this code than when started.
 #suppressWarnings() must wrap everything, otherwise does not run, and warning is suppressed
 
-#remove all data columns that are just tallies, and othe rcolumns not needed for growth/survival data analysis
+#remove all data columns that are just tallies, and other columns not needed for growth/survival data analysis
 Biological<-Biological%>%dplyr::select(-c(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos, .data$Scale, .data$Otolith, .data$DNA_ID, .data$ATUS, .data$Family_Group))
 #Update Lk_sby with new age info.
 Biological$Lk_sby = paste(paste(Biological$WBID,"_",Biological$sby_code, sep = ""))

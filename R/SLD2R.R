@@ -96,8 +96,15 @@ Releases <- Releases%>%dplyr::rename(WBID = .data$loc_msrm_waterbody_identifier,
 #Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
 Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biological$WBID)]
 
+#Data entry error for Duffy and Harper in Biological fix for now
+Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
+
 #To fix alternate codes for same thing change all Biological to "AF" because Releases uses "AF"
 Biological$Genotype[Biological$Genotype == "AF2N"] = "AF"
+
+#Also seems to be an error with redside shiners being coded incorrectly as RSS
+Biological$Species[Biological$Species == "RSS"] = "RSC"
+Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
 
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
 
@@ -199,7 +206,9 @@ Biological <- Biological%>%
 
 #Last, let's add an expansion factor for gillnet selectivity
 Biological <- Biological%>%
-                dplyr::mutate(NetX = 1/RICselect(.data$Length_mm))%>%
+                dplyr::mutate(NetX = ifelse(
+                  .data$Capture_Method == "GN",
+                  1/RICselect(.data$Length_mm),1))%>%
                 tidyr::replace_na(list(NetX = 1))
 #_______________________________________________________________________________
 #RELEASES

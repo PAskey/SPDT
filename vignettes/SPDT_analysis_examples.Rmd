@@ -113,7 +113,7 @@ For now we will just continue to push forward, because correcting the errors her
 
 Probably the most fundamental analysis we want to know from stocking experiments is (relatively) how many and how big are the fishery recruits that result from a given stocking prescription. As mentioned above this is the age-2 cohort.
 
-Let's do some glm type stats that test this. However, instead of a standard glm we will do a mixed model that allows for random effects for lake-years. I have done these tests with regular glm as well, and it doesn't make much difference to the estimates, but the mixed model approach seems to be more appropriate for the random effects associated with different lake years, but you can look this up on your own to check for yourself.
+Let's do some glm type stats that test this. However, instead of a standard glm we will do a mixed model that allows for random effects for lake-years. I have done these tests with regular glm as well, and it doesn't make much difference to the estimates. The mixed model approach seems to be more appropriate for the random effects associated with different lake years, but you can look this up on your own to check for yourself.
 
 First lets lokk at the relative abndance of age-2s stocked at different sizes.
 

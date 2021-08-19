@@ -91,7 +91,7 @@ clipsum<-clipsum%>%
   dplyr::filter(n_sby == 1)%>%
   dplyr::mutate(clipsbys = as.integer(clipsbys))
 
-gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "avg_rel_date")], 
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
   dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
   dplyr::mutate(N = replace(N, is.na(N), 0), 
@@ -107,7 +107,7 @@ quick_Lu <-idf%>%dplyr::group_by(Lk_yr)%>%
 gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr"))
 
 
-
+#Not sure why I repeated SAR_cat code twice back here instead of once up front?
 idf <- idf%>%
   dplyr::mutate(SAR_cat = dplyr::case_when(SAR<=6 ~ plyr::round_any(SAR,1),
                                 SAR>6&SAR<=14.5 ~ plyr::round_any(SAR,2),
@@ -126,7 +126,7 @@ gdf <- gdf%>%
   )
   )
 
-#Sections to pull specific cnotrast years
+#Sections to pull specific contrast years
 if (!is.null(Contrast)) {
 
 Contrast_possible = c("Genotype", "SAR_cat", "Strain")
