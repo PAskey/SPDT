@@ -32,7 +32,7 @@ ch <- RODBC::odbcDriverConnect('driver={SQL Server};server=FFSBCSQL06;
                         DSN=SMALL_LAKES-TEST;DATABASE=SMALL_LAKES-TEST;
                         Trusted_Connection=TRUE')
 
-Assessments<<-RODBC::sqlFetch(ch, "ffsbc.vw_Assessment_Summary")
+Assessments<-RODBC::sqlFetch(ch, "ffsbc.vw_Assessment_Summary")
 
 Nets <-RODBC::sqlFetch(ch,"ffsbc.vw_Net_Summary")
 

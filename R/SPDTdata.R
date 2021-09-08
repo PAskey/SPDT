@@ -101,7 +101,7 @@ gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year"
 
 #A lookup to add in average sampling date for each lake year.
 quick_Lu <-idf%>%dplyr::group_by(Lk_yr)%>%
-  dplyr::summarize(avg_sample_date = as.Date(mean(.data$Date),format='%d%b%Y'))%>%
+  dplyr::summarize(avg_sample_date = as.POSIXct(mean(.data$Date),format='%d%b%Y'))%>%
   dplyr::ungroup()
 
 gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr"))
@@ -133,6 +133,7 @@ Contrast_possible = c("Genotype", "SAR_cat", "Strain")
 
 controls = setdiff(Contrast_possible, Contrast)
 
+##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVES BEING COUNTEDINSTEAD OF VALUES?
 #dplyr::group_by_at(c(4:7,10,11))%>%
 exps <- gdf%>%
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
@@ -143,6 +144,12 @@ exps <- gdf%>%
 idf<-subset(idf, Lk_yr%in%exps$Lk_yr)
 gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)
 }
+
+#Remove cohorts years where nothing is observed
+#This coding should be used earlier to remove strain experiments that appear with size experiments
+idf$Lk_yr_age = paste0(idf$Lk_yr, idf$Int.Age)
+gdf$Lk_yr_age = paste0(gdf$Lk_yr, gdf$Int.Age)
+gdf = gdf%>%filter(Lk_yr_age %in% idf$Lk_yr_age)
 
 
 idf<<-idf
