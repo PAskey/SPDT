@@ -131,12 +131,11 @@ Uniqueclips <-clipsum%>%
 
 #In non-unique groups, we must remove all erroneous summary calculations of stocking averages and sums
 nonunique <- anti_join(clipsum, Uniqueclips)%>%
-            mutate( N_rel = NA,
-                    SAR = NA,
-                    cur_life_stage_code = NA,
-                    avg_rel_date = NA
+            mutate( N_rel = as.integer(NA),
+                    SAR = as.numeric(NA),
+                    cur_life_stage_code = as.character(NA),
+                    avg_rel_date = as.POSIXct(NA)
                     )
-
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
 #It is known that there are at least some cases where clipped fish have the wrong age entered (See Englishman Lake)
@@ -168,6 +167,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                   clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                   clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                   clipsbys = paste(unique(.data$sby_code), collapse = ","),
+                                  #The following variables are only valid if the n.. columns are unique (=1)
+                                  #However adding an if_else caused problems with dates, and so clean these up later
                                   N_rel = sum(.data$Quantity),#Calculate number released if unique group
                                   SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
                                   cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
@@ -175,8 +176,16 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                         dplyr::ungroup()
 
 #Identify unique stocking groups, in order to remove summary stats from non-unique groups
-clipsum<-clipsum%>%mutate(uni = ifelse(across(n_sby:nGenos) == 1,1,0))
-clipsum = clipsum%>%mutate_at(vars(N_rel:avg_rel_date), ~ ifelse(uni==1,.,NA ))%>%select(-uni)
+Uniqueclips<-clipsum%>%filter(across(n_sby:nGenos) == 1)
+nonunique <- anti_join(clipsum, Uniqueclips)%>%
+  mutate( N_rel = as.integer(NA),
+          SAR = as.numeric(NA),
+          cur_life_stage_code = as.character(NA),
+          avg_rel_date = as.POSIXct(NA)
+  )
+
+#Bring them back together
+clipsum = rbind(Uniqueclips, nonunique)
 
 #Now we can match these to Biological data that had ages whether cases are unique or not.
 #in non-unique cases it will list potential options.
