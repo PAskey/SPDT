@@ -71,6 +71,16 @@ frydata = gdf%>%
 
 OK, now let's go ahead and plot the data. There are many, many ways to look at the data. Here we are just trying to keep it simple. In the most simple sense, we are stocking different products to provide the most and best quality recruits to the fishery possible. Recruits for BC small lakes fisheries are most typically age-2 fish. Age-2s typically recruit to being caught half way through the growing season.
 
+```{r include = FALSE}
+#There is a clear issue with LVs in Harper Duffy where 2s are coming up as 1s in size.
+clips = idf%>%filter(Waterbody_Name%in%c("DUFFY", "HARPER", "MADDEN", "WILGRESS"))
+ggplot(data = clips, aes(x = log(Weight_g), group = Clip, fill = Clip))+
+  geom_histogram()+
+  facet_grid(Year~Waterbody_Name)
+
+```
+
+
 ```{r fig.width = 7, warning = FALSE}
 
 age2data <-frydata%>%filter(Int.Age==2)
@@ -270,6 +280,34 @@ aa.fixef.m <- transform(aa.fixef.m,Var1=factor(Var1,levels=names(lliks)))
 
 
 summary(unlist(plyr::daply(aa.fixef.m,"Var2",summarise,sd(value)/abs(mean(value)))))
+
+```
+
+```{r include = FALSE, echo = FALSE, eval = FALSE}
+
+#Additional analysis of before and after fry lakes.
+
+#Vector of fry experiment lake years from before and after experiments
+fry_lks2 <- c("00357PARA", "00364PARA", "01078LCHL", "00984FRAN","00982BRKD","00936CRKD")
+fry_yrs <- c(2000:2021)
+
+gdf = gdf%>%filter(WBID%in%fry_lks2, Year%in%fry_yrs)
+
+Biological<-Biological%>%filter(WBID%in%fry_lks2, Year%in%fry_yrs, Species == "RB")
+
+ggplot(data = Biological, aes(x = Length_mm, group = Clip, colour = Clip, fill = as.factor(Int.Age)))+
+  scale_colour_viridis_d()+
+  geom_histogram()+
+  facet_grid(Year~WBID)+
+  theme_bw()
+
+clipsum = clipsum%>%filter(Lk_yr%in%Biological$Lk_yr)
+
+ggplot(data = clipsum, aes(x = clipAges, y = SAR, colour = cur_life_stage_code))+
+  scale_colour_viridis_d()+
+  geom_point(size = 1.5)+
+  facet_grid(Year~WBID)+
+  theme_bw()
 
 ```
 

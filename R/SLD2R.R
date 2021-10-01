@@ -217,10 +217,10 @@ Biological <- Biological%>%
 #Remove stream releases as generally do not apply to SPDT type analyses
 Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
 #Create column for release year
-Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
+Releases$rel_Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake brood year and lake stocking year grouping variables that can match Biological
 Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
-                                    Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
+                                      Lk_sry = paste(.data$WBID,"_",.data$rel_Year, sep = "")
                                       )
 
 #_______________________________________________________________________________

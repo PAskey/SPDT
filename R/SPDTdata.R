@@ -67,14 +67,17 @@ if (!is.null(Strains)) {
   clipsum = subset(clipsum, clipStrains %in% Strains)
 }
 
-
+#Categorize release size to facilitate finding true contrasts and analyzing
+#Code below create categories that increase in width as size increases.  
+idf <- idf%>%
+  dplyr::mutate(SAR_cat = SAR_cat(SAR))
 
 
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
-  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code, .data$N_rel, .data$SAR, .data$avg_rel_date)%>%
-  dplyr::summarize(mean_FL = mean(.data$Length_mm, na.rm = TRUE),sd_FL = sd(.data$Length_mm, na.rm = TRUE),
+  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code, .data$N_rel, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
+  dplyr::summarize( mean_FL = mean(.data$Length_mm, na.rm = TRUE),sd_FL = sd(.data$Length_mm, na.rm = TRUE),
                     mean_wt = mean(Weight_g, na.rm = TRUE), sd_wt = sd(Weight_g, na.rm = TRUE),
                     N = dplyr::n(),
                     NetX_FL = stats::weighted.mean(.data$Length_mm, .data$NetX, na.rm = TRUE),
@@ -85,46 +88,42 @@ gdf <- idf%>%
   dplyr::ungroup()
 
 
-#The only reason for this full_join() is to add in the 0 counts.
+#The only reason for this next section that merges clipsum
+#Is to track 0 counts for specific clips during sampling.
+
+
 #Using clipsum instead of Xnew should keep release date and sample date and better cross reference when multiple release ids for one release group.
 clipsum<-clipsum%>%
   dplyr::filter(n_sby == 1)%>%
   dplyr::mutate(clipsbys = as.integer(clipsbys))
 
-gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
-                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
+#Vector of unique sampling events by lake-year and method 
+#Can't add avg_sampling date within gdf, because will be different for each strain, age, etc.
+uni_events = idf%>%
+  #filter out indoor capture methods like HATCH, etc. and FFSBC "lakes"
+  filter(!(Capture_Method%in%c('HATCH', 'LAB','UNK')), !grepl("FFSBC",WBID))%>%
+  group_by(Lk_yr, Capture_Method)%>%
+  summarize(avg_sample_date = mean(.data$Date,na.rm = TRUE))%>%
+  ungroup()
+
+#MAYBE CHANGE THIS TO A RIGHT JOIN?
+#Join this with clipsum, so all releases that should appear in a sampling event are tracked.
+clipsum = left_join(uni_events, clipsum, by = 'Lk_yr')
+
+gdff = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date", "Capture_Method", "avg_sample_date")], 
+                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR", "Capture_Method"))%>%
   dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
   dplyr::mutate(N = replace(N, is.na(N), 0), 
                 NetXN = replace(NetXN, is.na(NetXN), 0),
                 avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE))%>%
   dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
 
-#A lookup to add in average sampling date for each lake year.
-quick_Lu <-idf%>%dplyr::group_by(Lk_yr)%>%
+#A lookup to add in average sampling date for each lake year and Capture method.
+quick_Lu <-idf%>%dplyr::group_by(Lk_yr, Capture_Method)%>%
   dplyr::summarize(avg_sample_date = as.POSIXct(mean(.data$Date),format='%d%b%Y'))%>%
   dplyr::ungroup()
 
-gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr"))
-
-
-#Not sure why I repeated SAR_cat code twice back here instead of once up front?
-idf <- idf%>%
-  dplyr::mutate(SAR_cat = dplyr::case_when(SAR<=6 ~ plyr::round_any(SAR,1),
-                                SAR>6&SAR<=14.5 ~ plyr::round_any(SAR,2),
-                                SAR>14.5&SAR<=27.5 ~ plyr::round_any(SAR,5),
-                                SAR>27.5&SAR<65 ~ plyr::round_any(SAR,10),
-                                TRUE ~ plyr::round_any(SAR, 25)
-                                )
-         )
-
-gdf <- gdf%>%
-  dplyr::mutate(SAR_cat = dplyr::case_when(SAR<=6 ~ plyr::round_any(SAR,1),
-                                           SAR>6&SAR<=14.5 ~ plyr::round_any(SAR,2),
-                                           SAR>14.5&SAR<=27.5 ~ plyr::round_any(SAR,5),
-                                           SAR>27.5&SAR<65 ~ plyr::round_any(SAR,10),
-                                           TRUE ~ plyr::round_any(SAR, 25)
-  )
-  )
+gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr", "Capture_Method"))
 
 #Sections to pull specific contrast years
 if (!is.null(Contrast)) {
@@ -133,8 +132,7 @@ Contrast_possible = c("Genotype", "SAR_cat", "Strain")
 
 controls = setdiff(Contrast_possible, Contrast)
 
-##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVES BEING COUNTEDINSTEAD OF VALUES?
-#dplyr::group_by_at(c(4:7,10,11))%>%
+##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
 exps <- gdf%>%
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
   dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = length(unique(na.omit(Clip))))%>%
@@ -147,9 +145,10 @@ gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)
 
 #Remove cohorts years where nothing is observed
 #This coding should be used earlier to remove strain experiments that appear with size experiments
-idf$Lk_yr_age = paste0(idf$Lk_yr, idf$Int.Age)
-gdf$Lk_yr_age = paste0(gdf$Lk_yr, gdf$Int.Age)
-gdf = gdf%>%filter(Lk_yr_age %in% idf$Lk_yr_age)
+idf$Lk_yr_age = paste0(idf$Lk_yr, "_", idf$Int.Age)
+gdf$Lk_yr_age = paste0(gdf$Lk_yr, "_", gdf$Int.Age)
+gdf = gdf%>%
+  dplyr::filter(Lk_yr_age %in% idf$Lk_yr_age)
 
 
 idf<<-idf

@@ -3,6 +3,7 @@
 export("%>%")
 export(Experiment_data)
 export(RICselect)
+export(SAR_cat)
 export(SLD2R)
 export(SPDTdata)
 export(UTM_to_latlong)

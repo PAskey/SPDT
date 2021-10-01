@@ -55,13 +55,13 @@ Releases <- Releases%>%dplyr::mutate(
                                 #Now with Fraser Valleys it gets really confusing. This is NOT correct 100% of the time.
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$cur_life_stage_code %in% c("EG", "EE", "FF", "FR")&g_size <10 ~ 0L,
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size <500 ~ 1L,
-                                .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size > 500 ~ .data$Year-.data$sby_code,
+                                .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size > 500 ~ .data$rel_Year-.data$sby_code,
                                 #First put NAs for remaining  cases where brood year will not help us
                                 .data$sby_code == 0 ~ NA_integer_,
                                 #Now simple brood year based ages.
                                 # A few cases where supposedly released before brood year.
-                                (.data$Year - .data$sby_code) > 0 & .data$Species %in% fall_spwn ~ .data$Year - .data$sby_code - 1L,#1L is so all numbers conform to integer type
-                                (.data$Year - .data$sby_code) >= 0 & .data$Species %in% spring_spwn ~ .data$Year - .data$sby_code,
+                                (.data$rel_Year - .data$sby_code) > 0 & .data$Species %in% fall_spwn ~ .data$rel_Year - .data$sby_code - 1L,#1L is so all numbers conform to integer type
+                                (.data$rel_Year - .data$sby_code) >= 0 & .data$Species %in% spring_spwn ~ .data$rel_Year - .data$sby_code,
                                 TRUE ~ NA_integer_),
                               )
                                 
@@ -76,7 +76,7 @@ Xnew <- NULL#Add an additional dataframe for each year projected
 #Loop thru each projected year and append updated dataframe rows (mostly repeated data, except for age, year and lake_year)
 for(i in 0:maxxage){
   X$Int.Age = Releases$Int.Age+i
-  X$Year = Releases$Year+i
+  X$Year = Releases$rel_Year+i
   X$Lk_yr = paste(X$WBID,"_",X$Year, sep = "")
   Xnew <- rbind(Xnew, X)
 }
@@ -107,7 +107,7 @@ group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip")
 clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                    n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
-                                    n_sry = length(unique(.data$Year)), #number of release years
+                                    n_sry = length(unique(.data$rel_Year)), #number of release years
                                     nStrains = length(unique(.data$Strain)), #number of Strains
                                     nGenos = length(unique(.data$Genotype)), #number of genotypes
                                     cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
@@ -115,17 +115,28 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                     clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                     clipsbys = paste(unique(.data$sby_code), collapse = ","),
-                                    N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calculate number released if unique group
+                                    #The following variables are only valid if the n.. columns are unique (=1)
+                                    #However adding an if_else caused problems with dates, and so clean these up later
+                                    N_rel = sum(.data$Quantity),#Calculate number released if unique group
                                     SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
                                     cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
-                                    avg_rel_date = mean(.data$rel_Date))%>%
-                        dplyr::ungroup()
+                                   avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
+                  dplyr::ungroup()
 
 
-#reduce summary to cases where clip leads to unique stocking group
+#Select release, lake-year combinations where clip leads to unique stocking group
 Uniqueclips <-clipsum%>%
   dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
+
+#In non-unique groups, we must remove all erroneous summary calculations of stocking averages and sums
+nonunique <- anti_join(clipsum, Uniqueclips)%>%
+            mutate( N_rel = NA,
+                    SAR = NA,
+                    cur_life_stage_code = NA,
+                    avg_rel_date = NA
+                    )
+
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
 #It is known that there are at least some cases where clipped fish have the wrong age entered (See Englishman Lake)
@@ -137,7 +148,7 @@ Biosub = dplyr::anti_join(Biological, Bio_unique, by = colnames(Biological))
 
 Biounaged = Biosub%>%dplyr::filter(is.na(.data$Int.Age))#All of the unaged fish that do not have unique group can at least be linked with possibilities
 
-Biounaged = dplyr::left_join(Biounaged, clipsum, by = group_cols)
+Biounaged = dplyr::left_join(Biounaged, nonunique, by = group_cols)
 
 Bioaged = Biosub%>%dplyr::filter(!is.na(.data$Int.Age))
 
@@ -149,7 +160,7 @@ group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip", "Int
 clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                   n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
-                                  n_sry = length(unique(.data$Year)), #number of release years
+                                  n_sry = length(unique(.data$rel_Year)), #number of release years
                                   nStrains = length(unique(.data$Strain)), #number of Strains
                                   nGenos = length(unique(.data$Genotype)),
                                   cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
@@ -157,12 +168,15 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                   clipGenos = paste(unique(.data$Genotype), collapse = ","),
                                   clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                   clipsbys = paste(unique(.data$sby_code), collapse = ","),
-                                  N_rel = ifelse(.data$nStrains == 1&.data$nGenos == 1, sum(.data$Quantity),NA),#Calcualte number released if unique group
-                                  SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight released if unique group
+                                  N_rel = sum(.data$Quantity),#Calculate number released if unique group
+                                  SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
                                   cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
-                                  avg_rel_date = mean(.data$rel_Date))%>%
+                                  avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
                         dplyr::ungroup()
 
+#Identify unique stocking groups, in order to remove summary stats from non-unique groups
+clipsum<-clipsum%>%mutate(uni = ifelse(across(n_sby:nGenos) == 1,1,0))
+clipsum = clipsum%>%mutate_at(vars(N_rel:avg_rel_date), ~ ifelse(uni==1,.,NA ))%>%select(-uni)
 
 #Now we can match these to Biological data that had ages whether cases are unique or not.
 #in non-unique cases it will list potential options.
