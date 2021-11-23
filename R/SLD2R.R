@@ -76,7 +76,7 @@ Nets<-suppressWarnings(Nets%>%dplyr::filter_at(dplyr::vars(.data$Shore_UTM_Zone:
             Lake_Long = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$x)%>%
   dplyr::ungroup())
 
-Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone))%>%droplevels()%>%
+Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone), !is.na(.data$UTM_Easting))%>%droplevels()%>%
   dplyr::group_by(.data$UTM_Zone)%>%
   dplyr::mutate(Long = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$x,
                 Lat = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$y))

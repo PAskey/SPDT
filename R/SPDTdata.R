@@ -101,14 +101,14 @@ clipsum<-clipsum%>%
 #Can't add avg_sampling date within gdf, because will be different for each strain, age, etc.
 uni_events = idf%>%
   #filter out indoor capture methods like HATCH, etc. and FFSBC "lakes"
-  filter(!(Capture_Method%in%c('HATCH', 'LAB','UNK')), !grepl("FFSBC",WBID))%>%
-  group_by(Lk_yr, Capture_Method)%>%
-  summarize(avg_sample_date = mean(.data$Date,na.rm = TRUE))%>%
-  ungroup()
+  dplyr::filter(!(Capture_Method%in%c('HATCH', 'LAB','UNK')), !grepl("FFSBC",WBID))%>%
+  dplyr::group_by(Lk_yr, Capture_Method)%>%
+  dplyr::summarize(avg_sample_date = mean(.data$Date,na.rm = TRUE))%>%
+  dplyr::ungroup()
 
 #MAYBE CHANGE THIS TO A RIGHT JOIN?
 #Join this with clipsum, so all releases that should appear in a sampling event are tracked.
-clipsum = left_join(uni_events, clipsum, by = 'Lk_yr')
+clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')
 
 gdff = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date", "Capture_Method", "avg_sample_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR", "Capture_Method"))%>%
@@ -130,7 +130,7 @@ if (!is.null(Contrast)) {
 
 Contrast_possible = c("Genotype", "SAR_cat", "Strain")
 
-controls = setdiff(Contrast_possible, Contrast)
+controls = dplyr::setdiff(Contrast_possible, Contrast)
 
 ##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
 exps <- gdf%>%
@@ -150,9 +150,14 @@ gdf$Lk_yr_age = paste0(gdf$Lk_yr, "_", gdf$Int.Age)
 gdf = gdf%>%
   dplyr::filter(Lk_yr_age %in% idf$Lk_yr_age)
 
-
+#Put data frames into the global environment
 idf<<-idf
 gdf<<-gdf
+
+#Add function parameters to the global environment
+Spp<<-Spp
+Strains<<-Strains
+Contrast<<-Contrast
 
 
 }

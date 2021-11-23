@@ -130,8 +130,8 @@ Uniqueclips <-clipsum%>%
   droplevels()#Drop all levels not in the list so we correctly filter Biological
 
 #In non-unique groups, we must remove all erroneous summary calculations of stocking averages and sums
-nonunique <- anti_join(clipsum, Uniqueclips)%>%
-            mutate( N_rel = as.integer(NA),
+nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
+             dplyr::mutate( N_rel = as.integer(NA),
                     SAR = as.numeric(NA),
                     cur_life_stage_code = as.character(NA),
                     avg_rel_date = as.POSIXct(NA)
@@ -176,13 +176,14 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                         dplyr::ungroup()
 
 #Identify unique stocking groups, in order to remove summary stats from non-unique groups
-Uniqueclips<-clipsum%>%filter(across(n_sby:nGenos) == 1)
-nonunique <- anti_join(clipsum, Uniqueclips)%>%
-  mutate( N_rel = as.integer(NA),
-          SAR = as.numeric(NA),
-          cur_life_stage_code = as.character(NA),
-          avg_rel_date = as.POSIXct(NA)
-  )
+Uniqueclips<-clipsum%>%dplyr::filter(dplyr::across(n_sby:nGenos) == 1)
+
+nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
+                dplyr::mutate(N_rel = as.integer(NA),
+                              SAR = as.numeric(NA),
+                              cur_life_stage_code = as.character(NA),
+                              avg_rel_date = as.POSIXct(NA)
+                             )
 
 #Bring them back together
 clipsum = rbind(Uniqueclips, nonunique)

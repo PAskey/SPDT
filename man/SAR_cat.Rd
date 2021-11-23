@@ -16,6 +16,11 @@ A function to partition release sizes into discrete categories
 This function takes a number (release size) and assigns it to another number category. 
 This is useful since a difference of 1g between stocking groups is a big deal for a 1g fry release size, but a rounding error for large yearlings.
 A default set of categories has been created. The function may be updated to offer options in the future.
+A simple manual alternative is round(a/b)*a where a is value and b is the rounding increment.
+
+Additional note is that R rounds 0.5 value up or down every second digit (e.g. 1.5 = 2, 2.5 = 2, 3.5 = 4, etc.).
+Apparently, this is some sort of standard but is problematic when categorizing release sizes (1.5 and 2.5 are both put into 2.)
+Therefore, a custom function to correct this to always round 0.5 up is used (cround()).
 }
 \examples{
 Must be connected to VPN if working remotely
