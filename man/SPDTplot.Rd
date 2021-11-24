@@ -4,7 +4,7 @@
 \alias{SPDTplot}
 \title{SPDTplot}
 \usage{
-SPDTplot(Metric = NULL, Method = "GN", min_N = 0)
+SPDTplot(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE)
 }
 \arguments{
 \item{Metric}{a character string that describes the performance metric (dependent variable) to be plotted.This must be entered for function to work.
@@ -15,6 +15,8 @@ In all cases the data will be grouped by the "Contrast" stated during the SPDT d
 
 \item{min_N}{an integer to set a minimum sample size to include in plots. This sample size applies to the overall sample across contrast groups.
 In other words a minimum sample size of 5 would still include a stocked cohort where one group had 5 fish and the other contrast group had 0.}
+
+\item{save_png}{a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png}
 }
 \description{
 A plot function for SPDT data when a contrast has been specified.
