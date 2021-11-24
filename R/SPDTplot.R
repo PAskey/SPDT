@@ -15,6 +15,7 @@
 #' @param Method a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.
 #' @param min_N an integer to set a minimum sample size to include in plots. This sample size applies to the overall sample across contrast groups.
 #' In other words a minimum sample size of 5 would still include a stocked cohort where one group had 5 fish and the other contrast group had 0.
+#' @param save_png a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png
 #' @examples
 #' #Must be connected to VPN if working remotely
 #' 
@@ -28,7 +29,7 @@
 #' @importFrom rlang .data
 
 
-SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0){
+SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
   #Allowable metrics are: maturation, growth, survival
   #c("survival", "growth_FL", "mu_growth_FL", "length_freq", "age_freq", "maturation")
 
@@ -66,12 +67,12 @@ if (Metric == "survival"){
  if (Metric == "mu_growth_FL"){
   p = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, y = .data$NetX_FL, shape = get(Contrast), fill = as.factor(.data$col_group), group = .data$sby_code))+
     ggplot2::geom_point(size = 4, alpha = 0.7, position = ggplot2::position_dodge(width = 0.2))+
-    ggplot2::scale_shape_manual(values = c(21:23))+
+    ggplot2::scale_shape_manual(values = c(21:26))+
     viridis::scale_fill_viridis(discrete = TRUE)+
     ggplot2::facet_wrap(~.data$Waterbody_Name)+
     ggplot2::labs(x = "Age", y = "Mean Fork Length (mm)", shape = Contrast)+
     ggplot2::theme_bw()+
-    ggplot2::guides(fill=FALSE)
+    ggplot2::guides(fill="none")
  }
  
 
@@ -84,7 +85,8 @@ if (Metric == "survival"){
      ggplot2::facet_wrap(~.data$Waterbody_Name)+
      ggplot2::labs(x = "Age", y = "Fork Length (mm)", shape = Contrast)+
      ggplot2::theme_bw()+
-     ggplot2::guides(fill=FALSE)
+     ggplot2::guides(fill="none")
+     #ggplot2::guides(fill=ggplot2::guide_legend(override.aes = list(shape = 21)))
  }
  
   if (Metric == "length_freq"){
@@ -106,25 +108,48 @@ if (Metric == "survival"){
      ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y")+
      ggplot2::labs(x = "Age", y = "Catch (selectivity adjusted)", fill = Contrast, colour = Contrast)+
      ggplot2::theme_bw()+
-     ggplot2::guides(alpha = FALSE)
+     ggplot2::guides(alpha = "none")
  }
  
  
 
 
  if (Metric == "maturation"){
-   p = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, y = .data$p_mat, shape = get(Contrast), fill = as.factor(.data$col_group), group = .data$sby_code))+
+   p = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, y = .data$p_mat, shape = get(Contrast), fill = get(Contrast), group = get(Contrast)))+
      ggplot2::geom_point(size = 4, alpha = 0.7, position = ggplot2::position_dodge(width = 0.2))+
-     ggplot2::scale_shape_manual(values = c(21:23))+
+     ggplot2::scale_shape_manual(values = c(21:24))+
      viridis::scale_fill_viridis(discrete = TRUE)+
-     ggplot2::facet_wrap(~.data$Waterbody_Name)+
+     viridis::scale_colour_viridis(discrete = TRUE)+
+     #ggplot2::facet_wrap(~.data$Waterbody_Name)+
+     ggplot2::ylim(0,1)+
+     ggplot2::geom_smooth(se = FALSE, ggplot2::aes(colour = get(Contrast)))+
      ggplot2::theme_bw()+
-     ggplot2::guides(fill = FALSE)+#fill=ggplot2::guide_legend(override.aes=list(shape=21)))
-     ggplot2::labs(x = "Age", y = "Proportion mature", shape = Contrast)  
+     ggplot2::guides(fill=ggplot2::guide_legend(override.aes=list(shape=21)))+
+     ggplot2::labs(x = "Age", y = "Proportion mature", shape = Contrast, fill = Contrast, colour = Contrast)  
      } 
  
+
+  print(p)   
+  
+
  
- print(p) 
+#Save a .png of plot  
+  
+if(save_png == TRUE){
+  filename = paste0("plot_",Metric,".png")
+   
+#In all cases above the Waterbody is used to facet, so the plot facets are arranged as:   
+  facets = 1
+  if(class(p$facet)[1] != "FacetNull"){
+  facets = length(unique(p$data$Waterbody_Name)) 
+  }
+  ncol <- ceiling(sqrt(facets))
+  nrow <- ceiling(facets/ncol)   
+ 
+
+ ggplot2::ggsave(filename, p, dpi = "print", width = 7, height = 7*(nrow/ncol)*.95, units = "in")
+}
+ 
 }
   
 ##FUTURE CONSIDERATIONS
