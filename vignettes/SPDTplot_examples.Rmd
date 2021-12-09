@@ -1,0 +1,60 @@
+---
+title: "SPDTplot examples"
+author: "Paul Askey"
+date: "08/12/2021"
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(knitr)
+library(formatR)
+opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
+
+```
+
+
+## Getting Started
+
+See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. Once installed use following code to load the package for use.
+
+```{r setup}
+library(SPDT)
+```
+
+OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips, and in this case we will narrow our search to just Kokanee.>
+
+```{r message=FALSE, warning=FALSE}
+SPDTdata(Spp = "KO")
+```
+
+This creates several different data frames that may be of use for Kokanee data analyses. Most of the data frames are simply cleaned and standardized versions of tables already existing in the SLD. However, two tables that are a bit more refined are "idf" which is the "individual data frame" resulting form the SLD Biological table and "gdf" (grouped data frame) which summarizes the individual data by the stocking group (same brood year, lake, year, clip, etc.), which is the typical unit of measurement for SPDT when looking at survival, etc. To see how we use these tables, let's take an example data set and analyze it.
+
+To start, let's look at what we have to works with, by just plotting length frequency plots for all the lakes included. We can use on e of the standard plots in the SPDT package for this using SPDTplot(). You can enter ?SPDTplot() in command line if you want the details.
+
+```{r message=FALSE, warning=FALSE}
+SPDTplot(Metric = "length_freq", min_N = 20)
+```
+
+
+Data for further analyses could be extracted many ways, e.g. by strain, species, lake type, etc. and can include historical contrasts that might not have been in your original experiment. As an example lets extract all the grouped data associated with the 3 gram fry experiments.
+
+## Example: Using the filtered SPDT data set to plot contrasts in 3N vs 2N performance in Kokanee
+
+```{r message=FALSE, warning=FALSE}
+SPDTdata(Spp = "KO", Contrast = "Genotype")
+```
+
+
+
+```{r message=FALSE, warning=FALSE}
+SPDTplot(Metric = "length_freq")
+SPDTplot(Metric = "maturation_by_sex")
+SPDTplot(Metric = "mu_growth_FL")
+```
+
+

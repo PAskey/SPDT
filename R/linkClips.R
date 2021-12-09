@@ -89,7 +89,9 @@ rm(X)#X dataframe was just created for looping and can be removed.
 #and for consistency remove fish >maxxage for fish that were stocked at 1+ (or older)
 Xnew <- Xnew[Xnew$Lk_yr%in%Biological$Lk_yr&Xnew$Int.Age <= maxxage,]
 
-#Now we have a list of release records that covers all observed stocked fish in the Biological table.
+#Now we have a list of release records that were filtered to lakes and times matching assessments in the Biological table
+#Tnen we expanded over the life span (well we cut off at 6 so really old fish will be lost) of the stocked fish
+#(new data row for each age), so that we can cross reference a stocking event to a fish observed at any age in the biological table
 #NeXt step is try and cross reference those stocking records to individual fish (so we can verify strain, genotype, etc.)
 
 
@@ -111,8 +113,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     nStrains = length(unique(.data$Strain)), #number of Strains
                                     nGenos = length(unique(.data$Genotype)), #number of genotypes
                                     cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
-                                    clipStrains = paste(unique(.data$Strain), collapse = ","),
-                                    clipGenos = paste(unique(.data$Genotype), collapse = ","),
+                                    clipStrains = paste(sort(unique(.data$Strain)), collapse = ","),
+                                    clipGenos = paste(sort(unique(.data$Genotype)), collapse = ","),
                                     clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                     clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                     #The following variables are only valid if the n.. columns are unique (=1)
@@ -163,8 +165,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                   nStrains = length(unique(.data$Strain)), #number of Strains
                                   nGenos = length(unique(.data$Genotype)),
                                   cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
-                                  clipStrains = paste(unique(.data$Strain), collapse = ","),
-                                  clipGenos = paste(unique(.data$Genotype), collapse = ","),
+                                  clipStrains = paste(sort(unique(.data$Strain)), collapse = ","),
+                                  clipGenos = paste(sort(unique(.data$Genotype)), collapse = ","),
                                   clipAges = paste(unique(.data$Int.Age), collapse = ","),
                                   clipsbys = paste(unique(.data$sby_code), collapse = ","),
                                   #The following variables are only valid if the n.. columns are unique (=1)
@@ -206,9 +208,10 @@ Biological<-suppressWarnings(Biological%>%
   dplyr::mutate(
   sby_code = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
   Int.Age = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
-  Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
+  #Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
   #Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   #Because of known cases of mix of AF and 2N with same clip but recorded as one in data (see Premier 2014), replace data clips with true mix
+  Strain = dplyr::if_else(!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
   Genotype = dplyr::if_else(!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   ))
 #I think the warning NA introduced by coercion can safely be ignored from google research. There are less NA values at the end of this code than when started.

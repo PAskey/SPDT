@@ -199,8 +199,8 @@ Biological <- Biological%>%
                           Outlier = ifelse(
                               .data$Species %in% c('ACT','CT','WCT','CRS','RBCT','RB','KO','EB','DV','BT','GB','TR','ST')&
                               (!(.data$Length_mm %in% c(60:1000))|
-                              (.data$Int.Age < 1 & .data$Length_mm>=100)|
-                              (.data$Int.Age <= 1 & .data$Length_mm>=440)|
+                              #(.data$Int.Age < 1 & .data$Length_mm>=100)|#Kokanee can beat this
+                              #(.data$Int.Age <= 1 & .data$Length_mm>=440)|
                               0.7 > .data$K | 2.2 < .data$K),1,0)
                               )
 

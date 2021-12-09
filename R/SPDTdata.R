@@ -53,9 +53,12 @@ SPDTdata <- function(Spp = NULL, Strains = NULL, Contrast = NULL){
 
 linkClips()
 
-#Initial filters
-idf<-subset(Biological,!is.na(Clip)&!is.null(Clip)&Clip != "NONE")
-clipsum <- subset(clipsum, !is.na(Clip)&!is.null(Clip)&Clip != "NONE")
+#Initial filters. Keep CLip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.
+  #Not sure if this will cause an issue
+#idf<-subset(Biological,!is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
+idf = Biological
+#clipsum <- subset(clipsum, !is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
+
 
 if (!is.null(Spp)) {
   idf = subset(idf, Species %in% Spp)
@@ -110,7 +113,7 @@ uni_events = idf%>%
 #Join this with clipsum, so all releases that should appear in a sampling event are tracked.
 clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')
 
-gdff = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date", "Capture_Method", "avg_sample_date")], 
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date", "Capture_Method", "avg_sample_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year","Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR", "Capture_Method"))%>%
   dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
   dplyr::mutate(N = replace(N, is.na(N), 0), 
@@ -124,6 +127,12 @@ quick_Lu <-idf%>%dplyr::group_by(Lk_yr, Capture_Method)%>%
   dplyr::ungroup()
 
 gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr", "Capture_Method"))
+
+#Another lookup to only keep 0 catch if a comparison group was captured
+#This was done in linkclips but had gdff instead fo gdf by accident
+#quick_Lu <-idf%>%dplyr::group_by(WBID, Year, sby_code)%>%dplyr::summarize(Lk_yr_sby = paste(WBID, Year, sby_code, sep = "_"))
+#gdf <- gdf%>%dplyr::mutate(Lk_yr_sby = paste(WBID, Year, sby_code, sep = "_"))
+##NEED TO FINISH SECTION HERE
 
 #Sections to pull specific contrast years
 if (!is.null(Contrast)) {

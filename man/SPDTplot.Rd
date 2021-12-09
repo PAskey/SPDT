@@ -8,7 +8,13 @@ SPDTplot(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE)
 }
 \arguments{
 \item{Metric}{a character string that describes the performance metric (dependent variable) to be plotted.This must be entered for function to work.
-The specific options that can be stated are: "survival", "mu_growth_FL" (average length per age), "growth_FL" (individual lengths per age), "length_freq", "age_freq" (length and age histograms respectively), "maturation" (the proportion mature per age)
+The specific options that can be stated are: 
+"survival", 
+"mu_growth_FL" (average length per age), 
+"growth_FL" (individual lengths per age), 
+"length_freq", 
+"age_freq" (length and age histograms respectively), 
+"maturation" (the proportion mature per age)
 In all cases the data will be grouped by the "Contrast" stated during the SPDT data call.}
 
 \item{Method}{a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.}
