@@ -36,7 +36,7 @@ This creates several different data frames that may be of use for Kokanee data a
 
 To start, let's look at what we have to works with, by just plotting length frequency plots for all the lakes included. We can use on e of the standard plots in the SPDT package for this using SPDTplot(). You can enter ?SPDTplot() in command line if you want the details.
 
-```{r message=FALSE, warning=FALSE}
+```{r fig.height=14, fig.width=10, message=FALSE, warning=FALSE}
 SPDTplot(Metric = "length_freq", min_N = 20)
 ```
 
@@ -45,15 +45,26 @@ Data for further analyses could be extracted many ways, e.g. by strain, species,
 
 ## Example: Using the filtered SPDT data set to plot contrasts in 3N vs 2N performance in Kokanee
 
+If we are interested in a specific type of experimental contrast we can select for lake-years with relevant experiments.
+
 ```{r message=FALSE, warning=FALSE}
 SPDTdata(Spp = "KO", Contrast = "Genotype")
 ```
 
+Now if we re-run a plot it will only have those lakes of interest. There are many plots we can run with SPDTplot:
 
-
-```{r message=FALSE, warning=FALSE}
-SPDTplot(Metric = "length_freq")
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
+SPDTplot(Metric = "length_freq", min_N = 20)
+SPDTplot(Metric = "age_freq")
+SPDTplot(Metric = "survival")
 SPDTplot(Metric = "maturation_by_sex")
+```
+
+Now let's look at the Kokanee data with Genotype contrast every which way:
+
+```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
+
+SPDTplot(Metric = "growth_FL")
 SPDTplot(Metric = "mu_growth_FL")
 ```
 

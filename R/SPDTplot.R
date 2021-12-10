@@ -71,15 +71,15 @@ if (Metric == "YOY"){
 
   
 if (Metric == "survival"){
-  p = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, y = .data$NetXN, shape = get(Contrast), fill = as.factor(.data$col_group), group = .data$sby_code))+
+  p = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, y = .data$NetXN, fill = get(Contrast), shape = as.factor(.data$col_group), group = .data$sby_code))+
     ggplot2::geom_point(size = 4, alpha = 0.7, position = ggplot2::position_dodge(width = 0.2))+
-    ggplot2::scale_shape_manual(values = c(21:24))+
+    ggplot2::scale_shape_manual(values = rep(21:25, 5))+
     viridis::scale_fill_viridis(discrete = TRUE)+
     #ggplot2::scale_y_continuous(trans='log10')+
-    ggplot2::facet_wrap(~.data$Waterbody_Name)+
+    ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y")+
     ggplot2::labs(y = "Catch (selectivity adjusted)", x = "Age", shape = Contrast)+
     ggplot2::theme_bw()+
-    ggplot2::guides(fill="none") 
+    ggplot2::guides(shape = "none", fill = ggplot2::guide_legend(override.aes = list(shape = 21)))
 }  
   
   
@@ -152,11 +152,17 @@ if (Metric == "survival"){
   
  
   if (Metric == "length_freq"){
-  p = ggplot2::ggplot(data = idf, ggplot2::aes(x = .data$Length_mm, fill = .data$Genotype))+
+    plotdf = idf%>%dplyr::filter(Outlier != 1)%>%
+      dplyr::group_by(Waterbody_Name, Year)%>%
+      dplyr::mutate(N_lake = dplyr::n())%>%
+      dplyr::filter(N_lake >= min_N)
+    
+    
+   p = ggplot2::ggplot(data = plotdf, ggplot2::aes(x = .data$Length_mm, fill = .data$Genotype))+
     ggplot2::geom_histogram(alpha = 0.4, colour = "black", position = "identity", binwidth = 10)+
     viridis::scale_fill_viridis(discrete = TRUE)+
     ggplot2::xlim(c(100,450))+
-    ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y")+
+    ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y", ncol = 6)+
     ggplot2::theme_bw() 
   }
   
