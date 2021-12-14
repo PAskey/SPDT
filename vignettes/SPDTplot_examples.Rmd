@@ -22,8 +22,9 @@ opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 
 See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. Once installed use following code to load the package for use.
 
-```{r setup}
+```{r setup, warning=FALSE,message=FALSE}
 library(SPDT)
+library(tidyverse)
 ```
 
 OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips, and in this case we will narrow our search to just Kokanee.>
@@ -37,7 +38,11 @@ This creates several different data frames that may be of use for Kokanee data a
 To start, let's look at what we have to works with, by just plotting length frequency plots for all the lakes included. We can use on e of the standard plots in the SPDT package for this using SPDTplot(). You can enter ?SPDTplot() in command line if you want the details.
 
 ```{r fig.height=14, fig.width=10, message=FALSE, warning=FALSE}
-SPDTplot(Metric = "length_freq", min_N = 20)
+SPDTplot(Metric = "length_freq", min_N = 20)+
+  facet_wrap(~.data$Waterbody_Name, scales = "free_y", ncol = 6)
+#Note: Too many facets to display well in RMarkdown, so added last line to make 6 columns
+#Normally (all plots below) you do not need to alter the default SPDTplot
+
 ```
 
 
@@ -53,6 +58,7 @@ SPDTdata(Spp = "KO", Contrast = "Genotype")
 
 Now if we re-run a plot it will only have those lakes of interest. There are many plots we can run with SPDTplot:
 
+
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
 SPDTplot(Metric = "length_freq", min_N = 20)
 SPDTplot(Metric = "age_freq")
@@ -66,6 +72,26 @@ Now let's look at the Kokanee data with Genotype contrast every which way:
 
 SPDTplot(Metric = "growth_FL")
 SPDTplot(Metric = "mu_growth_FL")
+```
+
+
+
+## Example: Using the filtered SPDT data set to plot contrasts in Carp Lake vs Backwater or Horsefly strains.
+
+
+We could also do the same for a strain contrast. Let's look at any strain comparisons using Carp Lake, Blackwater, or Horsefly.
+
+
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
+SPDTdata(Strains = c("CL", "BW", "HF"), Contrast = "Strain")
+SPDTplot("age_freq")
+SPDTplot("survival")
+SPDTplot("maturation_by_sex")
+```
+
+```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
+SPDTplot("mu_growth_FL")
+SPDTplot("growth_FL")
 ```
 
 

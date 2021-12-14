@@ -41,19 +41,21 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
 
   #For colouring plots by brood year (with fewer unique levels), set up grouping column col_group
   #TD add filter to remove age classes that don't have releases for multiple levels of Contrast
-  plot_idf <- idf%>%dplyr::group_by(WBID, Int.Age)%>%
+  plot_idf <- idf%>%dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
+    dplyr::group_by(WBID, Int.Age)%>%
     dplyr::mutate(col_group = as.integer(factor(sby_code, levels = unique(sby_code))))%>%
     dplyr::group_by(Lk_yr_age)%>%
     dplyr::mutate(N_a = dplyr::n(), Dec.Age = Int.Age+(lubridate::month(Date)-1)/12)%>%
     dplyr::ungroup()%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel), N_a >= min_N)
+    dplyr::filter( N_a >= min_N)
   
-  plot_gdf <- gdf%>%dplyr::group_by(WBID, Int.Age)%>%
+  plot_gdf <- gdf%>%dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
+    dplyr::group_by(WBID, Int.Age)%>%
     dplyr::mutate(col_group = as.integer(factor(sby_code, levels = unique(sby_code))))%>%
     dplyr::group_by(Lk_yr_age)%>%
     dplyr::mutate(N_a = sum(N))%>%
     dplyr::ungroup()%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel), N_a >= min_N)
+    dplyr::filter(N_a >= min_N)
 
   #Could add an additional filter [!is.na(plot_idf$Length_mm),]
   #But it is better to get the warning I think. It still plots
@@ -162,7 +164,7 @@ if (Metric == "survival"){
     ggplot2::geom_histogram(alpha = 0.4, colour = "black", position = "identity", binwidth = 10)+
     viridis::scale_fill_viridis(discrete = TRUE)+
     ggplot2::xlim(c(100,450))+
-    ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y", ncol = 6)+
+    ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y")+
     ggplot2::theme_bw() 
   }
   
@@ -191,7 +193,8 @@ if (Metric == "survival"){
      ggplot2::facet_wrap(~.data$Waterbody_Name, scales = "free_y")+
      ggplot2::labs(x = "Age", y = "Catch (selectivity adjusted)", fill = Contrast, colour = Contrast)+
      ggplot2::theme_bw()+
-     ggplot2::guides(alpha = "none")
+     ggplot2::guides(alpha = "none")+
+     ggplot2::scale_alpha(range = c(0.4, 0.8))
  }
  
  
@@ -249,8 +252,8 @@ if (Metric == "survival"){
   
  
 
-  print(p)   
-  
+  #print(p)   
+  return(p)
 
  
 #Save a .png of plot  
