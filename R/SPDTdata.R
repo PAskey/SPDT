@@ -151,13 +151,14 @@ controls = dplyr::setdiff(Contrast_possible, Contrast)
 
 ##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
 exps <- gdf%>%
+  dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
   dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = length(unique(na.omit(Clip))))%>%
   dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
   droplevels()
 
-idf<-subset(idf, Lk_yr%in%exps$Lk_yr)
-gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)
+idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
+gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 
 #Create a wide format data set for comparing relative catch
 #First only use groups that are recruited to gillnets (>150mm).
@@ -165,7 +166,7 @@ predf = gdf%>%
   dplyr::filter(mean_FL>150)%>%
   dplyr::group_by(Waterbody_Name, Lk_yr, sby_code, Int.Age, !!!rlang::syms(Contrast_possible))%>%
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
-  dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multipe levels within contrast
+  dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
   dplyr::ungroup()
 

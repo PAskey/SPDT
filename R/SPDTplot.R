@@ -77,27 +77,26 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
 
   #For colouring plots by brood year (with fewer unique levels), set up grouping column col_group
   #TD add filter to remove age classes that don't have releases for multiple levels of Contrast
-  plot_idf <- idf%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
-    dplyr::group_by(WBID, Int.Age)%>%
-    dplyr::mutate(col_group = as.integer(factor(sby_code, levels = unique(sby_code))))%>%
-    dplyr::group_by(Lk_yr_age)%>%
-    dplyr::mutate(N_a = dplyr::n(), 
-                  Dec.Age = round(Int.Age+(lubridate::month(Date)-1)/12, 1))%>%
-    dplyr::ungroup()%>%
-    dplyr::filter( N_a > min_N)
+
   
   plot_gdf <- gdf%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
-    dplyr::group_by(WBID, Int.Age)%>%
-    dplyr::mutate(col_group = as.integer(factor(sby_code, levels = unique(sby_code))))%>%
-    dplyr::group_by(Lk_yr_age)%>%
-    dplyr::mutate(N_a = sum(N),
+    dplyr::filter(Capture_Method == Method, !is.na(N_rel), N >= min_N)%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
                   Dec.Age = round(Int.Age+(lubridate::month(avg_sample_date)-1)/12, 1))%>%
-    dplyr::ungroup()%>%
-    dplyr::filter(N >= min_N, N_a>min_N)#Age class must be bigger than N (default 0), but single group >=.
+    dplyr::group_by(Lk_yr_age, Season)%>%
+    dplyr::filter(n()>1)%>%
+    dplyr::ungroup()
+  
+  plot_idf <- idf%>%
+    dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
+                  Dec.Age = round(Int.Age+(lubridate::month(Date)-1)/12, 1))%>%
+    dplyr::group_by(Lk_yr_age, Season)%>%
+    dplyr::filter(paste0(Lk_yr_age, Season)%in% paste0(plot_gdf$Lk_yr_age, plot_gdf$Season))%>%
+    dplyr::ungroup()
+  
+  
+  
 
   #Could add an additional filter [!is.na(plot_idf$Length_mm),]
   #But it is better to get the warning I think. It still plots
@@ -173,7 +172,7 @@ if (Metric == "maturation"){
 
 pi = ggplot2::ggplot(data = plot_idf, ggplot2::aes(colour = get(Contrast), fill = get(Contrast), shape = get(controls[1]), group=get(Contrast)))+
   #ggplot2::geom_point(size = 4, alpha = 0.4, shape = 21, position = ggplot2::position_jitter(width = 0.1))+
-  #ggplot2::scale_shape_manual(values = rep(21:25, 5))+
+  ggplot2::scale_shape_manual(values = rep(21:25, 5))+
   #ggplot2::geom_boxplot(ggplot2::aes(group = Genotype))+
   viridis::scale_fill_viridis(discrete = TRUE)+
   viridis::scale_colour_viridis(discrete = TRUE)+
@@ -196,7 +195,7 @@ if(Metric == "condition"){
   #plot(preds, add.data = TRUE, facet = TRUE)
   
 p = pi + 
-  ggplot2::geom_point(ggplot2::aes(x = .data$Length_mm, y = .data$Weight_g), size = 4, alpha = 0.4)+
+  ggplot2::geom_point(ggplot2::aes(x = .data$Length_mm, y = .data$Weight_g), size = 4, alpha = 0.5)+
   ggplot2::scale_x_log10()+
   ggplot2::scale_y_log10()
 }
@@ -241,7 +240,7 @@ if (Metric == "growth_FL"){
   
  
   if (Metric == "FL_density"){
-    if(min_N==0){"Min_N should be set >0 for density plots"}
+    if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
     
 p = pi+
     ggplot2::geom_density(ggplot2::aes(x = .data$Length_mm), alpha = 0.4, lwd = 1, adjust = 1/2)+
@@ -253,7 +252,7 @@ p = pi+
   }
 
 if (Metric == "FL_freq"){
-  if(min_N==0){"Min_N should be set >0 for frequency plots"}
+  if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
   
   p = pi+
     ggplot2::geom_freqpoly(ggplot2::aes(x = .data$Length_mm), alpha = 0.9, lwd = 1)+
@@ -265,7 +264,7 @@ if (Metric == "FL_freq"){
 }
 
 if (Metric == "FL_hist"){
-  if(min_N==0){"Min_N should be set >0 for frequency plots"}
+  if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
   
   p = pi+
     ggplot2::geom_histogram(ggplot2::aes(x = .data$Length_mm), alpha = 0.2, lwd = 1, position = "identity")+
@@ -278,7 +277,7 @@ if (Metric == "FL_hist"){
 
   
   if (Metric == "maturation_by_sex"){
-    
+    if(min_N<5){warning("Min_N should be >=5 for maturation plots")}
     mat_df = plot_idf%>%
               dplyr::filter(Maturity != 'UNK', !is.na(Sex))%>%
               dplyr::group_by(Waterbody_Name, WBID, Year, Strain, Genotype, Int.Age, Dec.Age, Sex)%>%

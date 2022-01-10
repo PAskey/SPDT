@@ -74,6 +74,8 @@ Now let's look at the Kokanee data with Genotype contrast every which way:
 SPDTplot(Metric = "growth_FL")
 #This throws error unless remove all the NAs, i.e. change min_N >0 
 SPDTplot(Metric = "mu_growth_FL")
+SPDTplot(Metric = "mu_growth_FL", min_N = 10)
+SPDTplot(Metric = "FL_density", min_N = 20)
 ```
 
 
