@@ -38,9 +38,10 @@ This creates several different data frames that may be of use for Kokanee data a
 To start, let's look at what we have to works with, by just plotting length frequency plots for all the lakes included. We can use on e of the standard plots in the SPDT package for this using SPDTplot(). You can enter ?SPDTplot() in command line if you want the details.
 
 ```{r fig.height=14, fig.width=10, message=FALSE, warning=FALSE}
-SPDTplot(Metric = "length_freq", min_N = 20)+
+SPDTplot(Metric = "FL_freq", min_N = 20)+
   facet_wrap(~.data$Waterbody_Name, scales = "free_y", ncol = 6)
-#Note: Too many facets to display well in RMarkdown, so added last line to make 6 columns
+#Note: Too many facets to display well in RMarkdown, so added last line to makes less facets and more columns than the default.
+#facet by Waterbody instead of Waterbody and sampling event, and made 6 columns (defaults to 3 normally)
 #Normally (all plots below) you do not need to alter the default SPDTplot
 
 ```
@@ -60,7 +61,7 @@ Now if we re-run a plot it will only have those lakes of interest. There are man
 
 
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
-SPDTplot(Metric = "length_freq", min_N = 20)
+SPDTplot(Metric = "FL_freq", min_N = 20)
 SPDTplot(Metric = "age_freq")
 SPDTplot(Metric = "survival")
 SPDTplot(Metric = "maturation_by_sex")
@@ -71,12 +72,13 @@ Now let's look at the Kokanee data with Genotype contrast every which way:
 ```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
 
 SPDTplot(Metric = "growth_FL")
+#This throws error unless remove all the NAs, i.e. change min_N >0 
 SPDTplot(Metric = "mu_growth_FL")
 ```
 
 
 
-## Example: Using the filtered SPDT data set to plot contrasts in Carp Lake vs Backwater or Horsefly strains.
+## Example: Using the filtered SPDT data set to plot contrasts in Carp Lake vs Blackwater or Horsefly strains.
 
 
 We could also do the same for a strain contrast. Let's look at any strain comparisons using Carp Lake, Blackwater, or Horsefly.

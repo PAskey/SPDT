@@ -9,12 +9,21 @@ SPDTplot(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE)
 \arguments{
 \item{Metric}{a character string that describes the performance metric (dependent variable) to be plotted.This must be entered for function to work.
 The specific options that can be stated are: 
-"survival", 
+"survival" (standardized relative catch rate of one contrast group to another), 
+A series of plots that summarize all age classes captured in a given sampling event.
+The plots show changes in size, numbers or maturation over time if multiple age classes were captured.
+"catch" (catch rates of each group - catch curve type data),
+"age_freq" (same data as above, but columns instead of points),
 "mu_growth_FL" (average length per age), 
-"growth_FL" (individual lengths per age), 
-"length_freq", 
-"age_freq" (length and age histograms respectively), 
-"maturation" (the proportion mature per age)
+"mu_growth_wt" (average weight per age),
+"growth_FL" (individual lengths per age),
+"growth_wt" (raw weights by age),
+"maturation" (the proportion mature per age),
+"maturation_by_sex" (partitions data used in plot above by sex) 
+A series of plots looking at the overall size distribution of the entire population in a lake (all age classes)
+"FL_freq" (fork-length frequencies per lake-sample session as lines),
+"FL_density"(fork-length frequencies per lake-sample session as smoothed densities),
+"FL_hist"(fork-length frequencies per lake-sample session as histograms), 
 In all cases the data will be grouped by the "Contrast" stated during the SPDT data call.}
 
 \item{Method}{a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.}
