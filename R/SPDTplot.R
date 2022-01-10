@@ -14,18 +14,33 @@
 #' "survival" (standardized relative catch rate of one contrast group to another), 
 #' A series of plots that summarize all age classes captured in a given sampling event.
 #' The plots show changes in size, numbers or maturation over time if multiple age classes were captured.
+#' 
+#' "survival' (relative survival of each group, value of 1 equivalent, estimated relative survival shown by dotted line)
+#' 
 #' "catch" (catch rates of each group - catch curve type data),
+#' 
 #' "age_freq" (same data as above, but columns instead of points),
+#' 
 #' "mu_growth_FL" (average length per age), 
+#' 
 #' "mu_growth_wt" (average weight per age),
+#' 
 #' "growth_FL" (individual lengths per age),
+#' 
 #' "growth_wt" (raw weights by age),
+#' 
 #' "maturation" (the proportion mature per age),
+#' 
 #' "maturation_by_sex" (partitions data used in plot above by sex) 
+#' 
 #' A series of plots looking at the overall size distribution of the entire population in a lake (all age classes)
+#' 
 #' "FL_freq" (fork-length frequencies per lake-sample session as lines),
+#' 
 #' "FL_density"(fork-length frequencies per lake-sample session as smoothed densities),
+#' 
 #' "FL_hist"(fork-length frequencies per lake-sample session as histograms), 
+#' 
 #' In all cases the data will be grouped by the "Contrast" stated during the SPDT data call.
 #' @param Method a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.
 #' @param min_N an integer to set a minimum sample size to include in plots. This sample size applies to the overall sample across contrast groups.
@@ -39,6 +54,7 @@
 #' 
 #' Plot the relative survival of the contrast groups
 #' SPDTplot(Metric = "survival")
+#' 
 #' 
 #' @importFrom magrittr "%>%"
 #' @importFrom rlang .data
@@ -84,7 +100,7 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
     dplyr::mutate(Year_Season = paste0(Year,"_",Season),
                   Dec.Age = round(Int.Age+(lubridate::month(avg_sample_date)-1)/12, 1))%>%
     dplyr::group_by(Lk_yr_age, Season)%>%
-    dplyr::filter(n()>1)%>%
+    dplyr::filter(n()>1, sum(N)>0)%>%
     dplyr::ungroup()
   
   plot_idf <- idf%>%
@@ -94,9 +110,6 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
     dplyr::group_by(Lk_yr_age, Season)%>%
     dplyr::filter(paste0(Lk_yr_age, Season)%in% paste0(plot_gdf$Lk_yr_age, plot_gdf$Season))%>%
     dplyr::ungroup()
-  
-  
-  
 
   #Could add an additional filter [!is.na(plot_idf$Length_mm),]
   #But it is better to get the warning I think. It still plots

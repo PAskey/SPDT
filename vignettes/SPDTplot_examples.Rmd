@@ -27,37 +27,19 @@ library(SPDT)
 library(tidyverse)
 ```
 
-OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips, and in this case we will narrow our search to just Kokanee.>
+OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish. SPDT data takes several arguments to refine data: Spp, Strains, and Contrast. Since this vignette is about producing plots, we will want a fairly focused data set (e.g. just filtering to something broad like Species, would lead to so much data that plots would be very cluttered and not meaningful). In general the plotting function works when you want to look at a specific contrast between stocking groups. 
 
-```{r message=FALSE, warning=FALSE}
-SPDTdata(Spp = "KO")
-```
-
-This creates several different data frames that may be of use for Kokanee data analyses. Most of the data frames are simply cleaned and standardized versions of tables already existing in the SLD. However, two tables that are a bit more refined are "idf" which is the "individual data frame" resulting form the SLD Biological table and "gdf" (grouped data frame) which summarizes the individual data by the stocking group (same brood year, lake, year, clip, etc.), which is the typical unit of measurement for SPDT when looking at survival, etc. To see how we use these tables, let's take an example data set and analyze it.
-
-To start, let's look at what we have to works with, by just plotting length frequency plots for all the lakes included. We can use on e of the standard plots in the SPDT package for this using SPDTplot(). You can enter ?SPDTplot() in command line if you want the details.
-
-```{r fig.height=14, fig.width=10, message=FALSE, warning=FALSE}
-SPDTplot(Metric = "FL_freq", min_N = 20)+
-  facet_wrap(~.data$Waterbody_Name, scales = "free_y", ncol = 6)
-#Note: Too many facets to display well in RMarkdown, so added last line to makes less facets and more columns than the default.
-#facet by Waterbody instead of Waterbody and sampling event, and made 6 columns (defaults to 3 normally)
-#Normally (all plots below) you do not need to alter the default SPDTplot
-
-```
-
-
-Data for further analyses could be extracted many ways, e.g. by strain, species, lake type, etc. and can include historical contrasts that might not have been in your original experiment. As an example lets extract all the grouped data associated with the 3 gram fry experiments.
+With this in mind, let's look at two specific stocking product examples.
 
 ## Example: Using the filtered SPDT data set to plot contrasts in 3N vs 2N performance in Kokanee
 
-If we are interested in a specific type of experimental contrast we can select for lake-years with relevant experiments.
+If we are interested in a specific type of experimental contrast we can select for lake-years with relevant experiments. One example would be to look at the relative performance of different genotypes for Kokanee. Which would be found using the code line below:
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, results  ='hide'}
 SPDTdata(Spp = "KO", Contrast = "Genotype")
 ```
 
-Now if we re-run a plot it will only have those lakes of interest. There are many plots we can run with SPDTplot:
+There is a long list of plots that can be created from SPDTplot(). Now if we re-run a plot it will only have those lakes of interest. There are many plots we can run with SPDTplot:
 
 
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
