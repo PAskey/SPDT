@@ -69,6 +69,8 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
     controls = c("Strain")
   }
   
+  
+  #The survival plot uses a different data set than all the other plots.min_N is irrelevant becasue are return of 0 is a valid observation for survival.
   if (Metric == "survival"){ 
     
  p =  ggplot2::ggplot(data = wide_df, ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, fill = Int.Age, colour = Sig_p,  shape = get(controls[1])))+
@@ -91,24 +93,25 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
   
   
 
-  #For colouring plots by brood year (with fewer unique levels), set up grouping column col_group
-  #TD add filter to remove age classes that don't have releases for multiple levels of Contrast
+  
+  #Filter to remove age classes that don't have releases for multiple levels of Contrast
+  #Filter to min_N requirements at level of Lk_yr, age, season
 
   
   plot_gdf <- gdf%>%
     dplyr::filter(Capture_Method == Method, !is.na(N_rel), N >= min_N)%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
-                  Dec.Age = round(Int.Age+(lubridate::month(avg_sample_date)-1)/12, 1))%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
     dplyr::group_by(Lk_yr_age, Season)%>%
-    dplyr::filter(n()>1, sum(N)>0)%>%
+    dplyr::filter(n()>1, sum(N)>0)%>%#Add these conditions, so that not left with single group after min_N requirements above
     dplyr::ungroup()
   
+  #min_N for idf does not filter out individual age classes (because the x-axis is usually just length), and binned by Lk_yr and season. So min_N is by Lk_yr and season
   plot_idf <- idf%>%
     dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
-                  Dec.Age = round(Int.Age+(lubridate::month(Date)-1)/12, 1))%>%
-    dplyr::group_by(Lk_yr_age, Season)%>%
-    dplyr::filter(paste0(Lk_yr_age, Season)%in% paste0(plot_gdf$Lk_yr_age, plot_gdf$Season))%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
+    dplyr::group_by(Lk_yr, Season)%>%
+    #dplyr::filter(paste0(Lk_yr, Season)%in% paste0(plot_gdf$Lk_yr, plot_gdf$Season))%>%this is an option if want ot match plot_gdf data. Use Lk_yr_Age to b emost strict
+    dplyr::filter(n()>min_N)%>%
     dplyr::ungroup()
 
   #Could add an additional filter [!is.na(plot_idf$Length_mm),]
@@ -179,21 +182,17 @@ if (Metric == "maturation"){
 } 
 
 ##___________________________________________________________________________
-##INDIVIDUAL LEVEL PLOTS
+##INDIVIDUAL LEVEL (raw data) PLOTS
 
     
 
 pi = ggplot2::ggplot(data = plot_idf, ggplot2::aes(colour = get(Contrast), fill = get(Contrast), shape = get(controls[1]), group=get(Contrast)))+
-  #ggplot2::geom_point(size = 4, alpha = 0.4, shape = 21, position = ggplot2::position_jitter(width = 0.1))+
   ggplot2::scale_shape_manual(values = rep(21:25, 5))+
-  #ggplot2::geom_boxplot(ggplot2::aes(group = Genotype))+
   viridis::scale_fill_viridis(discrete = TRUE)+
   viridis::scale_colour_viridis(discrete = TRUE)+
   ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free")+
   ggplot2::labs(fill = Contrast, colour = Contrast, shape = controls[1])+
   ggplot2::theme_bw()
-  #ggplot2::guides(colour=ggplot2::guide_legend(override.aes = list(shape = 21)),fill=ggplot2::guide_legend(override.aes = list(shape = 21)))+
-  #ggplot2::theme(panel.grid.major = ggplot2::element_line(colour = "black"))
   
   
 if(Metric == "condition"){

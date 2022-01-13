@@ -75,13 +75,15 @@ if (!is.null(Strains)) {
 idf <- idf%>%
   dplyr::mutate(SAR_cat = SAR_cat(SAR),
                 Season = metR::season(Date),
-                Season = dplyr::recode_factor(Season, MAM = "Spring", JJA = "Summer", SON = "Fall", DJF = "Winter"))
+                Season = dplyr::recode_factor(Season, MAM = "Spring", JJA = "Summer", SON = "Fall", DJF = "Winter"),
+                Dec.Age = round(Int.Age+as.numeric(Season)/4, 2)
+                )
 
 
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
-  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season,.data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Clip, .data$sby_code, .data$N_rel, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
+  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Dec.Age, .data$sby_code, .data$Clip, .data$N_rel, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
   dplyr::summarize( mean_FL = mean(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     sd_FL = sd(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     mean_wt = mean(Weight_g[.data$Outlier%in%c(0,NA)], na.rm = TRUE), 
@@ -116,31 +118,21 @@ uni_events = idf%>%
 
 #MAYBE CHANGE THIS TO A RIGHT JOIN?
 #Join this with clipsum, so all releases that should appear in a sampling event are tracked.
-clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')
+clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')%>%
+          dplyr::mutate(Dec.Age = round(Int.Age+as.numeric(Season)/4, 2))%>%#this add dec.age to 0 counts
+          dplyr::filter(!is.na(Species))#Remove cases that did not match a stocking event.
 
-gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
-                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
+                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
   dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
   dplyr::mutate(N = replace(N, is.na(N), 0), 
                 NetXN = replace(NetXN, is.na(NetXN), 0),
                 avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE))%>%
   dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
 
-#A lookup to add in average sampling date for each lake year and Capture method.
-#quick_Lu <-idf%>%dplyr::group_by(Lk_yr, Capture_Method)%>%
-#  dplyr::summarize(avg_sample_date = as.POSIXct(mean(.data$Date),format='%d%b%Y'))%>%
-#  dplyr::ungroup()
-
-#gdf = dplyr::left_join(gdf, quick_Lu, by = c("Lk_yr", "Capture_Method"))
 
 #Have to add in average sample data at this point, otherwise it is NA for all cases of non-clips, etc.
 gdf = dplyr::left_join(gdf, uni_events, by = c("Lk_yr", "Season", "Capture_Method"))
-
-#Another lookup to only keep 0 catch if a comparison group was captured
-#This was done in linkclips but had gdff instead fo gdf by accident
-#quick_Lu <-idf%>%dplyr::group_by(WBID, Year, sby_code)%>%dplyr::summarize(Lk_yr_sby = paste(WBID, Year, sby_code, sep = "_"))
-#gdf <- gdf%>%dplyr::mutate(Lk_yr_sby = paste(WBID, Year, sby_code, sep = "_"))
-##NEED TO FINISH SECTION HERE
 
 #Sections to pull specific contrast years
 if (!is.null(Contrast)) {
@@ -163,8 +155,8 @@ gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 #Create a wide format data set for comparing relative catch
 #First only use groups that are recruited to gillnets (>150mm).
 predf = gdf%>%
-  dplyr::filter(mean_FL>150)%>%
-  dplyr::group_by(Waterbody_Name, Lk_yr, sby_code, Int.Age, !!!rlang::syms(Contrast_possible))%>%
+  #dplyr::filter(mean_FL>150)%>%
+  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, sby_code, Int.Age, Dec.Age, !!!rlang::syms(Contrast_possible))%>%
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
@@ -193,7 +185,7 @@ for(i in 1:(length(cats)-1)){
       dplyr::filter(get(Contrast) %in% cats[c(i,j)])%>%#Can switch to filter by delta
       dplyr::mutate(Comparison = Con)%>%
       tidyr::pivot_wider(names_from = {{Contrast}}, values_from = c(xN, Nr, N))%>%#, names_sort = TRUE
-      dplyr::rename(a_xN = 9, b_xN = 10, a_Nr=11, b_Nr = 12, a_N = 13, b_N = 14)%>%
+      dplyr::rename(a_xN = 12, b_xN = 13, a_Nr=14, b_Nr = 15, a_N = 16, b_N = 17)%>%
       dplyr::rowwise()%>%
       dplyr::filter(!is.na(sum(a_xN, b_xN, a_Nr, b_Nr)))%>%
       dplyr::mutate(Recap_Ratio = a_xN/(b_xN), Release_Ratio = a_Nr/(b_Nr), a = cats[i], b = cats[j], N = sum(a_N, b_N))%>%
@@ -213,7 +205,10 @@ wide_df = df%>%
                 UCI = UCI/(1-UCI))
 
 #Add in average relative survival (log odds) for each comparison.
-wide_df = wide_df%>%group_by(Comparison)%>%mutate(avg_surv = exp(mean(log(surv_diff))))%>%ungroup()
+wide_df = wide_df%>%
+  dplyr::group_by(Comparison, Int.Age)%>%
+  dplyr::mutate(avg_surv = exp(mean(log(surv_diff))))%>%
+  dplyr::ungroup()
 
 #Put into global environment. These only appear if Contrast is not NULL.
 wide_df<<-wide_df

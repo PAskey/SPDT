@@ -39,15 +39,56 @@ If we are interested in a specific type of experimental contrast we can select f
 SPDTdata(Spp = "KO", Contrast = "Genotype")
 ```
 
-There is a long list of plots that can be created from SPDTplot(). Now if we re-run a plot it will only have those lakes of interest. There are many plots we can run with SPDTplot:
+There is an extensive list of plots that can be created from SPDTplot(). You can type ?SPDTplot in RStudio if you forget the name of the plot you want. The primary argument in the SPDTplot() function is "Metric". This argument generally describes a performance metric you would like plotted, but this is a loose description. We will go through most of the possibilities below.
 
+Other options in the function include: "Method" which is used to select a specific capture method from codes in the SLD like "GN"; min_N which is used to set a minimum sample size (this is useful for frequency plots or when looking at averages, to ensure each data point meets your requirements for sample size); save_png, if this is set to save_png = TRUE then a copy of the plot will be saved to your working directory as a png file.
+
+Keep in mind the call to SPDTdata(), and specifically the "Contrast" option selected in that call controls key aspects of the plotting functions. All plot are created to create a strong visual difference in the contrast variable, while at the same time providing all information needed to separate other potential effects. In general this means that the contrast variable is colour coded, and other variables are point shapes. The x axis is usually age and and then all plots are segregated into facets by lakes, years, seasons.Perhaps the most basical raw data is simply catch.
+
+
+```{r fig.height=7, fig.width=10,message=FALSE, warning=FALSE}
+
+SPDTplot(Metric = "catch")
+```
+Figure 1. A plot of age-specific catch by genotype (catch curve data) for sampling events recorded in the small lakes database.  
+
+ALternatively this information can be plotted as a bar graph or frequency plot using the "age_freq" option.
+
+```{r fig.height=7, fig.width=10,message=FALSE, warning=FALSE}
+
+SPDTplot(Metric = "age_freq")
+```
+FIgure 2. catch by age (same data as Figure 1).
+
+
+The catch figures are not totally "raw" as all catch values have been standardized by gillnet selectivity (N/selectivity). In general groups are stocked at equivalent rates so that differences in catch represent either differences in survival or catchability. However, stocking numbers are not always matched, so to view survival effects we need to standardize to stocking rate for each group. This is accounted for in the "survival" plot, which compares relative catch per stocked fish between groups.
+
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
+
+SPDTplot(Metric = "survival")
+```
+Figure 3. The relative survival rate of 3N verus 2N indexed by the relative return gillnet catch per stocked fish. The plot represents the return rate of 3N fish relative to 2N fish. A value of 1 would be equivalent, >1 indicates 3N survive better than 2N and a value <1 indicates 3N do not survive as well as 2N. The dotted line represents the average (over all ages and lakes) relative return of 3N versus 2N Kokanee.
+
+Perhaps you would have preferred to analyze survival with age groups (or a single age group) independent. Since all these plots are ggplot functions, we can add or alter their appearance through ggplot functions. For example, we can alter the survival plot to divide facets by age class, by adding a geom_facet_wrap() call.
+
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
+
+SPDTplot(Metric = "survival")+
+  facet_wrap(~Comparison+Int.Age)
+```
+
+However, it might not be intuitive to find or understand the field names you need for such an alteration. Another option is to just copy the raw code for a given Figure and alter as you see fit. The options to access to code are type "SPDTplot" in console and code is returned in console, type view(SPDTplot) and you see code in code tabs, or go to Github SPDT account.
+
+Overall, if the same stocking prescription has been repeated for several years, then a simple length frequency of the entire population (by Genotype) can provide a nice visual representation of the of the relative size and abundance of fish expected in the fishery depending on the genotype stocked. In the case of Kokanee, consistent stocking followed by assessment was not the rule, but for a few lakes. To ensure lakes had a good number of samples, we will set the min_N value to 20. 
 
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
 SPDTplot(Metric = "FL_freq", min_N = 20)
-SPDTplot(Metric = "age_freq")
-SPDTplot(Metric = "survival")
-SPDTplot(Metric = "maturation_by_sex")
 ```
+
+If we prefer to focus on the relative size distribution we may want to switch to density plots:
+
+If we prefer column type plots, then:
+
 
 Now let's look at the Kokanee data with Genotype contrast every which way:
 
