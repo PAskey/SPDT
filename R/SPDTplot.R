@@ -73,45 +73,46 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
   #The survival plot uses a different data set than all the other plots.min_N is irrelevant becasue are return of 0 is a valid observation for survival.
   if (Metric == "survival"){ 
     
- p =  ggplot2::ggplot(data = wide_df, ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, fill = Int.Age, colour = Sig_p,  shape = get(controls[1])))+
+ p =  ggplot2::ggplot(data = wide_df, ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, colour = as.factor(.data$Int.Age), fill = as.factor(Int.Age),  shape = get(controls[1])))+
     ggplot2::geom_hline(yintercept = 1)+
-    ggplot2::geom_point(ggplot2::aes(y = .data$surv_diff, size = .data$N), stroke = 1, alpha = 0.6, position = ggplot2::position_dodge(width = 0.5))+
-    ggplot2::geom_line(ggplot2::aes(y = .data$avg_surv), colour = "black", lty = 2)+
-    ggplot2::scale_y_continuous(trans='log10')+
-    ggplot2::labs(y = "Relative survival")+
+    ggplot2::geom_point(ggplot2::aes(y = .data$surv_diff, size = .data$N), stroke = 1, alpha = 0.7, position = ggplot2::position_dodge(width = 0.5))+
+    viridis::scale_fill_viridis(discrete = TRUE)+
+    ggplot2::geom_line(ggplot2::aes(y = .data$avg_surv), lty = 2, lwd = 1.2)+
+    viridis::scale_colour_viridis(discrete = TRUE)+
+    ggplot2::scale_y_continuous(trans='log10')+#,expand=c(0.1,0.1))+
+    ggplot2::labs(y = "Relative survival",shape  = controls[1], colour = "Age", fill = "Age")+
     ggplot2::scale_shape_manual(values = rep(21:25, 5))+
-    viridis::scale_fill_viridis()+
-    ggplot2::scale_colour_manual(values = c("black", "red"))+
-    ggplot2::facet_wrap(~.data$Comparison, scales = "free")+
-    ggplot2::labs(shape = controls[1], colour = "p < 0.05")+
+    ggplot2::facet_wrap(~.data$Comparison)+#, scales = "free")+
+    #ggplot2::facet_grid(.data$b~.data$a)+
     ggplot2::theme_bw()+
-    ggplot2::theme(axis.text.x=element_text(angle=45, hjust=1))
+    ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))+
+    ggplot2::guides(fill=ggplot2::guide_legend(override.aes=list(shape=21)))
   } 
   
-  
-  
-  
-  
-
+ 
   
   #Filter to remove age classes that don't have releases for multiple levels of Contrast
   #Filter to min_N requirements at level of Lk_yr, age, season
 
   
   plot_gdf <- gdf%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel), N >= min_N)%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
+    dplyr::filter(Capture_Method %in% Method, !is.na(N_rel), N >= min_N)%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
+                  SAR_cat = as.factor(SAR_cat))%>%
     dplyr::group_by(Lk_yr_age, Season)%>%
-    dplyr::filter(n()>1, sum(N)>0)%>%#Add these conditions, so that not left with single group after min_N requirements above
+    dplyr::filter(1<length(unique(get(Contrast))), sum(N)>0)%>%#If min_N is ) still need at least one group to be > 0
+    #dplyr::group_by(Lk_yr,season)%>%#Add these conditions, so that not left with single group after min_N requirements above
+    #dplyr::filter(max(uniq)>1)
     dplyr::ungroup()
   
   #min_N for idf does not filter out individual age classes (because the x-axis is usually just length), and binned by Lk_yr and season. So min_N is by Lk_yr and season
   plot_idf <- idf%>%
-    dplyr::filter(Capture_Method == Method, !is.na(N_rel))%>%
-    dplyr::mutate(Year_Season = paste0(Year,"_",Season))%>%
+    dplyr::filter(Capture_Method %in% Method, !is.na(N_rel))%>%
+    dplyr::mutate(Year_Season = paste0(Year,"_",Season),
+                  SAR_cat = as.factor(SAR_cat))%>%
     dplyr::group_by(Lk_yr, Season)%>%
-    #dplyr::filter(paste0(Lk_yr, Season)%in% paste0(plot_gdf$Lk_yr, plot_gdf$Season))%>%this is an option if want ot match plot_gdf data. Use Lk_yr_Age to b emost strict
-    dplyr::filter(n()>min_N)%>%
+    dplyr::filter(paste0(Lk_yr, Season)%in% paste0(plot_gdf$Lk_yr, plot_gdf$Season))%>%#this is an option if want ot match plot_gdf data. Use Lk_yr_Age to b emost strict
+    #dplyr::filter(dplyr::n()>min_N)%>%
     dplyr::ungroup()
 
   #Could add an additional filter [!is.na(plot_idf$Length_mm),]
@@ -128,13 +129,13 @@ pg = ggplot2::ggplot(data = plot_gdf, ggplot2::aes(x = .data$Int.Age, fill = get
     ggplot2::scale_shape_manual(values = rep(21:25, 5))+
     viridis::scale_fill_viridis(discrete = TRUE)+
     viridis::scale_colour_viridis(discrete = TRUE)+
-    scale_y_continuous(limits = c(0,NA),expand=expansion(add=c(0,10))) +
+    ggplot2::scale_y_continuous(limits = c(0,NA),expand=ggplot2::expansion(add=c(0,10))) +
     ggplot2::facet_wrap(~.data$Waterbody_Name+.data$Year_Season, scales = "free_y")+
     ggplot2::scale_x_continuous(breaks = scales::breaks_width(1))+
     ggplot2::labs(x = "Age", fill = Contrast, colour = Contrast, shape = controls[1])+
     ggplot2::theme_bw()
   
-#Survival plot additions.  
+#Catch plot additions.  
 if (Metric == "catch"){
 p = pg + 
     ggplot2::geom_point(ggplot2::aes(y = .data$NetXN),size = 4, alpha = 0.6, position = ggplot2::position_dodge(width = 0.2))+
@@ -147,7 +148,7 @@ if (Metric == "mu_growth_FL"){
   p = pg + 
     ggplot2::geom_point(ggplot2::aes(y = .data$NetX_FL),size = 4, alpha = 0.7, position = ggplot2::position_dodge(width = 0.5))+
     ggplot2::geom_errorbar(ggplot2::aes(ymin=.data$NetX_FL-.data$sd_FL, ymax=.data$NetX_FL+.data$sd_FL), width=.2, position=ggplot2::position_dodge(.5))+
-    ggplot2::scale_y_continuous(breaks = scales::breaks_width(50))+
+    ggplot2::scale_y_continuous(breaks = scales::breaks_width(50), limits = c(100,NA))+#
     ggplot2::labs(y = "Fork length (mm, selectivity adjusted)")
 }
 
@@ -155,7 +156,7 @@ if (Metric == "mu_growth_wt"){
   p = pg + 
     ggplot2::geom_point(ggplot2::aes(y = .data$NetX_wt),size = 4, alpha = 0.7, position = ggplot2::position_dodge(width = 0.5))+
     ggplot2::geom_errorbar(ggplot2::aes(ymin=.data$NetX_wt-.data$sd_wt, ymax=.data$NetX_wt+.data$sd_wt), width=.2, position=ggplot2::position_dodge(.5))+
-    ggplot2::scale_y_continuous(breaks = scales::breaks_width(200))+
+    #ggplot2::scale_y_continuous(breaks = scales::breaks_width(100), limits = c(0,NA))+
     ggplot2::labs(y = "Weight (g, selectivity adjusted)")
 }
 
@@ -164,7 +165,7 @@ if (Metric == "age_freq"){
   p = pg + 
     ggplot2::geom_col(ggplot2::aes(y  =.data$NetXN),position = ggplot2::position_dodge2(preserve = "single"), alpha = 0.6)+
     ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free_y")+
-    ggplot2::scale_y_continuous(breaks = scales::breaks_width(10))+
+    #ggplot2::scale_y_continuous(breaks = scales::breaks_width(10))+
     ggplot2::labs(y = "Catch (selectivity adjusted)")+
     ggplot2::theme_bw()
 }
@@ -184,15 +185,18 @@ if (Metric == "maturation"){
 ##___________________________________________________________________________
 ##INDIVIDUAL LEVEL (raw data) PLOTS
 
-    
+  #plot_idf = plot_idf%>%filter(Waterbody_Name %in%c("NESS", "VIVIAN2", "WAPITI", "COBB", "FUSEE", "YELLOW", "TULIP"))  
+  #maxFL = max(plot_idf$Length_mm, na.rm = T) + (20 - max(plot_idf$Length_mm, na.rm = T) %% 20) 
 
 pi = ggplot2::ggplot(data = plot_idf, ggplot2::aes(colour = get(Contrast), fill = get(Contrast), shape = get(controls[1]), group=get(Contrast)))+
   ggplot2::scale_shape_manual(values = rep(21:25, 5))+
   viridis::scale_fill_viridis(discrete = TRUE)+
   viridis::scale_colour_viridis(discrete = TRUE)+
-  ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free")+
+  ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free_y")+
   ggplot2::labs(fill = Contrast, colour = Contrast, shape = controls[1])+
   ggplot2::theme_bw()
+
+
   
   
 if(Metric == "condition"){
@@ -209,7 +213,8 @@ if(Metric == "condition"){
 p = pi + 
   ggplot2::geom_point(ggplot2::aes(x = .data$Length_mm, y = .data$Weight_g), size = 4, alpha = 0.5)+
   ggplot2::scale_x_log10()+
-  ggplot2::scale_y_log10()
+  ggplot2::scale_y_log10()+
+  ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season)#Don't want scales free so repeated facet_wrap line
 }
 
 
@@ -219,10 +224,10 @@ p = pi +
 p = pi + 
      ggplot2::geom_point(ggplot2::aes(x = .data$Dec.Age, y = .data$Weight_g), size = 4, alpha = 0.5, position = ggplot2::position_dodge(width = 0.3))+
      ggplot2::labs(x = "Age", y = "Weight (g)", fill = Contrast, colour = Contrast)+
-     ggplot2::scale_y_continuous(breaks = scales::breaks_width(200))+
+     ggplot2::scale_y_continuous(breaks = scales::breaks_width(200), limits = c(0,NA))+
      ggplot2::scale_x_continuous(breaks = scales::breaks_width(1))+
      ggplot2::theme_bw()+
-     ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season)#, scales = "free_y")
+     ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free_y")
  }
 
 if (Metric == "growth_FL"){
@@ -230,10 +235,10 @@ if (Metric == "growth_FL"){
   p = pi + 
     ggplot2::geom_point(ggplot2::aes(x = .data$Dec.Age, y = .data$Length_mm), size = 4, alpha = 0.5, position = ggplot2::position_dodge(width = 0.3))+
     ggplot2::labs(x = "Age", y = "Fork Length (mm)", fill = Contrast, colour = Contrast)+
-    ggplot2::scale_y_continuous(breaks = scales::breaks_width(50))+
+    ggplot2::scale_y_continuous(breaks = scales::breaks_width(50), limits = c(100,NA))+
     ggplot2::scale_x_continuous(breaks = scales::breaks_width(1))+
     ggplot2::theme_bw()+
-    ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season)#, scales = "free_y")
+    ggplot2::facet_wrap(.data$Waterbody_Name~.data$Year_Season, scales = "free_y")
 }
 
 
@@ -241,7 +246,7 @@ if (Metric == "growth_FL"){
   if (Metric == "FL_age_facets"){
     p = pi+
       ggplot2::geom_point(ggplot2::aes(x = .data$Waterbody_Name, y = .data$Length_mm),size = 4, alpha = 0.5, position = ggplot2::position_dodge(width = 0.75))+
-      ggplot2::facet_wrap(~.data$Dec.Age)+
+      ggplot2::facet_wrap(~.data$Dec.Age, scales = "free")+
       ggplot2::labs(x = "", y = "Fork Length (mm)", fill = Contrast)+
       ggplot2::theme_bw()+
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, vjust = 1, hjust=1))
@@ -258,6 +263,7 @@ p = pi+
     ggplot2::geom_density(ggplot2::aes(x = .data$Length_mm), alpha = 0.4, lwd = 1, adjust = 1/2)+
     ggplot2::xlim(c(100,NA))+
     ggplot2::theme_bw()+
+    ggplot2::theme(axis.text.y=ggplot2::element_blank(), axis.ticks.y=ggplot2::element_blank())+
     ggplot2::labs( fill = Contrast, colour = Contrast) 
    
 
@@ -267,8 +273,8 @@ if (Metric == "FL_freq"){
   if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
   
   p = pi+
-    ggplot2::geom_freqpoly(ggplot2::aes(x = .data$Length_mm), alpha = 0.9, lwd = 1)+
-    ggplot2::xlim(c(100,450))+
+    ggplot2::geom_freqpoly(ggplot2::aes(x = .data$Length_mm), alpha = 0.9, lwd = 1, binwidth = 20)+
+    ggplot2::xlim(c(100,NA))+
     ggplot2::theme_bw()+
     ggplot2::labs(colour = Contrast)+ 
     ggplot2::guides(colour=ggplot2::guide_legend(override.aes = list(line = 2)),fill="none")
@@ -279,7 +285,7 @@ if (Metric == "FL_hist"){
   if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
   
   p = pi+
-    ggplot2::geom_histogram(ggplot2::aes(x = .data$Length_mm), alpha = 0.2, lwd = 1, position = "identity")+
+    ggplot2::geom_histogram(ggplot2::aes(x = .data$Length_mm), alpha = 0.2, lwd = 1, position = "identity", binwidth = 20)+
     ggplot2::xlim(c(100,450))+
     ggplot2::theme_bw()+
     ggplot2::labs( fill = Contrast, colour = Contrast) 
@@ -291,8 +297,8 @@ if (Metric == "FL_hist"){
   if (Metric == "maturation_by_sex"){
     if(min_N<5){warning("Min_N should be >=5 for maturation plots")}
     mat_df = plot_idf%>%
-              dplyr::filter(Maturity != 'UNK', !is.na(Sex))%>%
-              dplyr::group_by(Waterbody_Name, WBID, Year, Strain, Genotype, Int.Age, Dec.Age, Sex)%>%
+              dplyr::filter(Maturity != 'UNK', !is.na(Sex), !grepl(",",Genotype))%>%
+              dplyr::group_by(Waterbody_Name, WBID, Year, Species, Strain, Genotype, Int.Age, Dec.Age, Sex, SAR_cat)%>%
               dplyr::summarize(N = dplyr::n(),
                                Nkn = sum(.data$Maturity != 'UNK', na.rm = TRUE),
                                Nm = sum(.data$Maturity != 'IM'& .data$Maturity != 'UNK', na.rm = TRUE),

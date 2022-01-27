@@ -100,6 +100,24 @@ Xnew <- Xnew[Xnew$Lk_yr%in%Biological$Lk_yr&Xnew$Int.Age <= maxxage,]
 Biological$Clip[Biological$Clip == "NONE"]<-NA
 Xnew$Clip[Xnew$Clip == ""]<-NA
 
+########################################################################################################################
+###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
+
+Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
+
+#Similar issue where people have put UNK instead of NA or none. UNK should be for non-readable clips from fish know to be clipped.
+Clip_yrs = Biological%>%
+  dplyr::group_by(Lk_yr, Species)%>%
+  dplyr::filter(!Clip%in%c("NOREC","UNK",NA))%>%
+  dplyr::summarize(Nclips = length(unique(Clip)), Lk_yr_spp = paste0(Lk_yr,Species))
+  
+#So if there were no clips recorded at all in that Lk-yr and species group, then change UNK or NOREC to NA
+Biological = Biological%>%dplyr::mutate(Lk_yr_spp = paste0(Lk_yr,Species))
+Biological$Clip[Biological$Clip%in%c("NOREC","UNK",NA)&!Biological$Lk_yr_spp%in%Clip_yrs$Lk_yr_spp]<-NA
+
+Biological = Biological%>%dplyr::select(-Lk_yr_spp)
+
+#########################################################################################################################
 #How many clips are unique so that age does not need to be known?
 #Group release data by lake, year, species, clip to create a summary (this will allow for replacing erroneous ages)
 #of potential stocking records that could be assigned to those grouping variables (ideally just one - if unique clip or consistent stocking prescription)

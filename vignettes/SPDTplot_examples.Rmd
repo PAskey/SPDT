@@ -20,20 +20,20 @@ opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 
 ## Getting Started
 
-See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. Once installed use following code to load the package for use.
+See  https://github.com/PAskey/SPDT#readme to get instructions on how to install package and ensure you are connected to the database server at work or through the vpn if you are at home. You will also want to make sure you have the tidyverse package installed, so that you can manually manipulate the data frames and/or plots produced by the SPDT package as needed. Once packages are installed use following code to load the packages for use.
 
 ```{r setup, warning=FALSE,message=FALSE}
 library(SPDT)
 library(tidyverse)
 ```
 
-OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish. SPDT data takes several arguments to refine data: Spp, Strains, and Contrast. Since this vignette is about producing plots, we will want a fairly focused data set (e.g. just filtering to something broad like Species, would lead to so much data that plots would be very cluttered and not meaningful). In general the plotting function works when you want to look at a specific contrast between stocking groups. 
+OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish. SPDT data takes several arguments to refine the raw SLD data down to the data of interest to you: Spp, Strains, and Contrast. Since this vignette is about producing plots, we will want a fairly focused data set (e.g. just filtering to something broad like a Species, would lead to so much data that plots would be very cluttered and not meaningful). In general the plotting function works when you want to look at a specific contrast between stocking groups. 
 
-With this in mind, let's look at two specific stocking product examples.
+With this in mind, let's look at two specific stocking project examples.
 
 ## Example: Using the filtered SPDT data set to plot contrasts in 3N vs 2N performance in Kokanee
 
-If we are interested in a specific type of experimental contrast we can select for lake-years with relevant experiments. One example would be to look at the relative performance of different genotypes for Kokanee. Which would be found using the code line below:
+If we are interested in a specific type of experimental contrast we can select for lake-years that had a stocking prescription that match the contrast of interest. One example would be to look at the relative performance of different genotypes for Kokanee. Which would be found using the code line below:
 
 ```{r message=FALSE, warning=FALSE, results  ='hide'}
 SPDTdata(Spp = "KO", Contrast = "Genotype")
@@ -43,7 +43,7 @@ There is an extensive list of plots that can be created from SPDTplot(). You can
 
 Other options in the function include: "Method" which is used to select a specific capture method from codes in the SLD like "GN"; min_N which is used to set a minimum sample size (this is useful for frequency plots or when looking at averages, to ensure each data point meets your requirements for sample size); save_png, if this is set to save_png = TRUE then a copy of the plot will be saved to your working directory as a png file.
 
-Keep in mind the call to SPDTdata(), and specifically the "Contrast" option selected in that call controls key aspects of the plotting functions. All plot are created to create a strong visual difference in the contrast variable, while at the same time providing all information needed to separate other potential effects. In general this means that the contrast variable is colour coded, and other variables are point shapes. The x axis is usually age and and then all plots are segregated into facets by lakes, years, seasons.Perhaps the most basical raw data is simply catch.
+Keep in mind the call to SPDTdata(), and specifically the "Contrast" option selected in that call controls key aspects of the plotting functions. All plot are created to create a strong visual difference in the contrast variable, while at the same time providing all information needed to separate other potential effects. In general this means that the contrast variable is colour coded, and other variables are point shapes. The x axis is usually age and and then all plots are segregated into facets by a sampling event (lake, year, season).Perhaps the most basic raw data is simply catch.
 
 
 ```{r fig.height=7, fig.width=10,message=FALSE, warning=FALSE}
@@ -52,24 +52,29 @@ SPDTplot(Metric = "catch")
 ```
 Figure 1. A plot of age-specific catch by genotype (catch curve data) for sampling events recorded in the small lakes database.  
 
-ALternatively this information can be plotted as a bar graph or frequency plot using the "age_freq" option.
+
+Alternatively this information can be plotted as a bar graph or frequency plot using the "age_freq" option.
+
 
 ```{r fig.height=7, fig.width=10,message=FALSE, warning=FALSE}
 
 SPDTplot(Metric = "age_freq")
 ```
-FIgure 2. catch by age (same data as Figure 1).
+Figure 2. catch by age (same data as Figure 1).
 
 
-The catch figures are not totally "raw" as all catch values have been standardized by gillnet selectivity (N/selectivity). In general groups are stocked at equivalent rates so that differences in catch represent either differences in survival or catchability. However, stocking numbers are not always matched, so to view survival effects we need to standardize to stocking rate for each group. This is accounted for in the "survival" plot, which compares relative catch per stocked fish between groups.
+The catch figures are not totally "raw" as all catch values have been standardized by gillnet selectivity (N/selectivity which was done with Rainbow Trout). In general groups are stocked at equivalent rates so that differences in catch represent either differences in survival or catchability. However, stocking numbers are not always matched, so to view survival effects we need to standardize to stocking rate for each group. This is accounted for in the "survival" plot, which compares relative catch per stocked fish between groups.
+
 
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
 
 SPDTplot(Metric = "survival")
 ```
-Figure 3. The relative survival rate of 3N verus 2N indexed by the relative return gillnet catch per stocked fish. The plot represents the return rate of 3N fish relative to 2N fish. A value of 1 would be equivalent, >1 indicates 3N survive better than 2N and a value <1 indicates 3N do not survive as well as 2N. The dotted line represents the average (over all ages and lakes) relative return of 3N versus 2N Kokanee.
+Figure 3. The relative survival rate of 3N versus 2N indexed by the relative return gillnet catch per stocked fish. The plot represents the return rate of 3N fish relative to 2N fish. A value of 1 would be equivalent, >1 indicates 3N survive better than 2N and a value <1 indicates 3N do not survive as well as 2N. The dotted line represents the average (over all ages and lakes) relative return of 3N versus 2N Kokanee.
+
 
 Perhaps you would have preferred to analyze survival with age groups (or a single age group) independent. Since all these plots are ggplot functions, we can add or alter their appearance through ggplot functions. For example, we can alter the survival plot to divide facets by age class, by adding a geom_facet_wrap() call.
+
 
 ```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
 
@@ -77,7 +82,8 @@ SPDTplot(Metric = "survival")+
   facet_wrap(~Comparison+Int.Age)
 ```
 
-However, it might not be intuitive to find or understand the field names you need for such an alteration. Another option is to just copy the raw code for a given Figure and alter as you see fit. The options to access to code are type "SPDTplot" in console and code is returned in console, type view(SPDTplot) and you see code in code tabs, or go to Github SPDT account.
+
+However, it might not be intuitive to find or understand the field names you need for such an alteration. Another option is to just copy the raw code for a given Figure and alter as you see fit. The options to access to code are type "SPDTplot" in console and code is returned in console, type view(SPDTplot) and you see code in code tabs, or go to Github SPDT account. NOte that "survival" uses a wide format data table called "wide_df" in your RStudio environment. All plots that show averages or group totals use the grouped data frame "gdf" and all plots that use individual points use the "idf' data frame, so you can look up field names in those data frames specifically. 
 
 Overall, if the same stocking prescription has been repeated for several years, then a simple length frequency of the entire population (by Genotype) can provide a nice visual representation of the of the relative size and abundance of fish expected in the fishery depending on the genotype stocked. In the case of Kokanee, consistent stocking followed by assessment was not the rule, but for a few lakes. To ensure lakes had a good number of samples, we will set the min_N value to 20. 
 
@@ -87,10 +93,16 @@ SPDTplot(Metric = "FL_freq", min_N = 20)
 
 If we prefer to focus on the relative size distribution we may want to switch to density plots:
 
-If we prefer column type plots, then:
+
+```{rfig.height=10, fig.width=10, message=FALSE, warning=FALSE}
+SPDTplot(Metric = "FL_density", min_N = 20)
+```
 
 
-Now let's look at the Kokanee data with Genotype contrast every which way:
+If we prefer column type plots, then "F_hist".
+
+
+Now let's look at the Kokanee growth data with Genotype contrast every which way:
 
 ```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
 
@@ -98,7 +110,7 @@ SPDTplot(Metric = "growth_FL")
 #This throws error unless remove all the NAs, i.e. change min_N >0 
 SPDTplot(Metric = "mu_growth_FL")
 SPDTplot(Metric = "mu_growth_FL", min_N = 10)
-SPDTplot(Metric = "FL_density", min_N = 20)
+
 ```
 
 
@@ -106,11 +118,19 @@ SPDTplot(Metric = "FL_density", min_N = 20)
 ## Example: Using the filtered SPDT data set to plot contrasts in Carp Lake vs Blackwater or Horsefly strains.
 
 
-We could also do the same for a strain contrast. Let's look at any strain comparisons using Carp Lake, Blackwater, or Horsefly.
+We could also do the same for a strain contrast. Let's look at any strain comparisons using Carp Lake, Blackwater, or Horsefly. To get our targeted data set we filter by Strain (Strain codes are unique to RB), and set Contrast to Strain. 
+
+To prevent reloading all the Small Lakes Database data (not a problem, just takes a couple minutes), we set our Data_source to "Biological", which will use the Biological Table already loaded into the RStudio environment from the previous SPDTdata() call above.
+
+```{r message=FALSE, warning=FALSE, results  ='hide'}
+SPDTdata(Strains = c("CL", "BW", "HF"), Contrast = "Strain", Data_source = "Biological")
+```
+
+Now we have our new data sets to plot. Below are a bunch of different examples.
 
 
-```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE}
-SPDTdata(Strains = c("CL", "BW", "HF"), Contrast = "Strain")
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE, results  ='hide'}
+
 SPDTplot("age_freq")
 SPDTplot("survival")
 SPDTplot("maturation_by_sex")
@@ -119,6 +139,44 @@ SPDTplot("maturation_by_sex")
 ```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
 SPDTplot("mu_growth_FL")
 SPDTplot("growth_FL")
+SPDTplot("mu_growth_wt")
 ```
 
+
+## Example: Using the filtered SPDT data set to plot contrasts in size-at-release in RB
+
+One last example, to show how to contrast size-at-release. Since the possible sizes-at-release are numerous (even if they have the same target size, fish groups will be at least some decimal points of a gram off). So in order to find meaningful contrasts, a data field "SAR_cat" has been created in the SPDT data frames for individual (idf) and group (gdf) data. Since a difference of one gram at release is a relatively large change in size for fry, but a small change in size for yearlings, the size categories (bins) in SAR_cat increase with size (from 1g, 5g, 10g, to 25g). Expand the code blcok below if you want to see the exact cutoffs.
+
+<details>
+<summary>**Expand to see SAR_cat details**</summary>
+<p>
+```{r}
+#Create a vector of release size from 0.1 to 100g.
+Sizes = c(1:1000*0.1)
+#Apply SAR_cat() function to assign each release size to a category
+SAR_cat = SAR_cat(Sizes)
+#Make a dataframe
+df = data.frame(SAR_cat, Sizes)
+#Summarize the min and max sizes possible in each SAR_cat
+df = df%>%group_by(SAR_cat)%>%summarize(minSAR = min(Sizes), maxSAR = max(Sizes))
+
+kableExtra::kable(df)
+
+```
+</p>
+</details> 
+
+So as above, our first step is to use SPDTdata to get the data we want. In this case, let's go to a specific project (FFSBC25_10) that has size contrasts (the query works otherwise, it is just too many lakes to see clearly). We can use Data_source = "Biological", so as to not re-load the data we already queried fro the SLD.
+
+```{r message=FALSE, warning=FALSE, results  ='hide'}
+SPDTdata(Contrast = "SAR_cat", Data_source = "Biological", Project = "FFSBC25_10")
+```
+
+
+```{r fig.height=7, fig.width=10, message=FALSE, warning=FALSE, results  ='hide'}
+
+SPDTplot("age_freq")
+SPDTplot("survival")
+SPDTplot("mu_growth_wt")
+```
 

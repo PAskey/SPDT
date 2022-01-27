@@ -119,6 +119,11 @@ Releases<-Releases%>%
 
 #Gets rid of assessments that may have nothing to do with fish
 Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","WQ")))%>%droplevels()
+#Add lake year for cross-referencing although not ideal, there are a few cases than span years.
+Assessments = Assessments%>%
+  dplyr::rowwise()%>%
+  dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))
+
 
 #Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
 Fishery_WBID <- unique(Assessments$WBID, Releases$WBID)

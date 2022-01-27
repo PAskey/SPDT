@@ -26,10 +26,16 @@
 #' @name SPDTdata
 #' @keywords SPDT
 #' @export
-#' @param Spp a character string or character vector for BC species code. This will filter data to only that species.
-#' @param Strain a character string or character vector describing the strain code (SPDTdata format) for source population. This will filter to only those strains listed
-#' @param Contrast a character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
+#' @param Spp an optional character string or character vector for BC species code (e.g. "RB" or c("KO", "EB"), etc.). This will filter data to only that species.
+#' @param Contrast an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 #' Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.
+#' @param Strain an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed
+#' @param Project an optional character describing the Project_Name from Assessments table in SLD.
+#' @param Lk_yrs an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))
+#' @param Data_source an optional character string or file name to source the Biological data. The default "SLD" sources data from the Small Lakes Database using SPDT::linkClips(), which can take some time. 
+#' However, using "Biological" uses Biological data in the RStudio Environment, Since the same Biological table is downloaded regardless of other options this allows user to stop reloading from the SLD with each query.
+#' It also allows the option of the user loading a Biological Table from another source like a csv, but it must exactly match the fields in the Biological table that is produced by SPDT. 
+#' It would be easiest to use SPDT to create a csv table and then manipulate if you wish to use data outside of the SLD.
 #' @examples
 #' #Must be connected to VPN if working remotely
 #' 
@@ -49,15 +55,29 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Strains = NULL, Contrast = NULL){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = c("SLD", "Biological")){
 
+  if(Data_source == "SLD"){
 linkClips()
+  }else if(!exists("Biological")){
+     stop("No data has been loaded to a Biological Table! Set Data source to 'SLD' or load A Biological Table with exact column name matches")
+  }
+
 
 #Initial filters. Keep CLip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.
   #Not sure if this will cause an issue
 #idf<-subset(Biological,!is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
-idf = Biological
 #clipsum <- subset(clipsum, !is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
+
+ 
+ #The Biological Table from the SLD through linkClips() is always the same regardless of other parameters, and be used as a raw data check. 
+  #Alternatively if Data_source is set to "Biological" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
+idf = Biological  
+  
+##CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
+idf$Length_mm[idf$Length_mm==0]<-NA
+idf$Weight_g[idf$Weight_g==0]<-NA
+
 
 
 if (!is.null(Spp)) {
@@ -69,6 +89,13 @@ if (!is.null(Strains)) {
   idf = subset(idf, Strain %in% Strains)
   clipsum = subset(clipsum, clipStrains %in% Strains)
 }
+
+if (!is.null(Lk_yrs)|!is.null(Project)) {
+  Pro_lk_yr = Assessments$Lk_yr[Assessments$Project_Name %in% Project]
+  Lk_yrs = c(Lk_yrs,Pro_lk_yr)
+  idf = subset(idf, Lk_yr %in% Lk_yrs)
+  clipsum = subset(clipsum, Lk_yr %in% Lk_yrs)
+} 
 
 #Categorize release size to facilitate finding true contrasts and analyzing
 #Code below create categories that increase in width as size increases.  
@@ -121,15 +148,17 @@ uni_events = idf%>%
 clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')%>%
           dplyr::mutate(Dec.Age = round(Int.Age+as.numeric(Season)/4, 2))%>%#this add dec.age to 0 counts
           dplyr::filter(!is.na(Species))#Remove cases that did not match a stocking event.
-
+###################################################################################################################
 gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
-  dplyr::filter(Clip != "", Lk_yr%in%idf$Lk_yr)%>%
+  dplyr::filter(Lk_yr%in%idf$Lk_yr)%>%#Clip != "", Pulled this out to keep species comparisons
+  dplyr::filter(dplyr::case_when(Contrast != "Species"~ Clip != "", TRUE ~ !is.na(N_rel) ))%>%#, TRUE ~ Clip %in% unique(Clip)
   dplyr::mutate(N = replace(N, is.na(N), 0), 
                 NetXN = replace(NetXN, is.na(NetXN), 0),
-                avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE))%>%
+                avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE),
+                SAR_cat = SAR_cat(SAR))%>%
   dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
-
+#####################################################################################################################
 
 #Have to add in average sample data at this point, otherwise it is NA for all cases of non-clips, etc.
 gdf = dplyr::left_join(gdf, uni_events, by = c("Lk_yr", "Season", "Capture_Method"))
@@ -141,13 +170,24 @@ Contrast_possible = c("Genotype", "Strain", "SAR_cat")
 
 controls = dplyr::setdiff(Contrast_possible, Contrast)
 
+#If the contrast is species, then not worth worry about other controls (Maybe Genotype?Add later if want) and clips
+if(Contrast != "Species"){
 ##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
 exps <- gdf%>%
-  dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast
+  dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
   dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = length(unique(na.omit(Clip))))%>%
   dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
   droplevels()
+}else{
+  Contrast_possible = c("Species")#Could add genotype later
+  exps <- gdf%>%
+    dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
+    dplyr::group_by(Lk_yr, Int.Age)%>%
+    dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))))%>%
+    dplyr::filter(Ncontrasts>1)%>%
+    droplevels() 
+}
 
 idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
@@ -156,7 +196,7 @@ gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 #First only use groups that are recruited to gillnets (>150mm).
 predf = gdf%>%
   #dplyr::filter(mean_FL>150)%>%
-  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, sby_code, Int.Age, Dec.Age, !!!rlang::syms(Contrast_possible))%>%
+  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, sby_code, Int.Age, !!!rlang::syms(Contrast_possible))%>%
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
@@ -167,15 +207,19 @@ predf = gdf%>%
 cats = predf%>%
   dplyr::pull(get(Contrast))%>%unique()%>%sort(decreasing = TRUE)
 
-#SAR_cat we want in numeric order. For strain or genotype we want 2N and BW at back end.
+#SAR_cat we want in numeric order. For strain or genotype we want 2N and BW at back end as they are the "base case" higher smple size and survival.
 if(Contrast == "SAR_cat"){
   cats = sort(cats)
   predf = dplyr::arrange(predf, get(Contrast))
   }
 
 #i = 1
-#j = 3
+#j = 2
+#calculations to that spreading an renaming columns works even when grouping columns change(i.e. for species groupings)
 df = NULL
+spread = c("xN", "Nr", "N")
+Lspread = length(spread)
+maxcols = ncol(predf)-(Lspread-1)+(Lspread*2-1)#In the loop below this will be the max with of spread dataframe
 
 for(i in 1:(length(cats)-1)){
   for(j in (i+1):length(cats)){
@@ -184,10 +228,10 @@ for(i in 1:(length(cats)-1)){
     dfnew = predf%>%
       dplyr::filter(get(Contrast) %in% cats[c(i,j)])%>%#Can switch to filter by delta
       dplyr::mutate(Comparison = Con)%>%
-      tidyr::pivot_wider(names_from = {{Contrast}}, values_from = c(xN, Nr, N))%>%#, names_sort = TRUE
-      dplyr::rename(a_xN = 12, b_xN = 13, a_Nr=14, b_Nr = 15, a_N = 16, b_N = 17)%>%
+      tidyr::pivot_wider(names_from = {{Contrast}}, values_from = tidyselect::all_of(spread))%>%#, names_sort = TRUE
+      dplyr::rename(a_xN = maxcols-5, b_xN = maxcols-4, a_Nr=maxcols-3, b_Nr = maxcols-2, a_N = maxcols-1, b_N = maxcols)%>%
       dplyr::rowwise()%>%
-      dplyr::filter(!is.na(sum(a_xN, b_xN, a_Nr, b_Nr)))%>%
+      dplyr::filter(0<(sum(a_xN, b_xN)), !is.na(sum(a_xN, b_xN, a_Nr, b_Nr)))%>%
       dplyr::mutate(Recap_Ratio = a_xN/(b_xN), Release_Ratio = a_Nr/(b_Nr), a = cats[i], b = cats[j], N = sum(a_N, b_N))%>%
       dplyr::ungroup()
     df = rbind(df, dfnew)
@@ -195,6 +239,7 @@ for(i in 1:(length(cats)-1)){
   }
 }
 
+if(nrow(df)>0){
 wide_df = df%>%
   dplyr::rowwise()%>%
   dplyr::mutate(surv_diff=Recap_Ratio/Release_Ratio,
@@ -212,6 +257,7 @@ wide_df = wide_df%>%
 
 #Put into global environment. These only appear if Contrast is not NULL.
 wide_df<<-wide_df
+}
 controls<<-controls
 
 }
