@@ -4,15 +4,31 @@
 \alias{SPDTdata}
 \title{SPDTdata}
 \usage{
-SPDTdata(Spp = NULL, Strains = NULL, Contrast = NULL)
+SPDTdata(
+  Spp = NULL,
+  Contrast = NULL,
+  Strains = NULL,
+  Project = NULL,
+  Lk_yrs = NULL,
+  Data_source = c("SLD", "Biological")
+)
 }
 \arguments{
-\item{Spp}{a character string or character vector for BC species code. This will filter data to only that species.}
+\item{Spp}{an optional character string or character vector for BC species code (e.g. "RB" or c("KO", "EB"), etc.). This will filter data to only that species.}
 
-\item{Contrast}{a character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
+\item{Contrast}{an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.}
 
-\item{Strain}{a character string or character vector describing the strain code (SPDTdata format) for source population. This will filter to only those strains listed}
+\item{Project}{an optional character describing the Project_Name from Assessments table in SLD.}
+
+\item{Lk_yrs}{an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))}
+
+\item{Data_source}{an optional character string or file name to source the Biological data. The default "SLD" sources data from the Small Lakes Database using SPDT::linkClips(), which can take some time. 
+However, using "Biological" uses Biological data in the RStudio Environment, Since the same Biological table is downloaded regardless of other options this allows user to stop reloading from the SLD with each query.
+It also allows the option of the user loading a Biological Table from another source like a csv, but it must exactly match the fields in the Biological table that is produced by SPDT. 
+It would be easiest to use SPDT to create a csv table and then manipulate if you wish to use data outside of the SLD.}
+
+\item{Strain}{an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed}
 }
 \description{
 A function to filter and format SLD data to cases with clipped experimental stocking groups. 
