@@ -1,7 +1,7 @@
 #' @title Predict Millar's selectivity
 #
 #' @description  This function returns the predicted selectivity of a gillnet gang based Millar selectivity functions. 
-#'
+#' @export
 #' @param rtype a character string indicating which method for the estimation of selection
 #'    curves should be used:
 #'    \code{"norm.loc"} for normal with common spread method,
