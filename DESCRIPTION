@@ -15,7 +15,8 @@ Imports:
     sp,
     tidyverse,
     dplyr,
-    rlang
+    rlang,
+    TropFishR
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
