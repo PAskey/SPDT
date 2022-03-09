@@ -35,14 +35,15 @@
 #'  using log-linear models. \emph{ICES Journal of Marine Science: Journal du Conseil},
 #'  54(3), 471-477.
 
-predict_Millar <- function(rtype, classes, meshSizes, th, rel.power = NULL) {
+predict_Millar <- function(rtype, classes, meshSizes, theta, rel.power = NULL) {
 
 #you need to use the $par instead of $estimates from model fit in order to make predictions.  
-# If for some reason you only have access to estmimates, then need to check source code and back transform.
-
+# If for some reason you only have access to estimates, then need to check source code and back transform.
   
    
   # Input checks
+  if(is.null(meshSizes)) meshSizes <- RIC_param$RIC_meshes
+  
   if(sum(sort(meshSizes)==meshSizes) != length(meshSizes))
     stop("Mesh size must be in ascending order!")
   
@@ -53,10 +54,15 @@ predict_Millar <- function(rtype, classes, meshSizes, th, rel.power = NULL) {
   
   r <- TropFishR:::rtypes_Millar(rtype) #Get selection curve function
   
-  rmatrix = outer(classes, meshSizes, r, th)
+  all_classes = c(75:750)#The full range in possible fish sizes
+  rmatrix = outer(all_classes, meshSizes, r, theta)
   rmatrix <- t(t(rmatrix) * rel.power)
-  v = apply(rmatrix,1,sum,na.rm=TRUE)
-  v = v/max(v)
-  return(v)
+  sum_class <- apply(rmatrix,1,sum,na.rm=TRUE)
+  #Scaled across meshes to max 1.
+  p = sum_class/max(sum_class)
+  p <- setNames(p,all_classes)
+  
+  
+  return(p[as.character(classes)])
 }
 

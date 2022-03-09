@@ -22,14 +22,16 @@
 #' @source PAskey personal copy
 "Strain_code_LU"
 
-#' Lookup table to find relative vulnerability to capture by gillnet dependent on fish size
+#' A set of parameters ro estimate relative vulnerability to capture by gillnet dependent on fish size
 #'
 #' Aids in standardization of strain comparisons when groups are different sizes.
 #'
-#' @format A data frame with 700 rows and 2 variables:
+#' @format A list with 4 parts: RIC_meshes, theta, rel.power are for using predict_Millar() and p_gam are stored gam model predictions
 #' \describe{
-#'   \item{FLengths}{Fork length(s) in mm, Integer value}
-#'   \item{p}{Relative probability of capture, based on GAM model. Stop gap method until more mark-recap information available}
+#'   \item{RIC_meshes}{A vector of standard meshes in in used in RIC gillnets, numeric value}
+#'   \item{theta}{A vecotr of 5 parameters needed for bilognorm Millar model}
+#'   \item{rel.power}{A vector of 7 parameters to describe relative fishing power of each mesh for bilognorm Millar model}
+#'   \item{p_gam}{A named vector describing the relative vulnerability to capture by gillnets for each fork length (mm) using a GAM model on mark-recap data} 
 #' }
 #' @source PAskey personal copy
-"select_lookup"
+"RIC_param"

@@ -7,7 +7,7 @@
 https://www.stat.auckland.ac.nz/~millar/selectware/
 }
 \usage{
-predict_Millar(rtype, classes, meshSizes, th, rel.power = NULL)
+predict_Millar(rtype, classes, meshSizes, theta, rel.power = NULL)
 }
 \arguments{
 \item{rtype}{a character string indicating which method for the estimation of selection

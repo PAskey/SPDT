@@ -11,6 +11,9 @@
 #' @keywords SPDT; gillnet; selectivity
 #' @export
 #' @param FLengths an integer or vector of fork lengths in mm for which to calculate relative probability of capture by RIC gillnet.
+#' @param Millar_model a TRUE/FALSE to indicate whether Millar model should be used for predictions
+#' @param meshSizes_in a vecotr of mesh sizes in inches. Only applicable to Millar model and defaults to full RIC net
+#' 
 #' @examples
 #' Must be connected to VPN if working remotely
 #' 
@@ -31,7 +34,40 @@
 #' @importFrom rlang .data
 #' 
 
-RICselect<- function(FLengths){
-  p = select_lookup$p[fastmatch::fmatch(FLengths, select_lookup$Length_mm)]
-  p
+RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
+
+ if(Millar_model == TRUE){
+      
+  RIC_meshes <- c(1,1.25,1.5,2,2.5,3,3.5)
+  if(is.null(meshSizes_in)) meshSizes_in <- RIC_param$RIC_meshes
+  meshSizes = 25.4*meshSizes_in
+  
+  if(sum(sort(meshSizes)==meshSizes) != length(meshSizes))
+    stop("Mesh size must be in ascending order!")
+  
+
+  classes = FLengths_mm
+  #Use model 5 fit from Gillnet_Selectivity.RMD
+  theta = RIC_param$theta
+  rel.power = RIC_param$rel.power
+  rel.power = rel.power[match(RIC_meshes[meshSizes_in], RIC_meshes)]
+  
+  p = predict_Millar(rtype = "bilognorm", classes = FLengths_mm, meshSizes = meshSizes, theta = theta, rel.power = rel.power)
+  #p = apply(p,1,sum,na.rm=TRUE)/max(apply(p,1,sum,na.rm=TRUE))#Scaled to max 1 over size range queried
+
+  #p <- setNames(p, FLengths_mm)
+  
+  #p <- cbind(FLengths_mm,p)
+  #colnames(p) <- c("Length_mm","p")
+  #p = p[FLengths_mm]
+  
+   }else{
+
+  #p = select_lookup[FLengths_mm,2]
+  p = RIC_param$p_gam%>%dplyr::filter(Length_mm %in% FLengths_mm)%>%dplyr::pull(p)
+  p <- setNames(p, FLengths_mm)
+  }
+  
+  
+  return(p)
 }

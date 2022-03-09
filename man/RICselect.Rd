@@ -4,9 +4,13 @@
 \alias{RICselect}
 \title{RICselect}
 \usage{
-RICselect(FLengths)
+RICselect(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL)
 }
 \arguments{
+\item{Millar_model}{a TRUE/FALSE to indicate whether Millar model should be used for predictions}
+
+\item{meshSizes_in}{a vecotr of mesh sizes in inches. Only applicable to Millar model and defaults to full RIC net}
+
 \item{FLengths}{an integer or vector of fork lengths in mm for which to calculate relative probability of capture by RIC gillnet.}
 }
 \description{
