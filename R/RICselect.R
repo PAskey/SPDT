@@ -46,26 +46,26 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
     stop("Mesh size must be in ascending order!")
   
 
-  classes = FLengths_mm
+ 
   #Use model 5 fit from Gillnet_Selectivity.RMD
   theta = RIC_param$theta
   rel.power = RIC_param$rel.power
   rel.power = rel.power[match(RIC_meshes[meshSizes_in], RIC_meshes)]
   
   p = predict_Millar(rtype = "bilognorm", classes = FLengths_mm, meshSizes = meshSizes, theta = theta, rel.power = rel.power)
-  #p = apply(p,1,sum,na.rm=TRUE)/max(apply(p,1,sum,na.rm=TRUE))#Scaled to max 1 over size range queried
 
-  #p <- setNames(p, FLengths_mm)
-  
-  #p <- cbind(FLengths_mm,p)
-  #colnames(p) <- c("Length_mm","p")
-  #p = p[FLengths_mm]
   
    }else{
-
-  #p = select_lookup[FLengths_mm,2]
-  p = RIC_param$p_gam%>%dplyr::filter(Length_mm %in% FLengths_mm)%>%dplyr::pull(p)
-  p <- setNames(p, FLengths_mm)
+  #Named vector approach causing issues
+  #p = RIC_param$p_gam%>%dplyr::filter(Length_mm %in% FLengths_mm)%>%dplyr::pull(p)
+  #p <- setNames(p, FLengths_mm)
+   #  lens = c(100,100, 300, 200, 4000, 100, 200)
+  df = RIC_param$p_gam
+  #df$p[match(lens, df$Length_mm)]
+  p = df$p[match(FLengths_mm, df$Length_mm)]
+  #p = df$p[df$Length_mm %in% FLengths_mm]
+  return(p)
+  
   }
   
   

@@ -141,7 +141,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
                                     cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                    avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
-                  dplyr::ungroup()
+                  dplyr::ungroup()%>%
+  suppressWarnings()
 
 
 #Select release, lake-year combinations where clip leads to unique stocking group
@@ -193,7 +194,8 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                   SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
                                   cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                   avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
-                        dplyr::ungroup()
+                        dplyr::ungroup()%>%
+  suppressWarnings()
 
 #Identify unique stocking groups, in order to remove summary stats from non-unique groups
 Uniqueclips<-clipsum%>%dplyr::filter(dplyr::across(n_sby:nGenos) == 1)

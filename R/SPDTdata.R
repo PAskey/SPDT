@@ -32,10 +32,7 @@
 #' @param Strain an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed
 #' @param Project an optional character describing the Project_Name from Assessments table in SLD.
 #' @param Lk_yrs an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))
-#' @param Data_source an optional character string or file name to source the Biological data. The default "SLD" sources data from the Small Lakes Database using SPDT::linkClips(), which can take some time. 
-#' However, using "Biological" uses Biological data in the RStudio Environment, Since the same Biological table is downloaded regardless of other options this allows user to stop reloading from the SLD with each query.
-#' It also allows the option of the user loading a Biological Table from another source like a csv, but it must exactly match the fields in the Biological table that is produced by SPDT. 
-#' It would be easiest to use SPDT to create a csv table and then manipulate if you wish to use data outside of the SLD.
+#' @param Data_source a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.
 #' @examples
 #' #Must be connected to VPN if working remotely
 #' 
@@ -55,13 +52,19 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = c("SLD", "Biological")){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = c(TRUE, FALSE)){
 
-  if(Data_source == "SLD"){
-linkClips()
-  }else if(!exists("Biological")){
-     stop("No data has been loaded to a Biological Table! Set Data source to 'SLD' or load A Biological Table with exact column name matches")
-  }
+  if(!exists("Biological")|!exists("clipsum")){"Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start"}
+  
+  if(Data_source == TRUE){linkClips()}
+  
+  
+  
+ # if(Data_source == "SLD"){
+#linkClips()
+ # }else if(!exists("Biological")|!exists("clipsum")){
+#     stop("Need to start with a data load from SLD to start! Set Data source to 'SLD' or load A Biological Table with exact column name matches")
+#  }
 
 
 #Initial filters. Keep CLip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.

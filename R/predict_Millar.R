@@ -54,15 +54,18 @@ predict_Millar <- function(rtype, classes, meshSizes, theta, rel.power = NULL) {
   
   r <- TropFishR:::rtypes_Millar(rtype) #Get selection curve function
   
-  all_classes = c(75:750)#The full range in possible fish sizes
+  all_classes = c(75:650)#The full range in possible fish sizes
   rmatrix = outer(all_classes, meshSizes, r, theta)
   rmatrix <- t(t(rmatrix) * rel.power)
   sum_class <- apply(rmatrix,1,sum,na.rm=TRUE)
   #Scaled across meshes to max 1.
   p = sum_class/max(sum_class)
-  p <- setNames(p,all_classes)
+  #p <- setNames(p,all_classes)#Named vector appraoch was causing issues later
   
-  
-  return(p[as.character(classes)])
+  df = data.frame(all_classes, p)
+  colnames(df) = c("Length_mm","p")
+  #p = df$p[df$Length_mm %in% classes]
+  p = df$p[match(classes, df$Length_mm)]
+  return(p)
 }
 

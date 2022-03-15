@@ -10,7 +10,7 @@ SPDTdata(
   Strains = NULL,
   Project = NULL,
   Lk_yrs = NULL,
-  Data_source = c("SLD", "Biological")
+  Data_source = c(TRUE, FALSE)
 )
 }
 \arguments{
@@ -23,10 +23,7 @@ Entering a value for contrast will filter to lake years that had fish present fr
 
 \item{Lk_yrs}{an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))}
 
-\item{Data_source}{an optional character string or file name to source the Biological data. The default "SLD" sources data from the Small Lakes Database using SPDT::linkClips(), which can take some time. 
-However, using "Biological" uses Biological data in the RStudio Environment, Since the same Biological table is downloaded regardless of other options this allows user to stop reloading from the SLD with each query.
-It also allows the option of the user loading a Biological Table from another source like a csv, but it must exactly match the fields in the Biological table that is produced by SPDT. 
-It would be easiest to use SPDT to create a csv table and then manipulate if you wish to use data outside of the SLD.}
+\item{Data_source}{a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.}
 
 \item{Strain}{an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed}
 }

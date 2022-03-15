@@ -45,7 +45,6 @@ Biological <- RODBC::sqlFetch(ch, "ffsbc.vw_Biological_Data")
 Releases <-RODBC::sqlFetch(ch,"ffsbc.vw_paris_releases")
 
 close(ch)
-
 #_______________________________________________________________________________
 #Date re-formatting
 
@@ -64,22 +63,22 @@ Biological$Date<-as.POSIXct(Biological$Date, format="%Y-%m-%d")
 Releases$rel_Date<-as.POSIXct(Releases$rel_Date, format="%Y-%m-%d")
 
 #_______________________________________________________________________________
-#Spatial data re-formatting
+#Spatial data re-formatting, No longer needed as done with SQL
 
 #Convert net locations, by fist ignoring NA locations and then converting the rest.
-Nets<-suppressWarnings(Nets%>%dplyr::filter_at(dplyr::vars(.data$Shore_UTM_Zone:.data$Lake_UTM_Northing),dplyr::all_vars(!is.na(.)))%>%
-  dplyr::group_by(.data$Lake_UTM_Zone)%>%
-    dplyr::mutate(
-            Shore_Lat = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$y,
-            Shore_Long = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$x,
-            Lake_Lat = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$y,
-            Lake_Long = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$x)%>%
-  dplyr::ungroup())
+#Nets<-suppressWarnings(Nets%>%dplyr::filter_at(dplyr::vars(.data$Shore_UTM_Zone:.data$Lake_UTM_Northing),dplyr::all_vars(!is.na(.)))%>%
+#  dplyr::group_by(.data$Lake_UTM_Zone)%>%
+#    dplyr::mutate(
+#            Shore_Lat = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$y,
+#            Shore_Long = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$x,
+#            Lake_Lat = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$y,
+#            Lake_Long = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$x)%>%
+#  dplyr::ungroup())
 
-Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone), !is.na(.data$UTM_Easting))%>%droplevels()%>%
-  dplyr::group_by(.data$UTM_Zone)%>%
-  dplyr::mutate(Long = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$x,
-                Lat = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$y))
+#Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone), !is.na(.data$UTM_Easting))%>%droplevels()%>%
+#  dplyr::group_by(.data$UTM_Zone)%>%
+#  dplyr::mutate(Long = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$x,
+#                Lat = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$y))
 
 #_______________________________________________________________________________
 #Reformat to consistent column naming and data coding
@@ -119,10 +118,12 @@ Releases<-Releases%>%
 
 #Gets rid of assessments that may have nothing to do with fish
 Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","WQ")))%>%droplevels()
-#Add lake year for cross-referencing although not ideal, there are a few cases than span years.
+
+#Add lake year for cross-referencing although not ideal, there are a few cases than span years or have no dates (hence suppresswarnings())
 Assessments = Assessments%>%
   dplyr::rowwise()%>%
-  dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))
+  dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))%>%
+  suppressWarnings()
 
 
 #Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
@@ -174,7 +175,9 @@ Biological <- Biological%>%
                                                                     warn_missing = FALSE),
                               Int.Age = plyr::mapvalues(Age, from=Ages$Ages, to=Ages$Int.Ages, warn_missing = FALSE),
                               K = 100000*.data$Weight_g/.data$Length_mm^3
-                              )
+                              )%>%
+  suppressWarnings()#for NAs introduced by coercion
+
 
 
 #mapvalues() leaves int.ages as factor class, so convert to integers data type
@@ -210,10 +213,11 @@ Biological <- Biological%>%
                               )
 
 #Last, let's add an expansion factor for gillnet selectivity
+##THis is not longer working, so need to fix. Giving diffrent answers for same sized fish!!Uhg
 Biological <- Biological%>%
                 dplyr::mutate(NetX = ifelse(
-                  .data$Capture_Method == "GN",
-                  1/RICselect(.data$Length_mm),1))%>%
+                  .data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species == "RB",
+                  1/SPDT::RICselect(FLengths_mm = .data$Length_mm),1))%>%
                 tidyr::replace_na(list(NetX = 1))
 #_______________________________________________________________________________
 #RELEASES
