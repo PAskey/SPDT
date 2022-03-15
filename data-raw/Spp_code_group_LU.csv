@@ -1,0 +1,171 @@
+﻿species_id,species_former_name,species_name,species_code,sportfish_group
+1,,Anadromous Bull Trout,ABT,salmonid_sportfish
+2,,Coastal Cutthroat (anadromous),ACT,salmonid_sportfish
+3,,Atlantic Salmon,AS,salmonid_sportfish
+4,,Burbot,BB,native_sportfish
+5,,Catfish,BH,invasive_coarsefish
+6,Brown Bullhead,Brown Catfish,BNH,invasive_coarsefish
+7,,Bass/ Sunfish,BS,spiny_sportfish
+8,,Bridgelip Sucker,BSU,native_nongamefish
+9,,Bulltrout,BT,salmonid_sportfish
+10,,Minnow (general),C,native_nongamefish
+11,Aleutian Sculpin,Coastrange Sculpin,CAL,native_nongamefish
+12,,Prickly Sculpin,CAS,native_nongamefish
+13,,Mottled Sculpin,CBA,native_nongamefish
+14,,Sculpin,CC,native_nongamefish
+15,,Slimy Sculpin,CCG,native_nongamefish
+16,,Shorthead Sculpin,CCN,native_nongamefish
+17,Chiselmouth Chub,Chiselmouth,CMC,native_nongamefish
+18,,Coho Salmon,CO,salmonid_sportfish
+19,,Carp,CP,invasive_nongamefish
+20,,Torrent Sculpin,CRH,native_nongamefish
+21,,Large Scale Sucker,CSU,native_nongamefish
+22,,Coastal Cutthroat (non-anadromous),CT,salmonid_sportfish
+23,,Dace (general),DC,native_nongamefish
+24,,Dolly Varden,DV,salmonid_sportfish
+25,,Eastern Brook Trout,EB,salmonid_sportfish
+26,,Finescale Dace,FDC,native_nongamefish
+27,,Brown Trout,GB,salmonid_sportfish
+28,,Kokanee,KO,salmonid_sportfish
+29,,Leopard Dave,LDC,native_nongamefish
+30,,Lake Chub,LKC,native_nongamefish
+31,,Large Mouth Bass,LMB,spiny_sportfish
+32,,Longnose Sucker,LSU,native_nongamefish
+33,,Lake Trout,LT,salmonid_sportfish
+34,,Lake Whitefish,LW,salmonid_sportfish
+35,,Mountain Whitefish,MW,salmonid_sportfish
+36,,No Fish Caught,NFC,native_nongamefish
+37,Squawfish,Northern Pike Minnow,NSC,native_nongamefish
+38,,Coarse or non-game fish,OS,native_nongamefish
+39,,Peamouth Chub,PCC,native_nongamefish
+40,,Pumpkinseed,PMB,spiny_nongamefish
+41,,Pygmy Whitefish,PW,native_nongamefish
+42,,Rainbow Trout,RB,salmonid_sportfish
+43,,Northern Redbelly Dace,RDC,native_nongamefish
+44,,Redside Shiner,RSC,native_nongamefish
+45,,Redside Shiner,RSS,native_nongamefish
+46,,Stickleback (general),SB,native_nongamefish
+47,,Sturgeon (general),SG,native_nongamefish
+48,,American Shad,SH,native_nongamefish
+49,,Sockeye Salmon,SK,salmonid_sportfish
+50,,Small Mouth Bass,SMB,spiny_sportfish
+51,,Unidentified Species,SP,native_nongamefish
+52,,Steelhead,ST,salmonid_sportfish
+53,,Sucker,SU,native_nongamefish
+54,,Unidentified Trout,TR,salmonid_sportfish
+55,,Three Spine Stickleback,TSB,native_nongamefish
+56,,Umatilla Dace,UDC,native_nongamefish
+57,,Westslope Cutthroat,WCT,salmonid_sportfish
+58,,Whitefish (general),WF,salmonid_sportfish
+59,,White Sturgeon,WSG,native_nongamefish
+60,,White Sucker,WSU,native_nongamefish
+61,,Yellow Perch,YP,spiny_sportfish
+62,,Unknown,UNK,native_nongamefish
+63,,Sunfish,SF,spiny_nongamefish
+64,,Mixed,MX,native_nongamefish
+65,,Rainbow Cutthroat,RBCT,salmonid_sportfish
+66,,Northwest Salamander,A-AMGR,native_nongamefish
+69,,All Species,AF,native_nongamefish
+70,,No Fish Present,NFP,native_nongamefish
+71,,Salmon (General),SA,salmonid_sportfish
+72,,All Salmon,AO,salmonid_sportfish
+73,,"Pink Salmon, Humpback Salmon",PK,salmonid_sportfish
+74,,"Chum Salmon, Dog Salmon",CM,salmonid_sportfish
+75,,"Chinook Salmon, Spring Salmon, King Salmon, Tyee",CH,salmonid_sportfish
+76,,Coastal Cutthroat Trout,CCT,salmonid_sportfish
+77,,Steelhead (Summer-run),SST,salmonid_sportfish
+78,,Steelhead (Winter-run),WST,salmonid_sportfish
+79,,"Anadromous Brown Trout, Anadromous German Brown Trout",AGB,salmonid_sportfish
+80,,Arctic Char,AC,salmonid_sportfish
+81,,Anadromous Eastern Brook Trout,AEB,salmonid_sportfish
+82,,Splake,SPK,salmonid_sportfish
+83,,"Anadromous Dolly Varden, Anadromous Dolly Varden Char",ADV,salmonid_sportfish
+84,,Green Sturgeon,GSG,native_nongamefish
+85,,White Sturgeon (Kootenay River Pop),WSK,native_nongamefish
+86,,Giant Pygmy Whitefish,GPW,native_nongamefish
+87,,Round Whitefish,RW,native_nongamefish
+88,,Dragon Lake Whitefish,DLW,native_nongamefish
+89,,"Broad Whitefish, Round-nosed Whitefish, Sheep-nose Whitefish",BW,native_nongamefish
+90,,Squanga,SQ,native_nongamefish
+91,,Lake Cisco,CL,native_nongamefish
+92,,Arctic Cisco,CA,native_nongamefish
+93,,Least Cisco,CS,native_nongamefish
+94,,Bering Cisco,CB,native_nongamefish
+95,,"Inconnu, Sheefish, Conny",IN,salmonid_sportfish
+96,,Lampreys (General),L,native_nongamefish
+97,,Arctic Lamprey,AL,native_nongamefish
+98,,"River Lamprey, Western Lamprey",RL,native_nongamefish
+99,,"Lake Lamprey, Cowichan Lamprey",LL,native_nongamefish
+100,,Western Brook Lamprey,BL,native_nongamefish
+101,,Morrison Creek Lamprey,MCL,native_nongamefish
+102,,"Pacific Lamprey, Sea Lamprey",PL,native_nongamefish
+103,,Arctic Grayling,GR,salmonid_sportfish
+104,,Goldeye,GE,native_nongamefish
+105,,Goldfish,GC,invasive_nongamefish
+106,,Tench,TC,invasive_nongamefish
+107,,Emerald Shiner,ESC,native_nongamefish
+108,,Spottail Shiner,STC,native_nongamefish
+109,,"Chub, General",CBC,native_nongamefish
+110,,Flathead Chub,FHC,native_nongamefish
+111,,Brassy Minnow,BMC,native_nongamefish
+112,,"Nooksack Dace, Nooky Dace",NDC,native_nongamefish
+113,,Longnose Dace,LNC,native_nongamefish
+114,,Speckled Dace,SDC,native_nongamefish
+115,,Northern Redbelly Dace x Finescale Dace,XDC,native_nongamefish
+116,,"Pearl Dace, Northern Pearl Dace",PDC,native_nongamefish
+117,,Fathead Minnow,FM,native_nongamefish
+118,,Salish Sucker,SSU,native_nongamefish
+119,,"Mountain Sucker, Northern/Plains Mountain Sucker",MSU,native_nongamefish
+120,,"Black Bullhead, Black Catfish",BKH,native_nongamefish
+121,,"Northern Pike, Jackfish, Jack",NP,invasive_sportfish
+122,,"Smelts, General",SM,native_nongamefish
+123,,Rainbow Smelt,RSM,native_nongamefish
+124,,"Eulachon, Candlefish",EU,native_nongamefish
+125,,Pygmy Longfin Smelt,PLS,native_nongamefish
+126,,Longfin Smelt,LSM,native_nongamefish
+127,,Surf Smelt,SSM,native_nongamefish
+128,,Unarmoured Stickleback,CSB,native_nongamefish
+129,,Charlotte Unarmoured Stickleback,SB3,native_nongamefish
+130,,Lake Sticklebacks,SB11,native_nongamefish
+131,,Balkwill Lake Benthic Stickleback,SB1,native_nongamefish
+132,,Balkwill Lake Limnetic Sticleback,SB2,native_nongamefish
+133,,Emily Lake Benthic Stickleback,SB4,native_nongamefish
+134,,Emily Lake Limnetic Stickleback,SB5,native_nongamefish
+135,,Enos Lake Benthic Stickleback,SB6,native_nongamefish
+136,,Enos Lake Limnetic Stickleback,SB7,native_nongamefish
+137,,Hadley Lake Benthic Stickleback,SB9,native_nongamefish
+138,,Hadley Lake Limnetic Stickleback,SB10,native_nongamefish
+139,,Paxton Lake Benthic Stickleback,SB12,native_nongamefish
+140,,Paxton Lake Limnetic Stickleback,SB13,native_nongamefish
+141,,Priest Lake Benthic Stickleback,SBB,native_nongamefish
+142,,Priest Lake Limnetic Stickleback,SBP,native_nongamefish
+143,,Giant Black,GSB,native_nongamefish
+144,,Giant Stickleback,SB8,native_nongamefish
+145,,Brook Stickleback,BSB,native_nongamefish
+146,,Ninespine Stickleback,NSB,native_nongamefish
+147,,Sharpnose Sculpin,CCA,native_nongamefish
+148,,Tidepool Sculpin,COM,native_nongamefish
+149,,"Pacific Staghorn Sculpin, Staghorn Sculpin",CLA,native_nongamefish
+150,,Deepwater Sculpin,CMT,native_nongamefish
+151,,Cultus Lake Sculpin,CCL,native_nongamefish
+152,,"Spoonhead Sculpin, Spoonhead Muddler",CRI,native_nongamefish
+153,,"Black Crappie, Calico Bass",BCB,spiny_sportfish
+154,,"Perch, General",P,spiny_sportfish
+155,,"Walleye, Pike-perch, Pickerel, Dore, many others",WP,spiny_sportfish
+156,,Starry Flounder,SFL,native_nongamefish
+157,,Troutperch,TP,native_nongamefish
+158,,"Mosquitofish, Gambusia",GAM,
+159,,,RB/YP,
+160,,,YP/SF,
+161,,,RB/CT,
+162,,,RB/BS,
+163,,,RB/EB,
+164,,,RB/KO,
+165,,,YP/SF,
+166,,,RB/BT,
+167,,,RB/LT,
+168,,,KO/LT,
+169,,,KO/BT,
+170,,,KO/WF,
+171,,,RB/BB,
+172,,,RB/PCC,
