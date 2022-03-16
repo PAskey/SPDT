@@ -52,12 +52,11 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = c(TRUE, FALSE)){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = TRUE){
 
-  if(!exists("Biological")|!exists("clipsum")){"Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start"}
-  
   if(Data_source == TRUE){linkClips()}
   
+  if(!exists("Biological")|!exists("clipsum")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
   
  # if(Data_source == "SLD"){
@@ -282,6 +281,5 @@ Spp<<-Spp
 Strains<<-Strains
 Contrast<<-Contrast
 
-
-gc()
+invisible(gc())
 }

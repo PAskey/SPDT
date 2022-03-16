@@ -109,7 +109,8 @@ Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
 Clip_yrs = Biological%>%
   dplyr::group_by(Lk_yr, Species)%>%
   dplyr::filter(!Clip%in%c("NOREC","UNK",NA))%>%
-  dplyr::summarize(Nclips = length(unique(Clip)), Lk_yr_spp = paste0(Lk_yr,Species))
+  dplyr::summarize(Nclips = length(unique(Clip)), Lk_yr_spp = paste0(Lk_yr,Species))%>%
+  suppressMessages()
   
 #So if there were no clips recorded at all in that Lk-yr and species group, then change UNK or NOREC to NA
 Biological = Biological%>%dplyr::mutate(Lk_yr_spp = paste0(Lk_yr,Species))
@@ -142,7 +143,7 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                    avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
                   dplyr::ungroup()%>%
-  suppressWarnings()
+  suppressMessages()
 
 
 #Select release, lake-year combinations where clip leads to unique stocking group
@@ -156,7 +157,8 @@ nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
                     SAR = as.numeric(NA),
                     cur_life_stage_code = as.character(NA),
                     avg_rel_date = as.POSIXct(NA)
-                    )
+                    )%>%
+  suppressMessages()
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
 #It is known that there are at least some cases where clipped fish have the wrong age entered (See Englishman Lake)
@@ -205,7 +207,8 @@ nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
                               SAR = as.numeric(NA),
                               cur_life_stage_code = as.character(NA),
                               avg_rel_date = as.POSIXct(NA)
-                             )
+                             )%>%
+  suppressMessages()
 
 #Bring them back together
 clipsum = rbind(Uniqueclips, nonunique)

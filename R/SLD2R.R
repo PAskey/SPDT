@@ -181,7 +181,7 @@ Biological <- Biological%>%
 
 
 #mapvalues() leaves int.ages as factor class, so convert to integers data type
-Biological$Int.Age = as.integer(as.character(Biological$Int.Age))
+Biological$Int.Age = as.integer(as.character(Biological$Int.Age))%>%suppressWarnings()
 
 #assign Species to spawning period to calculate brood year
 spring_spwn = as.character(expression(ACT, BS, CRS, CT, GR, MG, RB, ST, TR, WCT, WP, WSG))#expression adds quotations to each element
