@@ -120,10 +120,10 @@ SPDTplot(Metric = "mu_growth_FL", min_N = 10)
 
 We could also do the same for a strain contrast. Let's look at any strain comparisons using Carp Lake, Blackwater, or Horsefly. To get our targeted data set we filter by Strain (Strain codes are unique to RB), and set Contrast to Strain. 
 
-To prevent reloading all the Small Lakes Database data (not a problem, just takes a couple minutes), we set our Data_source to "Biological", which will use the Biological Table already loaded into the RStudio environment from the previous SPDTdata() call above.
+To prevent reloading all the Small Lakes Database data (not a problem, just takes a couple minutes), we set our Data_source to FALSE, which will use the Biological Table already loaded into the RStudio environment from the previous SPDTdata() call above.
 
 ```{r message=FALSE, warning=FALSE, results  ='hide'}
-SPDTdata(Strains = c("CL", "BW", "HF"), Contrast = "Strain", Data_source = "Biological")
+SPDTdata(Strains = c("CL", "BW", "HF"), Contrast = "Strain", Data_source = FALSE)
 ```
 
 Now we have our new data sets to plot. Below are a bunch of different examples.
@@ -166,10 +166,10 @@ kableExtra::kable(df)
 </p>
 </details> 
 
-So as above, our first step is to use SPDTdata to get the data we want. In this case, let's go to a specific project (FFSBC25_10) that has size contrasts (the query works otherwise, it is just too many lakes to see clearly). We can use Data_source = "Biological", so as to not re-load the data we already queried fro the SLD.
+So as above, our first step is to use SPDTdata to get the data we want. In this case, let's go to a specific project (FFSBC25_10) that has size contrasts (the query works otherwise, it is just too many lakes to see clearly). We can use Data_source = FALSE, so as to not re-load the data we already queried fro the SLD.
 
 ```{r message=FALSE, warning=FALSE, results  ='hide'}
-SPDTdata(Contrast = "SAR_cat", Data_source = "Biological", Project = "FFSBC25_10")
+SPDTdata(Contrast = "SAR_cat", Data_source = FALSE, Project = "FFSBC25_10")
 ```
 
 

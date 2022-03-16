@@ -10,7 +10,7 @@ SPDTdata(
   Strains = NULL,
   Project = NULL,
   Lk_yrs = NULL,
-  Data_source = c(TRUE, FALSE)
+  Data_source = TRUE
 )
 }
 \arguments{
