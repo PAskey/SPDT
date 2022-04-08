@@ -1,7 +1,7 @@
 Package: SPDT
 Type: Package
 Title: Stocking Product Development Team analyses (SPDT)
-Version: 1.0.0
+Version: 1.0.1
 Author: Paul Askey
 Maintainer: The package maintainer <paul.askey@gofishbc.com>
 Description: This pacakge is used by SPDT members for standardized data extraction and analysis functions.
@@ -11,7 +11,6 @@ Imports:
     plyr,
     magrittr,
     metR,
-    rgdal,
     RODBC,
     sp,
     tidyverse,
