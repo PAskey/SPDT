@@ -6,7 +6,7 @@ Author: Paul Askey
 Maintainer: The package maintainer <paul.askey@gofishbc.com>
 Description: This pacakge is used by SPDT members for standardized data extraction and analysis functions.
 Depends: 
-    R (>= 4.0.5)
+    R (>= 3.5)
 Imports: 
     plyr,
     magrittr,
