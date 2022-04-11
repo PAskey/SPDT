@@ -127,7 +127,7 @@ Assessments = Assessments%>%
 
 
 #Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
-Fishery_WBID <- unique(Assessments$WBID, Releases$WBID)
+Fishery_WBID <- unique(c(Assessments$WBID, Releases$WBID))
 
 #Now filter the Lakes dataframe down to those WBIDs, and add a column to state whether stockd or not
 Lakes<-Lakes%>%
