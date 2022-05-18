@@ -152,8 +152,14 @@ Lake_dim <- Lake_dim%>%
               Outlets = max(.data$No_Of_Outlets))%>%
   dplyr::ungroup()
 
+#Select fields, can use dput(names(Lakes)) to get full list and reduce from there
+Lakes = Lakes%>%dplyr::select(c("Waterbody_Name", "Alias", "WBID", "Region", "Region_Name", "UTM_Easting", 
+  "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked"))
+
+Lake_dim = Lake_dim%>%dplyr::select(c("WBID", "Area", "Perimeter", "Max_Depth", "Mean_Depth", "Area_Littoral", "Elevation", "Inlets", "Outlets"))
+
 #Join lake dimension summary stats to lakes data frame
-Lakes<-dplyr::left_join(Lakes[,c(2,3,5:7,10:12,15,16)], Lake_dim[,c(1,4:11)], by = "WBID")
+Lakes<-dplyr::left_join(Lakes, Lake_dim, by = "WBID")
 
 #We can now remove the Lake_dim data frame as we have incorporated the data into Lakes.
 rm(Lake_dim)

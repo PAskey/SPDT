@@ -172,7 +172,8 @@ Contrast_possible = c("Genotype", "Strain", "SAR_cat")
 
 controls = dplyr::setdiff(Contrast_possible, Contrast)
 
-#If the contrast is species, then not worth worry about other controls (Maybe Genotype?Add later if want) and clips
+#Find set of experiments 'exps' comparing the contrast of interest that exist in the database
+#If the contrast is species, then not worth worrying about other controls (Maybe Genotype?Add later if want) and clips
 if(Contrast != "Species"){
 ##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
 exps <- gdf%>%
@@ -182,7 +183,7 @@ exps <- gdf%>%
   dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
   droplevels()
 }else{
-  Contrast_possible = c("Species")#Could add genotype later
+  Contrast_possible = c("Species", "Genotype")#Could add genotype later
   exps <- gdf%>%
     dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
     dplyr::group_by(Lk_yr, Int.Age)%>%
@@ -194,18 +195,18 @@ exps <- gdf%>%
 idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 
-#Create a wide format data set for comparing relative catch
+#Create a wide format data set for comparing relative catch. May want to add sby_code back in as grouper? THis messes up species comparisons.
 #First only use groups that are recruited to gillnets (>150mm).
 predf = gdf%>%
   #dplyr::filter(mean_FL>150)%>%
-  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, sby_code, Int.Age, !!!rlang::syms(Contrast_possible))%>%
+  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Int.Age, !!!rlang::syms(Contrast_possible))%>%#, sby_code
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
   dplyr::ungroup()
 
   
-
+#The distint catgories found in the contrast
 cats = predf%>%
   dplyr::pull(get(Contrast))%>%unique()%>%sort(decreasing = TRUE)
 
@@ -217,11 +218,11 @@ if(Contrast == "SAR_cat"){
 
 #i = 1
 #j = 2
-#calculations to that spreading an renaming columns works even when grouping columns change(i.e. for species groupings)
+#calculations so that spreading an renaming columns works even when grouping columns change(i.e. for species groupings)
 df = NULL
 spread = c("xN", "Nr", "N")
 Lspread = length(spread)
-maxcols = ncol(predf)-(Lspread-1)+(Lspread*2-1)#In the loop below this will be the max with of spread dataframe
+maxcols = as.integer(ncol(predf)-(Lspread-1)+(Lspread*2-1))#In the loop below this will be the max with of spread dataframe
 
 for(i in 1:(length(cats)-1)){
   for(j in (i+1):length(cats)){
@@ -280,6 +281,9 @@ gdf<<-gdf
 Spp<<-Spp
 Strains<<-Strains
 Contrast<<-Contrast
+
+
+if(!exists("wide_df")){message("WARNING: There were no controlled co-stocking events in the database for the specified contrast. Therefore, no wide_df exists, no survival plot can be constructed.")}
 
 invisible(gc())
 }

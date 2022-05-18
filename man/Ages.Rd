@@ -12,12 +12,12 @@ A data frame with 128 rows and 2 variables:
 }
 }
 \source{
-PAskey personal copy
+PAskey personal copy with .csv stored in data-raw
 }
 \usage{
 Ages
 }
 \description{
-An unfortuantely growing lookup table for non-conforming age notations.
+An unfortunately growing lookup table for non-conforming age notations.
 }
 \keyword{datasets}

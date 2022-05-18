@@ -3,7 +3,7 @@
 \docType{data}
 \name{RIC_param}
 \alias{RIC_param}
-\title{A set of parameters ro estimate relative vulnerability to capture by gillnet dependent on fish size}
+\title{A set of parameters to estimate relative vulnerability to capture by gillnet dependent on fish size}
 \format{
 A list with 4 parts: RIC_meshes, theta, rel.power are for using predict_Millar() and p_gam are stored gam model predictions
 \describe{
@@ -14,7 +14,7 @@ A list with 4 parts: RIC_meshes, theta, rel.power are for using predict_Millar()
 }
 }
 \source{
-PAskey personal copy
+PAskey personal copy. Estiamtion process described in Gillnet selectivity RMarkdown document on tech committees sharepoint.
 }
 \usage{
 RIC_param
