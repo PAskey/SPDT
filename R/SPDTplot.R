@@ -73,7 +73,7 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
   #The survival plot uses a different data set than all the other plots.min_N is irrelevant becasue are return of 0 is a valid observation for survival.
   if (Metric == "survival"){ 
     
- p =  ggplot2::ggplot(data = wide_df, ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, colour = as.factor(.data$Int.Age), fill = as.factor(Int.Age),  shape = get(controls[1])))+
+ p =  ggplot2::ggplot(data = wide_df[wide_df$Capture_Method %in% Method,], ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, colour = as.factor(.data$Int.Age), fill = as.factor(Int.Age),  shape = get(controls[1])))+
     ggplot2::geom_hline(yintercept = 1)+
     ggplot2::geom_point(ggplot2::aes(y = .data$surv_diff, size = .data$N), stroke = 1, alpha = 0.7, position = ggplot2::position_dodge(width = 0.5))+
     viridis::scale_fill_viridis(discrete = TRUE)+

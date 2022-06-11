@@ -139,7 +139,7 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                                     #The following variables are only valid if the n.. columns are unique (=1)
                                     #However adding an if_else caused problems with dates, and so clean these up later
                                     N_rel = sum(.data$Quantity),#Calculate number released if unique group
-                                    SAR = sum(.data$g_size*.data$Quantity)/.data$N_rel, #Calculate mean weight at release
+                                    SAR = round(sum(.data$g_size*.data$Quantity)/.data$N_rel,2), #Calculate mean weight at release
                                     cur_life_stage_code = paste(unique(.data$cur_life_stage_code), collapse = ","),
                                    avg_rel_date = mean(.data$rel_Date, na.rm = TRUE))%>%
                   dplyr::ungroup()%>%
@@ -246,6 +246,10 @@ Biological<-suppressWarnings(Biological%>%
 Biological<-Biological%>%dplyr::select(-c(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos, .data$Scale, .data$Otolith, .data$DNA_ID, .data$ATUS, .data$Family_Group))
 #Update Lk_sby with new age info.
 Biological$Lk_sby = paste(paste(Biological$WBID,"_",Biological$sby_code, sep = ""))
+
+#Add in stocking density info
+Biological$Rel_ha = round(Biological$N_rel/Lakes$Area[match(Biological$WBID, Lakes$WBID)],1)
+clipsum$Rel_ha = round(clipsum$N_rel/Lakes$Area[match(clipsum$WBID, Lakes$WBID)],1)
 
 Assessments<<- Assessments[Assessments$Assessment_Key%in%Biological$Assessment_Key,]
 Lakes<<-Lakes[Lakes$WBID%in%Biological$WBID,]

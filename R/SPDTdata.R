@@ -58,8 +58,9 @@ SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL
   
   if(!exists("Biological")|!exists("clipsum")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
-  
- # if(Data_source == "SLD"){
+  if(!exists("Contrast")){stop("Need a contrast for SPDTdata(), use SLD2R() for all data")}
+
+   # if(Data_source == "SLD"){
 #linkClips()
  # }else if(!exists("Biological")|!exists("clipsum")){
 #     stop("Need to start with a data load from SLD to start! Set Data source to 'SLD' or load A Biological Table with exact column name matches")
@@ -112,7 +113,7 @@ idf <- idf%>%
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
-  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Dec.Age, .data$sby_code, .data$Clip, .data$N_rel, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
+  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$Dec.Age, .data$sby_code, .data$Clip, .data$N_rel, .data$Rel_ha, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
   dplyr::summarize( mean_FL = mean(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     sd_FL = sd(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     mean_wt = mean(Weight_g[.data$Outlier%in%c(0,NA)], na.rm = TRUE), 
@@ -151,8 +152,8 @@ clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')%>%
           dplyr::mutate(Dec.Age = round(Int.Age+as.numeric(Season)/4, 2))%>%#this add dec.age to 0 counts
           dplyr::filter(!is.na(Species))#Remove cases that did not match a stocking event.
 ###################################################################################################################
-gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel", "SAR", "cur_life_stage_code","avg_rel_date")], 
-                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel", "SAR"))%>%
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel","Rel_ha", "SAR", "cur_life_stage_code","avg_rel_date")], 
+                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel","Rel_ha", "SAR"))%>%
   dplyr::filter(Lk_yr%in%idf$Lk_yr)%>%#Clip != "", Pulled this out to keep species comparisons
   dplyr::filter(dplyr::case_when(Contrast != "Species"~ Clip != "", TRUE ~ !is.na(N_rel) ))%>%#, TRUE ~ Clip %in% unique(Clip)
   dplyr::mutate(N = replace(N, is.na(N), 0), 
@@ -195,11 +196,30 @@ exps <- gdf%>%
 idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
 
+#Let's try an effort table for standard gillnet data only for now. Data looks terrible quality.
+#Assume 7 panels and overnight when not recorded but SGN indicated
+Nets = Nets%>%dplyr::filter(sample_design_code == "SGN")%>%
+  tidyr::replace_na(list(no_net_panels = 7, overnight_yn= "Y"))
+
+#Capitalization
+Nets$overnight_yn = stringr::str_to_upper(Nets$overnight_yn)
+
+Net_effort = Nets%>%
+              dplyr::filter(Lk_yr %in% gdf$Lk_yr, method == "Gillnet", sample_design_code == "SGN")%>%#This should be changed to "GN" to match other tables
+              dplyr::group_by(Waterbody_Name, Lk_yr, Start_Date, net_id, no_net_panels)%>%
+              dplyr::summarize(soak_hrs = mean(soak_hrs))#corrects for different soak times for same net with different species
+
+#Have to count net panels and divide by 7 because standard nets were split into multiple sections in some cases.
+SGN_E = Net_effort%>%
+            dplyr::group_by(Waterbody_Name, Lk_yr)%>%
+            dplyr::summarize(Net_nights = sum(no_net_panels)/7, Net_hours = as.numeric(crossprod(no_net_panels,soak_hrs)/7))%>%
+            dplyr::ungroup()
+
 #Create a wide format data set for comparing relative catch. May want to add sby_code back in as grouper? THis messes up species comparisons.
 #First only use groups that are recruited to gillnets (>150mm).
 predf = gdf%>%
   #dplyr::filter(mean_FL>150)%>%
-  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Int.Age, !!!rlang::syms(Contrast_possible))%>%#, sby_code
+  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Capture_Method, Int.Age, !!!rlang::syms(Contrast_possible))%>%#, sby_code
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
@@ -265,16 +285,22 @@ controls<<-controls
 
 }
 
-#Remove cohorts years where nothing is observed
+#Removes cohorts years where nothing is observed> STILL WANT THIS?
 #This coding should be used earlier to remove strain experiments that appear with size experiments
 idf$Lk_yr_age = paste0(idf$Lk_yr, "_", idf$Int.Age)
 gdf$Lk_yr_age = paste0(gdf$Lk_yr, "_", gdf$Int.Age)
+
 gdf = gdf%>%
   dplyr::filter(Lk_yr_age %in% idf$Lk_yr_age)
+
+#Use gillnet effort data to get CPUE when possible.
+gdf = dplyr::left_join(gdf,SGN_E[,c('Lk_yr','Net_nights')], by = "Lk_yr")%>%
+      dplyr::mutate(CPUE = N/Net_nights)
 
 #Put data frames into the global environment
 idf<<-idf
 gdf<<-gdf
+SGN_E<<-SGN_E
 
 
 #Add function parameters to the global environment

@@ -95,6 +95,7 @@ Releases <- Releases%>%dplyr::rename(WBID = .data$loc_msrm_waterbody_identifier,
 #Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
 Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biological$WBID)]
 
+
 #Data entry error for Duffy and Harper in Biological fix for now
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 
@@ -164,6 +165,7 @@ Lakes<-dplyr::left_join(Lakes, Lake_dim, by = "WBID")
 #We can now remove the Lake_dim data frame as we have incorporated the data into Lakes.
 rm(Lake_dim)
 
+
 #_______________________________________________________________________________
 #filter biological data to gillnet information, add age interpretation and delete or flag data errors
 
@@ -180,7 +182,7 @@ Biological <- Biological%>%
                                                                     to=as.character(Lakes$Region_Name),
                                                                     warn_missing = FALSE),
                               Int.Age = plyr::mapvalues(Age, from=Ages$Ages, to=Ages$Int.Ages, warn_missing = FALSE),
-                              K = 100000*.data$Weight_g/.data$Length_mm^3
+                              K = round(100000*.data$Weight_g/.data$Length_mm^3,2)
                               )%>%
   suppressWarnings()#for NAs introduced by coercion
 
@@ -237,7 +239,8 @@ Releases$rel_Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-
 Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
                                       Lk_sry = paste(.data$WBID,"_",.data$rel_Year, sep = "")
                                       )
-
+#Add area info into releases
+#Releases$Area = Lakes$Area[match(Releases$WBID, Lakes$WBID)]
 #_______________________________________________________________________________
 #NETS
 #Similar minor adjustments
