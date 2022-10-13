@@ -100,7 +100,9 @@ Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biologi
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 
 #To fix alternate codes for same thing change all Biological to "AF" because Releases uses "AF"
-Biological$Genotype[Biological$Genotype == "AF2N"] = "AF"
+Biological$Genotype[Biological$Genotype == "AF2n"] = "AF"
+#Match case in Releases
+Releases$Genotype = dplyr::recode(Releases$Genotype, '2N'='2n','3N'='3n', 'AF3N' = 'AF3n', 'MT3N'='MT3n')
 
 #Also seems to be an error with redside shiners being coded incorrectly as RSS
 Biological$Species[Biological$Species == "RSS"] = "RSC"

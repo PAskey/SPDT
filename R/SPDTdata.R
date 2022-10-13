@@ -52,7 +52,7 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Project = NULL, Lk_yrs = NULL, Data_source = TRUE){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NULL, Project = NULL, Lk_yrs = NULL, Data_source = TRUE){
 
   if(Data_source == TRUE){linkClips()}
   
@@ -91,6 +91,11 @@ if (!is.null(Spp)) {
 if (!is.null(Strains)) {
   idf = subset(idf, Strain %in% Strains)
   clipsum = subset(clipsum, clipStrains %in% Strains)
+}
+
+if (!is.null(Genotypes)) {
+  idf = subset(idf, Genotype %in% Genotypes)
+  clipsum = subset(clipsum, clipGenos %in% Genotypes)
 }
 
 if (!is.null(Lk_yrs)|!is.null(Project)) {
