@@ -52,13 +52,13 @@ Releases <- Releases%>%dplyr::mutate(
                                 #Now with Fraser Valleys it gets really confusing. This is NOT correct 100% of the time.
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$cur_life_stage_code %in% c("EG", "EE", "FF", "FR")&g_size <10 ~ 0L,
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size <500 ~ 1L,
-                                .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size > 500 ~ .data$rel_Year-.data$sby_code,
+                                .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size > 500 ~ .data$Year-.data$sby_code,
                                 #First put NAs for remaining  cases where brood year will not help us
                                 .data$sby_code == 0 ~ NA_integer_,
                                 #Now simple brood year based ages.
                                 # A few cases where supposedly released before brood year.
-                                (.data$rel_Year - .data$sby_code) > 0 & .data$Species %in% fall_spwn ~ .data$rel_Year - .data$sby_code - 1L,#1L is so all numbers conform to integer type
-                                (.data$rel_Year - .data$sby_code) >= 0 & .data$Species %in% spring_spwn ~ .data$rel_Year - .data$sby_code,
+                                (.data$Year - .data$sby_code) > 0 & .data$Species %in% fall_spwn ~ .data$Year - .data$sby_code - 1L,#1L is so all numbers conform to integer type
+                                (.data$Year - .data$sby_code) >= 0 & .data$Species %in% spring_spwn ~ .data$Year - .data$sby_code,
                                 TRUE ~ NA_integer_),
                               )
 
@@ -85,7 +85,7 @@ Xnew <- NULL#Add an additional dataframe for each year projected
 #Loop thru each projected year and append updated dataframe rows (mostly repeated data, except for age, year and lake_year)
 for(i in 0:maxxage){
   X$Int.Age = Releases$Int.Age+i
-  X$Year = Releases$rel_Year+i
+  X$Year = Releases$Year+i
   X$Lk_yr = paste(X$WBID,"_",X$Year, sep = "")
   Xnew <- rbind(Xnew, X)
 }
@@ -136,7 +136,7 @@ group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip")
 clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                    n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
-                                    n_sry = length(unique(.data$rel_Year)), #number of release years
+                                    n_sry = length(unique(.data$Year)), #number of release years
                                     nStrains = length(unique(.data$Strain)), #number of Strains
                                     nGenos = length(unique(.data$Genotype)), #number of genotypes
                                     cliprel_ids = paste(unique(.data$rel_id),collapse = ","),
@@ -190,7 +190,7 @@ group_cols <- c("Waterbody_Name","WBID", "Lk_yr", "Year","Species", "Clip", "Int
 clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
                   dplyr::summarize(nrel_ids = length(unique(.data$rel_id)), #number of rel_ids, these are not unique to stocking group 
                                   n_sby = length(unique(na.omit(.data$sby_code))), #number of brood years
-                                  n_sry = length(unique(.data$rel_Year)), #number of release years
+                                  n_sry = length(unique(.data$Year)), #number of release years
                                   nStrains = length(unique(.data$Strain)), #number of Strains
                                   nGenos = length(unique(.data$Genotype)),
                                   cliprel_ids = paste(unique(.data$rel_id),collapse = ","),

@@ -80,6 +80,11 @@ Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biologi
 #Data entry error for Duffy and Harper in Biological fix for now
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 
+#Replace 0s with NA
+Biological$Length_mm[Biological$Length_mm==0]<-NA
+BiologicalWeight_g[Biological$Weight_g==0]<-NA
+
+
 #Change to consistent capitalization
 Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
 
@@ -216,10 +221,10 @@ Biological <- Biological%>%
 #Remove stream releases as generally do not apply to SPDT type analyses
 Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
 #Create column for release year
-Releases$rel_Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
+Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake brood year and lake stocking year grouping variables that can match Biological
 Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
-                                      Lk_sry = paste(.data$WBID,"_",.data$rel_Year, sep = "")
+                                      Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
                                       )
 #Add area info into releases
 #Releases$Area = Lakes$Area[match(Releases$WBID, Lakes$WBID)]

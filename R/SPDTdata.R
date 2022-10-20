@@ -79,9 +79,6 @@ SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NU
   #Alternatively if Data_source is set to "Biological" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
 idf = Biological  
   
-##CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
-idf$Length_mm[idf$Length_mm==0]<-NA
-idf$Weight_g[idf$Weight_g==0]<-NA
 
 
 
