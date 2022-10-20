@@ -62,27 +62,8 @@ Biological$Date<-as.POSIXct(Biological$Date, format="%Y-%m-%d")
 #I believe very old records are accurate bass and lake whitefish stockings.
 Releases$rel_Date<-as.POSIXct(Releases$rel_Date, format="%Y-%m-%d")
 
-#_______________________________________________________________________________
-#Spatial data re-formatting, No longer needed as done with SQL
-
-#Convert net locations, by fist ignoring NA locations and then converting the rest.
-#Nets<-suppressWarnings(Nets%>%dplyr::filter_at(dplyr::vars(.data$Shore_UTM_Zone:.data$Lake_UTM_Northing),dplyr::all_vars(!is.na(.)))%>%
-#  dplyr::group_by(.data$Lake_UTM_Zone)%>%
-#    dplyr::mutate(
-#            Shore_Lat = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$y,
-#            Shore_Long = UTM_to_latlong(.data$Shore_UTM_Easting, .data$Shore_UTM_Northing, .data$Shore_UTM_Zone)$x,
-#            Lake_Lat = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$y,
-#            Lake_Long = UTM_to_latlong(.data$Lake_UTM_Easting, .data$Lake_UTM_Northing, .data$Lake_UTM_Zone)$x)%>%
-#  dplyr::ungroup())
-
-#Lakes<-suppressWarnings(Lakes%>%dplyr::filter(!is.na(.data$UTM_Zone), !is.na(.data$UTM_Easting))%>%droplevels()%>%
-#  dplyr::group_by(.data$UTM_Zone)%>%
-#  dplyr::mutate(Long = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$x,
-#                Lat = UTM_to_latlong(.data$UTM_Easting, .data$UTM_Northing, .data$UTM_Zone)$y))
-
-#_______________________________________________________________________________
-#Reformat to consistent column naming and data coding
-#Column names are generally consistent among SLD Tables, but Paris (Releases) is different, so we will make those match
+########################################################################################################################
+###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
 
 #For naming of ploidy and sex together I believe we agreed that "Genotype" is the best term, so change both dataset to that. Then for all Releases columns we will make consistent with Biological
 Biological<-Biological%>%dplyr::rename(Genotype = .data$Ploidy, Strain = .data$Strain_Species)
@@ -99,6 +80,9 @@ Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biologi
 #Data entry error for Duffy and Harper in Biological fix for now
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 
+#Change to consistent capitalization
+Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
+
 #To fix alternate codes for same thing change all Biological to "AF" because Releases uses "AF"
 Biological$Genotype[Biological$Genotype == "AF2n"] = "AF"
 #Match case in Releases
@@ -109,11 +93,11 @@ Biological$Species[Biological$Species == "RSS"] = "RSC"
 Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
 
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
-
 Releases<-Releases%>%
             dplyr::mutate(Strain = as.character(plyr::mapvalues(stock_strain_loc_name,
                                                                 from=as.character(Strain_code_LU$stock_strain_loc_name),
                                                                 to=as.character(Strain_code_LU$Strain))))
+
 
 #_______________________________________________________________________________
 #filter down to assessed fishery lakes and merge lake dimension info
@@ -210,17 +194,13 @@ Biological<- Biological%>%
                             )
 
 
-
-#Flag extremely odd sized or shaped fish as outliers
+#IDENTIFY OUTLIERS
 Biological <- Biological%>%
-                dplyr::mutate(
-                          Outlier = ifelse(
-                              .data$Species %in% c('ACT','CT','WCT','CRS','RBCT','RB','KO','EB','DV','BT','GB','TR','ST')&
-                              (!(.data$Length_mm %in% c(60:1000))|
-                              #(.data$Int.Age < 1 & .data$Length_mm>=100)|#Kokanee can beat this
-                              #(.data$Int.Age <= 1 & .data$Length_mm>=440)|
-                              0.7 > .data$K | 2.2 < .data$K),1,0)
-                              )
+  dplyr::mutate(Outlier = ifelse(is.na(.data$Length_mm)|.data$Length_mm>900|.data$Species%in%c("UNK","NFC","NFP"),1,
+                          ifelse(!is.na(.data$Weight_g)&.data$Species %in% c('ACT','CT','WCT','CRS','RBCT','RB','KO','EB','DV','BT','GB','TR','ST') & 
+                                   (!(.data$Length_mm %in% c(60:1000)) | 0.7 > .data$K | 2.2 < .data$K),1,0)
+  ))
+
 
 #Last, let's add an expansion factor for gillnet selectivity
 ##THis is not longer working, so need to fix. Giving diffrent answers for same sized fish!!Uhg

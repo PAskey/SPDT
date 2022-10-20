@@ -257,7 +257,7 @@ if (Metric == "growth_FL"){
   
  
   if (Metric == "FL_density"){
-    if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
+    if(min_N<20){warning("Min_N should be set >=20 for pop length frequency plots")}
     
 p = pi+
     ggplot2::geom_density(ggplot2::aes(x = .data$Length_mm), alpha = 0.4, lwd = 1, adjust = 1/2)+
@@ -270,7 +270,7 @@ p = pi+
   }
 
 if (Metric == "FL_freq"){
-  if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
+  if(min_N<20){warning("Min_N should be set >=20 for pop length frequency plots")}
   
   p = pi+
     ggplot2::geom_freqpoly(ggplot2::aes(x = .data$Length_mm), alpha = 0.9, lwd = 1, binwidth = 20)+
@@ -282,7 +282,7 @@ if (Metric == "FL_freq"){
 }
 
 if (Metric == "FL_hist"){
-  if(min_N<20){warning("Min_N should be >=20 for pop length frequency plots")}
+  if(min_N<20){warning("Min_N should be set >=20 for pop length frequency plots")}
   
   p = pi+
     ggplot2::geom_histogram(ggplot2::aes(x = .data$Length_mm), alpha = 0.2, lwd = 1, position = "identity", binwidth = 20)+
@@ -295,7 +295,7 @@ if (Metric == "FL_hist"){
 
   
   if (Metric == "maturation_by_sex"){
-    if(min_N<5){warning("Min_N should be >=5 for maturation plots")}
+    if(min_N<5){warning("Min_N should be set >=5 for maturation plots")}
     mat_df = plot_idf%>%
               dplyr::filter(Maturity != 'UNK', !is.na(Sex), !grepl(",",Genotype))%>%
               dplyr::group_by(Waterbody_Name, WBID, Year, Species, Strain, Genotype, Int.Age, Dec.Age, Sex, SAR_cat)%>%

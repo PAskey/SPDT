@@ -29,7 +29,8 @@
 #' @param Spp an optional character string or character vector for BC species code (e.g. "RB" or c("KO", "EB"), etc.). This will filter data to only that species.
 #' @param Contrast an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 #' Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.
-#' @param Strain an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed
+#' @param Strains an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed
+#' @param Genotypes an optional character string or character vector to filter data to specific genotypes (e.g. 2n or AF3n)
 #' @param Project an optional character describing the Project_Name from Assessments table in SLD.
 #' @param Lk_yrs an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))
 #' @param Data_source a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.
@@ -54,11 +55,12 @@
 
 SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NULL, Project = NULL, Lk_yrs = NULL, Data_source = TRUE){
 
+  if(is.null(Contrast)){stop("Must define a 'Contrast' for SPDTdata() function, see ?SPDTdata, for all data use SLD2R() instead")}
+  
   if(Data_source == TRUE){linkClips()}
   
   if(!exists("Biological")|!exists("clipsum")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
-  if(!exists("Contrast")){stop("Need a contrast for SPDTdata(), use SLD2R() for all data")}
 
    # if(Data_source == "SLD"){
 #linkClips()

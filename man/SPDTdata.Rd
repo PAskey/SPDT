@@ -8,6 +8,7 @@ SPDTdata(
   Spp = NULL,
   Contrast = NULL,
   Strains = NULL,
+  Genotypes = NULL,
   Project = NULL,
   Lk_yrs = NULL,
   Data_source = TRUE
@@ -19,13 +20,15 @@ SPDTdata(
 \item{Contrast}{an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.}
 
+\item{Strains}{an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed}
+
+\item{Genotypes}{an optional character string or character vector to filter data to specific genotypes (e.g. 2n or AF3n)}
+
 \item{Project}{an optional character describing the Project_Name from Assessments table in SLD.}
 
 \item{Lk_yrs}{an optional character string or character vector of the Lake-years to filter the data set to. Must be in format WBID_YYYY (e.g. "01100OKAN_2020" or for multiples c("01100OKAN_2020", "01598LNTH_2018"))}
 
 \item{Data_source}{a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.}
-
-\item{Strain}{an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed}
 }
 \description{
 A function to filter and format SLD data to cases with clipped experimental stocking groups. 

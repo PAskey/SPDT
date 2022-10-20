@@ -4,21 +4,25 @@
 \alias{linkClips}
 \title{linkClips}
 \usage{
-linkClips()
+linkClips(Sampled_only = TRUE)
+}
+\arguments{
+\item{Sampled_only}{a logical TRUE/FALSE indicating whether to reduce data tables to records associated with a sampling event with Biological data. 
+If true (default) then Assessments, Nets, Lakes and Releases tables are all reduced to Lake-years that can cross reference to Biological records.}
 }
 \description{
 A function to load, clean and standardize SLD data for SPDT analysis. 
 Function only usable by FFSBC staff who have a direct or vpn connection to SLD.
 }
 \details{
-This is the second data filtering and cleaning process after SLD2R() to reduce down to stocking data that can be tied to releases. 
-Takes SLD2R() data and uses clip information to tie fish back to stocking event, age, strain, gentotype where possible.
+This is the second data filtering and cleaning process after SLD2R() to reduce down to biological data that can be tied to releases. 
+Takes SLD2R() data and uses clip information to tie fish back to stocking event, age, strain, genotype where possible.
 Make sure your VPN is running, so that the database can be accessed by the function.
 The Biological record count remains the same, but includes information about the potential stocking event(s) tied to each fish.
 In cases where clips are unique, then fields for age, strain, genotype are updated if black. Otherwise a list of possibilities can be found
 in "clipAges, clipStrains, clipGenos. 
 All other data tables only include data that can be linked to the Biological data, either same Assessment_Key, or rel_id.
-Anydata Tables you have open as Assessments, Nets, Lakes, Biological, Releases will be replaced with versions form this function.
+Any data Tables you have open as Assessments, Nets, Lakes, Biological, Releases will be replaced with versions from this function.
 Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
 Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 }

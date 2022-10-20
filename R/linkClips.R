@@ -2,14 +2,14 @@
 #' Function only usable by FFSBC staff who have a direct or vpn connection to SLD.
 #'
 #'
-#' This is the second data filtering and cleaning process after SLD2R() to reduce down to stocking data that can be tied to releases. 
-#' Takes SLD2R() data and uses clip information to tie fish back to stocking event, age, strain, gentotype where possible.
+#' This is the second data filtering and cleaning process after SLD2R() to reduce down to biological data that can be tied to releases. 
+#' Takes SLD2R() data and uses clip information to tie fish back to stocking event, age, strain, genotype where possible.
 #' Make sure your VPN is running, so that the database can be accessed by the function.
 #' The Biological record count remains the same, but includes information about the potential stocking event(s) tied to each fish.
 #' In cases where clips are unique, then fields for age, strain, genotype are updated if black. Otherwise a list of possibilities can be found
 #' in "clipAges, clipStrains, clipGenos. 
 #' All other data tables only include data that can be linked to the Biological data, either same Assessment_Key, or rel_id.
-#' Anydata Tables you have open as Assessments, Nets, Lakes, Biological, Releases will be replaced with versions form this function.
+#' Any data Tables you have open as Assessments, Nets, Lakes, Biological, Releases will be replaced with versions from this function.
 #' Lookup tables for integer ages and strain codes are included as part of package and can by called as Ages, Strain_code_LU
 #' Ultimately, as upload filters and cleaning are improved in the main database, this function will become obsolete.
 #'
@@ -17,6 +17,8 @@
 #' @name linkClips
 #' @keywords SPDT; clips
 #' @export
+#' @param Sampled_only a logical TRUE/FALSE indicating whether to reduce data tables to records associated with a sampling event with Biological data. 
+#' If true (default) then Assessments, Nets, Lakes and Releases tables are all reduced to Lake-years that can cross reference to Biological records.
 #' @examples
 #' #' Must be connected to VPN if working remotely
 #' 
@@ -28,15 +30,10 @@
 
 #_______________________________________________________________________________
 #Open channel to SLD and download data
-linkClips <- function(){
+linkClips <- function(Sampled_only = TRUE){
 
 SLD2R()
   
-#Just look at releases that are from lakes in the Biological Table
-Releases <- Releases[Releases$WBID%in%Biological$WBID,]
-#Only Releases that have brood year or release size info included.
-Releases <- Releases[!(Releases$sby_code==0&Releases$g_size==0),]
-
 
 
 #Create a grouping variable for lake and brood year to evaluate co-stocking and linkages to Biological data. 
@@ -64,6 +61,18 @@ Releases <- Releases%>%dplyr::mutate(
                                 (.data$rel_Year - .data$sby_code) >= 0 & .data$Species %in% spring_spwn ~ .data$rel_Year - .data$sby_code,
                                 TRUE ~ NA_integer_),
                               )
+
+#Store a copy of all releases in case of interest
+All_Releases = Releases
+
+
+#REDUCE DOWN TO RELEASES RELEVANT TO CROSS REFERNCE WITH BIOLOGICAL DATA
+#Just look at releases that are from lakes in the Biological Table
+Releases <- Releases[Releases$WBID%in%Biological$WBID,]
+#Only Releases that have brood year or release size info included.
+Releases <- Releases[!(Releases$sby_code==0&Releases$g_size==0),]
+
+
                                 
 
 
@@ -95,15 +104,14 @@ Xnew <- Xnew[Xnew$Lk_yr%in%Biological$Lk_yr&Xnew$Int.Age <= maxxage,]
 #NeXt step is try and cross reference those stocking records to individual fish (so we can verify strain, genotype, etc.)
 
 
+########################################################################################################################
+###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
+
 #First for cases where no clip, need to be consistent in NONE, NA, Null to be able to cross reference, so change all of these to NA
 #This could be a problem where clips were not checked (currently NA), but the vast majority of NAs are truely not clipped.
 Biological$Clip[Biological$Clip == "NONE"]<-NA
 Xnew$Clip[Xnew$Clip == ""]<-NA
 
-########################################################################################################################
-###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
-
-Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
 
 #Similar issue where people have put UNK instead of NA or none. UNK should be for non-readable clips from fish know to be clipped.
 Clip_yrs = Biological%>%
@@ -251,11 +259,22 @@ Biological$Lk_sby = paste(paste(Biological$WBID,"_",Biological$sby_code, sep = "
 Biological$Rel_ha = round(Biological$N_rel/Lakes$Area[match(Biological$WBID, Lakes$WBID)],1)
 clipsum$Rel_ha = round(clipsum$N_rel/Lakes$Area[match(clipsum$WBID, Lakes$WBID)],1)
 
+Biological<<-Biological
+clipsum<<-clipsum
+
+if(Sampled_only==TRUE){
 Assessments<<- Assessments[Assessments$Assessment_Key%in%Biological$Assessment_Key,]
 Lakes<<-Lakes[Lakes$WBID%in%Biological$WBID,]
 Nets<<-Nets[Nets$Assessment_Key%in%Biological$Assessment_Key,]
-Biological<<-Biological
 Releases<<-Releases
-clipsum<<-clipsum
+}
+
+if(Sampled_only==FALSE){
+  Assessments<<- Assessments
+  Lakes<<-Lakes
+  Nets<<-Nets
+  Releases<<-All_Releases
+}
+
 
 }
