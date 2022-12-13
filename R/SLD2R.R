@@ -62,27 +62,27 @@ Biological$Date<-as.POSIXct(Biological$Date, format="%Y-%m-%d")
 #I believe very old records are accurate bass and lake whitefish stockings.
 Releases$rel_Date<-as.POSIXct(Releases$rel_Date, format="%Y-%m-%d")
 
-########################################################################################################################
-###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
+####################################################################################################################
+#Recode Genotypes and Strain
 
-#For naming of ploidy and sex together I believe we agreed that "Genotype" is the best term, so change both dataset to that. Then for all Releases columns we will make consistent with Biological
+#For naming of ploidy and sex together I believe we agreed that "Genotype" is the best term, so change both datasets to that. Then for all Releases columns we will make consistent with Biological
 Biological<-Biological%>%dplyr::rename(Genotype = .data$Ploidy, Strain = .data$Strain_Species)
+
 
 Releases <- Releases%>%dplyr::rename(WBID = .data$loc_msrm_waterbody_identifier,
                                      Genotype = .data$stock_gtype_code,
                                      Species = .data$sp_code,
                                      Clip = .data$rel_fm_code)
 
-#Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
-Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biological$WBID)]
-
+########################################################################################################################
+###CLEANING TASKS IN THIS SECTION SHOULD BE REMOVED EVENTUALLY
 
 #Data entry error for Duffy and Harper in Biological fix for now
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 
 #Replace 0s with NA
 Biological$Length_mm[Biological$Length_mm==0]<-NA
-BiologicalWeight_g[Biological$Weight_g==0]<-NA
+Biological$Weight_g[Biological$Weight_g==0]<-NA
 
 
 #Change to consistent capitalization
@@ -97,11 +97,43 @@ Releases$Genotype = dplyr::recode(Releases$Genotype, '2N'='2n','3N'='3n', 'AF3N'
 Biological$Species[Biological$Species == "RSS"] = "RSC"
 Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
 
+
+#########################################################################################################################
+#_______________________________________________________________________________
+#RELEASES
+#Several minor adjustments
+
+#Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
+Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biological$WBID)]
+
+
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
 Releases<-Releases%>%
             dplyr::mutate(Strain = as.character(plyr::mapvalues(stock_strain_loc_name,
                                                                 from=as.character(Strain_code_LU$stock_strain_loc_name),
                                                                 to=as.character(Strain_code_LU$Strain))))
+
+
+
+#Remove stream releases as generally do not apply to SPDT type analyses
+Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
+#Create column for release year
+Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
+#Add in lake brood year and lake stocking year grouping variables that can match Biological
+Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
+                                     Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
+)
+
+
+#_______________________________________________________________________________
+#NETS
+#Similar minor adjustments
+
+
+#Create column for sampleyear
+Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
+#Add in lake-year that can match Biological and Releases
+Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
 
 
 #_______________________________________________________________________________
@@ -214,31 +246,10 @@ Biological <- Biological%>%
                   .data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species == "RB",
                   1/SPDT::RICselect(FLengths_mm = .data$Length_mm),1))%>%
                 tidyr::replace_na(list(NetX = 1))
-#_______________________________________________________________________________
-#RELEASES
-#Couple minor adjustments
 
-#Remove stream releases as generally do not apply to SPDT type analyses
-Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
-#Create column for release year
-Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
-#Add in lake brood year and lake stocking year grouping variables that can match Biological
-Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
-                                      Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
-                                      )
-#Add area info into releases
-#Releases$Area = Lakes$Area[match(Releases$WBID, Lakes$WBID)]
-#_______________________________________________________________________________
-#NETS
-#Similar minor adjustments
-
-
-#Create column for sampleyear
-Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
-#Add in lake-year that can match Biological and Releases
-Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
 
 #_______________________________________________________________________________
+
 #Use droplevels() to make sure not retaining any factor levels that are no longer in use after filtering steps above
 Assessments = droplevels(Assessments)
 Lakes = droplevels(Lakes)
