@@ -6,6 +6,7 @@
 \title{Lookup table to convert the strain names to codes}
 \format{
 A data frame with 235 rows and 4 variables:
+<<<<<<< HEAD
 \describe{
   \item{Species}{Species code, Codes used to describe the species}
   \item{stock_strain_loc_name}{Strain name, character string fully describing strain source population}
@@ -14,9 +15,13 @@ A data frame with 235 rows and 4 variables:
 }
 
 A data frame with 19 rows and 2 variables:
+=======
+>>>>>>> 154b74c03a9b50d1b63a556b345eb6bf1dcefc1d
 \describe{
+  \item{Species}{Species code, Codes used to describe the species}
   \item{stock_strain_loc_name}{Strain name, character string fully describing strain source population}
   \item{Strain}{Strain code, Codes used to describe the strains}
+  \item{N}{Observations, AN integer describing the number of releases of this strain up to Jan 2022}
 }
 }
 \source{
