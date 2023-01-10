@@ -5,6 +5,11 @@
 #' A default set of categories has been created. The function may be updated to offer options in the future.
 #' A simple manual alternative is round(a/b)*a where a is value and b is the rounding increment.
 #' 
+#'   SAR_cat = dplyr::case_when(SAR<=5.5 ~ cround(SAR/1)*1,
+#'                              SAR>5.5&SAR<=22.5 ~ cround(SAR/5)*5,
+#'                              SAR>22.5&SAR<75 ~ cround(SAR/10)*10,
+#'                              TRUE ~ cround(SAR/20)*20) 
+#' 
 #' Additional note is that R rounds 0.5 value up or down every second digit (e.g. 1.5 = 2, 2.5 = 2, 3.5 = 4, etc.).
 #' Apparently, this is some sort of standard but is problematic when categorizing release sizes (1.5 and 2.5 are both put into 2.)
 #' Therefore, a custom function to correct this to always round 0.5 up is used (cround()).
@@ -51,8 +56,8 @@ SAR_cat = function(SAR){
  
   SAR_cat = dplyr::case_when(SAR<=5.5 ~ cround(SAR/1)*1,
                              SAR>5.5&SAR<=22.5 ~ cround(SAR/5)*5,
-                             SAR>22.5&SAR<65 ~ cround(SAR/10)*10,
-                             TRUE ~ cround(SAR/25)*25) 
+                             SAR>22.5&SAR<75 ~ cround(SAR/10)*10,
+                             TRUE ~ cround(SAR/20)*20) 
   
   
   return(SAR_cat)
