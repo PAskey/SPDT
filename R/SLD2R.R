@@ -176,6 +176,12 @@ Lake_dim <- Lake_dim%>%
               Outlets = max(.data$No_Of_Outlets))%>%
   dplyr::ungroup()
 
+####################################################################################
+#Manual entry of a coupe important stocked lakes not having lake area
+Lake_dim$Area[Lake_dim$WBID == '01497OKAN']<-32
+Lake_dim$Area[Lake_dim$WBID == 'FFSBC3802']<-13.9
+
+
 #Select fields, can use dput(names(Lakes)) to get full list and reduce from there
 Lakes = Lakes%>%dplyr::select(c("Waterbody_Name", "Alias", "WBID", "Region", "Region_Name", "UTM_Easting", 
   "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked"))
