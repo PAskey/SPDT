@@ -99,7 +99,7 @@ rm(X)#X dataframe was just created for looping and can be removed.
 Xnew <- Xnew[Xnew$Lk_yr%in%Biological$Lk_yr&Xnew$Int.Age <= maxxage,]
 
 #Now we have a list of release records that were filtered to lakes and times matching assessments in the Biological table
-#Tnen we expanded over the life span (well we cut off at 6 so really old fish will be lost) of the stocked fish
+#Then we expanded over the life span (well we cut off at 6 so really old fish will be lost) of the stocked fish
 #(new data row for each age), so that we can cross reference a stocking event to a fish observed at any age in the biological table
 #NeXt step is try and cross reference those stocking records to individual fish (so we can verify strain, genotype, etc.)
 
@@ -108,23 +108,25 @@ Xnew <- Xnew[Xnew$Lk_yr%in%Biological$Lk_yr&Xnew$Int.Age <= maxxage,]
 ###CLEANING TASKS SHOULD BE REMOVED EVENTUALLY
 
 #First for cases where no clip, need to be consistent in NONE, NA, Null to be able to cross reference, so change all of these to NA
-#This could be a problem where clips were not checked (currently NA), but the vast majority of NAs are truely not clipped.
+#This could be a problem where clips were not checked (currently NA), but the vast majority of NAs are truly not clipped.
+#The other problem is when NA clip stocked but natural recruitment exists.
 Biological$Clip[Biological$Clip == "NONE"]<-NA
 Xnew$Clip[Xnew$Clip == ""]<-NA
 
 
 #Similar issue where people have put UNK instead of NA or none. UNK should be for non-readable clips from fish know to be clipped.
 Clip_yrs = Biological%>%
-  dplyr::group_by(Lk_yr, Species)%>%
   dplyr::filter(!Clip%in%c("NOREC","UNK",NA))%>%
-  dplyr::summarize(Nclips = length(unique(Clip)), Lk_yr_spp = paste0(Lk_yr,Species))%>%
+  dplyr::group_by(Lk_yr, Species)%>%
+  dplyr::summarize(Nclips = length(unique(Clip)))%>%
+  dplyr::mutate(Lk_yr_spp = paste0(Lk_yr,Species))%>%
   suppressMessages()
   
 #So if there were no clips recorded at all in that Lk-yr and species group, then change UNK or NOREC to NA
 Biological = Biological%>%dplyr::mutate(Lk_yr_spp = paste0(Lk_yr,Species))
 Biological$Clip[Biological$Clip%in%c("NOREC","UNK",NA)&!Biological$Lk_yr_spp%in%Clip_yrs$Lk_yr_spp]<-NA
 
-Biological = Biological%>%dplyr::select(-Lk_yr_spp)
+#Biological = Biological%>%dplyr::select(-Lk_yr_spp)
 
 #########################################################################################################################
 #How many clips are unique so that age does not need to be known?
@@ -158,6 +160,20 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
 Uniqueclips <-clipsum%>%
   dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
+
+#NA clips are not unique if there were no other clips present and/or natural recruitment (which is tough to know)
+NA_clips = Uniqueclips%>%dplyr::filter(is.na(Clip))%>%dplyr::pull(Lk_yr)
+
+#There aer some cases where a non-clip us used as a clip where no natural recruitment exists (e.g. KO in Yellow lake)
+#Filter out NAs if the size range in NAs is greater than on age class.
+NA_nonuniques = Biological%>%dplyr::filter(is.na(Clip))%>%
+  dplyr::group_by(Lk_yr_spp)%>%
+  dplyr::summarize(minL = min(Length_mm, na.rm = T), maxL = max(Length_mm, na.rm = T),perc = (maxL- minL)/mean(minL,maxL))%>%
+  dplyr::filter(perc>1)%>%
+  dplyr::pull(Lk_yr_spp)%>%unique()
+
+#Drop these NA clips from uniqueclips
+Uniqueclips = Uniqueclips%>%dplyr::filter(!paste0(Lk_yr,Species,NA)%in%paste0(NA_nonuniques,NA))
 
 #In non-unique groups, we must remove all erroneous summary calculations of stocking averages and sums
 nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
@@ -235,17 +251,18 @@ Biological = rbind(Bio_unique, Biounaged, Bioaged)
 #THE ONY THING MAYBE NOT 100% ACCURATE WOULD BE FV BECASUE OF THEIR WEIRD BROOD YEARS
 
 #Now for all cases where the clip makes strain, genotype, or age unique, then insert and/or replace values in those columns. In the case of age, put clip as age method.
-
+#################Problem where NA clips appear unique but there is natural recruitment
 #Add data where a single possible outcome from clip information. This does not currently attempt to correct erroneous ages, and only infills NA values in that case.
+#DO NOT ATTEMPT FOR NA CLIPS UNTIL ALL NATURAL RECRUIT LAKES IDENTIFIED
 Biological<-suppressWarnings(Biological%>%
   dplyr::mutate(
-  sby_code = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
-  Int.Age = dplyr::if_else(.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
+  sby_code = dplyr::if_else(!is.na(Clip)&.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
+  Int.Age = dplyr::if_else(!is.na(Clip)&.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
   #Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
   #Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   #Because of known cases of mix of AF and 2N with same clip but recorded as one in data (see Premier 2014), replace data clips with true mix
-  Strain = dplyr::if_else(!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
-  Genotype = dplyr::if_else(!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
+  Strain = dplyr::if_else(!is.na(Clip)&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
+  Genotype = dplyr::if_else(!is.na(Clip)&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   ))
 #I think the warning NA introduced by coercion can safely be ignored from google research. There are less NA values at the end of this code than when started.
 #suppressWarnings() must wrap everything, otherwise does not run, and warning is suppressed
