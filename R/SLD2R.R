@@ -111,7 +111,7 @@ Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biologi
 Releases<-Releases%>%
             dplyr::mutate(Strain = as.character(plyr::mapvalues(stock_strain_loc_name,
                                                                 from=as.character(Strain_code_LU$stock_strain_loc_name),
-                                                                to=as.character(Strain_code_LU$Strain))))
+                                                                to=as.character(Strain_code_LU$Strain), warn_missing = FALSE)))
 
 
 
