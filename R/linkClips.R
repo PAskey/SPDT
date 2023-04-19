@@ -62,6 +62,10 @@ Releases <- Releases%>%dplyr::mutate(
                                 TRUE ~ NA_integer_),
                               )
 
+Releases = Releases%>%
+  dplyr::inner_join(dplyr::select(Lakes,WBID, Area),by = "WBID")%>%
+  dplyr::mutate(Quantity_ha = Quantity/Area, Biom_ha = (Weight/Area))
+
 #Store a copy of all releases in case of interest
 All_Releases = Releases
 
@@ -158,13 +162,13 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
 
 #Select release, lake-year combinations where clip leads to unique stocking group
 Uniqueclips <-clipsum%>%
-  dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
+  dplyr::filter_at(dplyr::vars(n_sby, n_sry, nStrains, nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
 
 #NA clips are not unique if there were no other clips present and/or natural recruitment (which is tough to know)
 NA_clips = Uniqueclips%>%dplyr::filter(is.na(Clip))%>%dplyr::pull(Lk_yr)
 
-#There aer some cases where a non-clip us used as a clip where no natural recruitment exists (e.g. KO in Yellow lake)
+#There are some cases where a non-clip us used as a clip where no natural recruitment exists (e.g. KO in Yellow lake)
 #Filter out NAs if the size range in NAs is greater than on age class.
 NA_nonuniques = Biological%>%dplyr::filter(is.na(Clip))%>%
   dplyr::group_by(Lk_yr_spp)%>%
@@ -268,7 +272,7 @@ Biological<-suppressWarnings(Biological%>%
 #suppressWarnings() must wrap everything, otherwise does not run, and warning is suppressed
 
 #remove all data columns that are just tallies, and other columns not needed for growth/survival data analysis
-Biological<-Biological%>%dplyr::select(-c(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos, .data$Scale, .data$Otolith, .data$DNA_ID, .data$ATUS, .data$Family_Group))
+Biological<-Biological%>%dplyr::select(-c(n_sby, n_sry, nStrains, nGenos, Scale, Otolith, DNA_ID, ATUS, Family_Group))
 #Update Lk_sby with new age info.
 Biological$Lk_sby = paste(paste(Biological$WBID,"_",Biological$sby_code, sep = ""))
 

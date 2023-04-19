@@ -122,6 +122,7 @@ gdf <- idf%>%
                     sd_FL = sd(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     mean_wt = mean(Weight_g[.data$Outlier%in%c(0,NA)], na.rm = TRUE), 
                     sd_wt = sd(Weight_g[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
+                    mean_K = mean(.data$K[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     N = dplyr::n(),
                     N_outliers = sum(.data$Outlier, na.rm = TRUE),
                     NetX_FL = stats::weighted.mean(.data$Length_mm[.data$Outlier%in%c(0,NA)], .data$NetX[.data$Outlier%in%c(0,NA)], na.rm = TRUE),

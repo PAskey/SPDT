@@ -156,7 +156,14 @@ Fishery_WBID <- unique(c(Assessments$WBID, Releases$WBID))
 #Now filter the Lakes dataframe down to those WBIDs, and add a column to state whether stockd or not
 Lakes<-Lakes%>%
   dplyr::filter(.data$WBID%in%Fishery_WBID & .data$Waterbody_Type == "Lake" & !is.na(.data$WBID))%>%
-  dplyr::mutate(Stocked = .data$WBID%in%Releases$WBID)%>%droplevels()
+  dplyr::mutate(Stocked = .data$WBID%in%Releases$WBID)%>%
+  droplevels()
+
+#Track year of last stocking into lake
+lastYRs = Releases%>%dplyr::group_by(WBID)%>%dplyr::summarize(Last_release = max(Year))
+
+Lakes = dplyr::left_join(Lakes,lastYRs, by = 'WBID')
+rm(lastYRs)
 
 #dplyr::filter lake dimensions data frame to same lakes
 Lake_dim <- Lake_dim%>%dplyr::filter(.data$WBID %in% Lakes$WBID)%>%droplevels()
@@ -177,14 +184,14 @@ Lake_dim <- Lake_dim%>%
   dplyr::ungroup()
 
 ####################################################################################
-#Manual entry of a coupe important stocked lakes not having lake area
+#Manual entry of a couple important stocked lakes not having lake area
 Lake_dim$Area[Lake_dim$WBID == '01497OKAN']<-32
 Lake_dim$Area[Lake_dim$WBID == 'FFSBC3802']<-13.9
 
 
 #Select fields, can use dput(names(Lakes)) to get full list and reduce from there
 Lakes = Lakes%>%dplyr::select(c("Waterbody_Name", "Alias", "WBID", "Region", "Region_Name", "UTM_Easting", 
-  "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked"))
+  "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked", "Last_release"))
 
 Lake_dim = Lake_dim%>%dplyr::select(c("WBID", "Area", "Perimeter", "Max_Depth", "Mean_Depth", "Area_Littoral", "Elevation", "Inlets", "Outlets"))
 
@@ -246,7 +253,7 @@ Biological <- Biological%>%
 
 
 #Last, let's add an expansion factor for gillnet selectivity
-##THis is not longer working, so need to fix. Giving diffrent answers for same sized fish!!Uhg
+##THis is not longer working, so need to fix. Giving different answers for same sized fish!!Uhg
 Biological <- Biological%>%
                 dplyr::mutate(NetX = ifelse(
                   .data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species == "RB",
