@@ -104,7 +104,7 @@ Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
 #Several minor adjustments
 
 #Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
-Releases$Waterbody_Name = Biological$Waterbody_Name[match(Releases$WBID, Biological$WBID)]
+Releases$Waterbody_Name = Lakes$Waterbody_Name[match(Releases$WBID, Lakes$WBID)]
 
 
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
@@ -213,7 +213,7 @@ Biological$Age <- gsub('\\s+', '', Biological$Age)
 #dplyr::filter out records without year or species and create a Lake_WBID and Region_Name column
 Biological <- Biological%>%
                 dplyr::filter(!is.na(.data$Year),!is.na(.data$Species))%>%
-                dplyr::mutate(Lake_WBID = paste(.data$Waterbody_Name,"_",.data$WBID, sep = ""),
+                dplyr::mutate(#Lake_WBID = paste(.data$Waterbody_Name,"_",.data$WBID, sep = ""),
                               Region_Name = plyr::mapvalues(Region, from=Lakes$Region,
                                                                     to=as.character(Lakes$Region_Name),
                                                                     warn_missing = FALSE),
