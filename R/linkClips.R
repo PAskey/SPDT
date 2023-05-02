@@ -48,7 +48,7 @@ Releases <- Releases%>%dplyr::mutate(
                                 #there are a few specific cases where we know age for sure just based on the age description, but only a few (some are not accurate)
                                 .data$g_size > 0 & .data$g_size < 2 ~ 0L,
                                 .data$cur_life_stage_code %in% c("EG", "EE", "FF", "FR")& .data$g_size <5 ~ 0L,
-                                .data$sby_code == 0 & .data$cur_life_stage_code %in% c("YE", "YE+", "FG", "FFG")& .data$g_size <500 ~ 1L,#Only trust YE designation if don't have sby_code
+                                .data$sby_code == 0 & .data$cur_life_stage_code %in% c("YE", "YE+", "FG", "FFG")& .data$g_size >5& .data$g_size <500 ~ 1L,#Only trust YE designation if don't have sby_code
                                 #Now with Fraser Valleys it gets really confusing. This is NOT correct 100% of the time.
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$cur_life_stage_code %in% c("EG", "EE", "FF", "FR")&g_size <10 ~ 0L,
                                 .data$stock_strain_loc_name == "FRASER VALLEY" & .data$g_size <500 ~ 1L,
@@ -181,12 +181,18 @@ Uniqueclips = Uniqueclips%>%dplyr::filter(!paste0(Lk_yr,Species,NA)%in%paste0(NA
 
 #In non-unique groups, we must remove all erroneous summary calculations of stocking averages and sums
 nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
-             dplyr::mutate( N_rel = as.integer(NA),
-                    SAR = as.numeric(NA),
-                    cur_life_stage_code = as.character(NA),
-                    avg_rel_date = as.POSIXct(NA)
-                    )%>%
-  suppressMessages()
+  dplyr::mutate(across(
+    .cols = n_sby:avg_rel_date,
+    .fns = ~replace(., TRUE, NA_integer_)
+  ))
+%>%suppressMessages()
+#              dplyr::mutate( 
+#                    N_rel = as.integer(NA),
+#                    SAR = as.numeric(NA),
+#                    cur_life_stage_code = as.character(NA),
+#                    avg_rel_date = as.POSIXct(NA)
+#                    )%>%
+
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
 #It is known that there are at least some cases where clipped fish have the wrong age entered (See Englishman Lake)
@@ -229,6 +235,7 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
 
 #Identify unique stocking groups, in order to remove summary stats from non-unique groups
 Uniqueclips <-clipsum%>%
+  dplyr::filter(!paste0(Lk_yr,Species,NA)%in%paste0(NA_nonuniques,NA))%>%
   dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
 
