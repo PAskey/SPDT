@@ -184,8 +184,7 @@ nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
   dplyr::mutate(across(
     .cols = n_sby:avg_rel_date,
     .fns = ~replace(., TRUE, NA_integer_)
-  ))
-%>%suppressMessages()
+  ))%>%suppressMessages()
 #              dplyr::mutate( 
 #                    N_rel = as.integer(NA),
 #                    SAR = as.numeric(NA),
