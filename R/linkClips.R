@@ -62,6 +62,17 @@ Releases <- Releases%>%dplyr::mutate(
                                 TRUE ~ NA_integer_),
                               )
 
+
+#First just group together cases of multiple relids for the same group type of fish to the same lake and time.
+#this seems quite slow.
+Releases = Releases%>%
+  mutate(Qtr = quarter(rel_Date))%>%#group by quarter in case 2 trips on different days of same fish
+  group_by(across(c(-rel_id,-rel_Date,-Quantity, -Weight, -g_size,-rel_waterbody_temp_c,-rel_waterbody_ph)))%>%
+  summarize(rel_id = paste(unique(.data$rel_id),collapse = ","), rel_Date = mean(.data$rel_Date, na.rm = TRUE), 
+            Quantity = sum(Quantity), Weight = sum(Weight), g_size = sum(Quantity*g_size)/sum(Quantity))%>%
+  select(-Qtr, ag_description)
+
+
 Releases = Releases%>%
   dplyr::inner_join(dplyr::select(Lakes,WBID, Area),by = "WBID")%>%
   dplyr::mutate(Quantity_ha = Quantity/Area, Biom_ha = (Weight/Area))
@@ -70,14 +81,10 @@ Releases = Releases%>%
 All_Releases = Releases
 
 
-#REDUCE DOWN TO RELEASES RELEVANT TO CROSS REFERNCE WITH BIOLOGICAL DATA
-#Just look at releases that are from lakes in the Biological Table
+#REDUCE DOWN TO RELEASES RELEVANT TO CROSS REFERNCE WITH LAKES IN BIOLOGICAL DATA
 Releases <- Releases[Releases$WBID%in%Biological$WBID,]
 #Only Releases that have brood year or release size info included.
 Releases <- Releases[!(Releases$sby_code==0&Releases$g_size==0),]
-
-
-                                
 
 
 #Expand releases dataframe into future, so we create a row of data for each potential age that a release group may exist in a lake
@@ -174,7 +181,9 @@ NA_nonuniques = Biological%>%dplyr::filter(is.na(Clip))%>%
   dplyr::group_by(Lk_yr_spp)%>%
   dplyr::summarize(minL = min(Length_mm, na.rm = T), maxL = max(Length_mm, na.rm = T),perc = (maxL- minL)/mean(minL,maxL))%>%
   dplyr::filter(perc>1)%>%
-  dplyr::pull(Lk_yr_spp)%>%unique()
+  dplyr::pull(Lk_yr_spp)%>%
+  unique()%>%
+  suppressWarnings()
 
 #Drop these NA clips from uniqueclips
 Uniqueclips = Uniqueclips%>%dplyr::filter(!paste0(Lk_yr,Species,NA)%in%paste0(NA_nonuniques,NA))
@@ -185,12 +194,6 @@ nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
     .cols = n_sby:avg_rel_date,
     .fns = ~replace(., TRUE, NA_integer_)
   ))%>%suppressMessages()
-#              dplyr::mutate( 
-#                    N_rel = as.integer(NA),
-#                    SAR = as.numeric(NA),
-#                    cur_life_stage_code = as.character(NA),
-#                    avg_rel_date = as.POSIXct(NA)
-#                    )%>%
 
 
 #Now we can take the Biological table a subset a chunk of it that matches the cases in the unique clips (whether ages have been entered or not).
@@ -288,6 +291,9 @@ clipsum$Rel_ha = round(clipsum$N_rel/Lakes$Area[match(clipsum$WBID, Lakes$WBID)]
 
 Biological<<-Biological
 clipsum<<-clipsum
+
+
+
 
 if(Sampled_only==TRUE){
 Assessments<<- Assessments[Assessments$Assessment_Key%in%Biological$Assessment_Key,]
