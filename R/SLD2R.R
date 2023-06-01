@@ -45,6 +45,8 @@ Biological <- RODBC::sqlFetch(ch, "ffsbc.vw_Biological_Data")
 Releases <-RODBC::sqlFetch(ch,"ffsbc.vw_paris_releases")
 
 close(ch)
+
+
 #_______________________________________________________________________________
 #Date re-formatting
 
@@ -110,8 +112,8 @@ Releases$Waterbody_Name = Lakes$Waterbody_Name[match(Releases$WBID, Lakes$WBID)]
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
 Releases<-Releases%>%
             dplyr::mutate(Strain = as.character(plyr::mapvalues(stock_strain_loc_name,
-                                                                from=as.character(Strain_code_LU$stock_strain_loc_name),
-                                                                to=as.character(Strain_code_LU$Strain), warn_missing = FALSE)))
+                                                                from=as.character(SPDT::Strain_code_LU$stock_strain_loc_name),
+                                                                to=as.character(SPDT::Strain_code_LU$Strain), warn_missing = FALSE)))
 
 
 
@@ -217,7 +219,7 @@ Biological <- Biological%>%
                               Region_Name = plyr::mapvalues(Region, from=Lakes$Region,
                                                                     to=as.character(Lakes$Region_Name),
                                                                     warn_missing = FALSE),
-                              Int.Age = plyr::mapvalues(Age, from=Ages$Ages, to=Ages$Int.Ages, warn_missing = FALSE),
+                              Int.Age = plyr::mapvalues(Age, from=SPDT::Ages$Ages, to=SPDT::Ages$Int.Ages, warn_missing = FALSE),
                               K = round(100000*.data$Weight_g/.data$Length_mm^3,2)
                               )%>%
   suppressWarnings()#for NAs introduced by coercion
