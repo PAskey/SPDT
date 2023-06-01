@@ -68,13 +68,13 @@ Releases$rel_Date<-as.POSIXct(Releases$rel_Date, format="%Y-%m-%d")
 #Recode Genotypes and Strain
 
 #For naming of ploidy and sex together I believe we agreed that "Genotype" is the best term, so change both datasets to that. Then for all Releases columns we will make consistent with Biological
-Biological<-Biological%>%dplyr::rename(Genotype = .data$Ploidy, Strain = .data$Strain_Species)
+Biological<-Biological%>%dplyr::rename(Genotype = Ploidy, Strain = Strain_Species)
 
 
-Releases <- Releases%>%dplyr::rename(WBID = .data$loc_msrm_waterbody_identifier,
-                                     Genotype = .data$stock_gtype_code,
-                                     Species = .data$sp_code,
-                                     Clip = .data$rel_fm_code)
+Releases <- Releases%>%dplyr::rename(WBID = loc_msrm_waterbody_identifier,
+                                     Genotype = stock_gtype_code,
+                                     Species = sp_code,
+                                     Clip = rel_fm_code)
 
 ########################################################################################################################
 ###CLEANING TASKS IN THIS SECTION SHOULD BE REMOVED EVENTUALLY

@@ -39,7 +39,7 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
  if(Millar_model == TRUE){
       
   RIC_meshes <- c(1,1.25,1.5,2,2.5,3,3.5)
-  if(is.null(meshSizes_in)) meshSizes_in <- RIC_param$RIC_meshes
+  if(is.null(meshSizes_in)) meshSizes_in <- SPDT::RIC_param$RIC_meshes
   meshSizes = 25.4*meshSizes_in
   
   if(sum(sort(meshSizes)==meshSizes) != length(meshSizes))
@@ -48,8 +48,8 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
 
  
   #Use model 5 fit from Gillnet_Selectivity.RMD
-  theta = RIC_param$theta
-  rel.power = RIC_param$rel.power
+  theta = SPDT::RIC_param$theta
+  rel.power = SPDT::RIC_param$rel.power
   rel.power = rel.power[match(RIC_meshes[meshSizes_in], RIC_meshes)]
   
   p = predict_Millar(rtype = "bilognorm", classes = FLengths_mm, meshSizes = meshSizes, theta = theta, rel.power = rel.power)
@@ -60,7 +60,7 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
   #p = RIC_param$p_gam%>%dplyr::filter(Length_mm %in% FLengths_mm)%>%dplyr::pull(p)
   #p <- setNames(p, FLengths_mm)
    #  lens = c(100,100, 300, 200, 4000, 100, 200)
-  df = RIC_param$p_gam
+  df = SPDT::RIC_param$p_gam
   #df$p[match(lens, df$Length_mm)]
   p = df$p[match(FLengths_mm, df$Length_mm)]
   #p = df$p[df$Length_mm %in% FLengths_mm]
