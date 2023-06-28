@@ -62,21 +62,11 @@ SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NU
   if(!exists("Biological")|!exists("clipsum")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
 
-   # if(Data_source == "SLD"){
-#linkClips()
- # }else if(!exists("Biological")|!exists("clipsum")){
-#     stop("Need to start with a data load from SLD to start! Set Data source to 'SLD' or load A Biological Table with exact column name matches")
-#  }
 
+#Initial filters. Keep Clip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.
 
-#Initial filters. Keep CLip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.
-  #Not sure if this will cause an issue
-#idf<-subset(Biological,!is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
-#clipsum <- subset(clipsum, !is.na(Clip)&!is.null(Clip)&Clip !="NOREC")#&Clip != "NONE"
-
- 
  #The Biological Table from the SLD through linkClips() is always the same regardless of other parameters, and be used as a raw data check. 
-  #Alternatively if Data_source is set to "Biological" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
+  #Alternatively if Data_source is set to "FALSE" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
 idf = Biological  
   
 

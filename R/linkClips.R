@@ -66,13 +66,13 @@ Releases <- Releases%>%dplyr::mutate(
 #First just group together cases of multiple relids for the same group type of fish to the same lake and time.
 #this seems quite slow.
 Releases = Releases%>%
-  mutate(Qtr = quarter(rel_Date))%>%#group by quarter in case 2 trips on different days of same fish
-  group_by(across(c(-rel_id,-rel_Date, -stock_source_loc_name, -Quantity, -Weight, -g_size,-rel_waterbody_temp_c,-rel_waterbody_ph)))%>%
-  summarize(rel_id = paste(unique(.data$rel_id),collapse = ","), 
+  dplyr::mutate(Qtr = lubridate::quarter(rel_Date))%>%#group by quarter in case 2 trips on different days of same fish
+  dplyr::group_by(dplyr::across(c(-rel_id,-rel_Date, -stock_source_loc_name, -Quantity, -Weight, -g_size,-rel_waterbody_temp_c,-rel_waterbody_ph)))%>%
+  dplyr::summarize(rel_id = paste(unique(.data$rel_id),collapse = ","), 
             rel_Date = mean(.data$rel_Date, na.rm = TRUE), 
             stock_source_loc_name = paste(unique(.data$stock_source_loc_name),collapse = ","),
             Quantity = sum(Quantity), Weight = sum(Weight), g_size = sum(Quantity*g_size)/sum(Quantity))%>%
-  select(-Qtr, ag_description)
+  dplyr::select(-Qtr, ag_description)
 
 
 Releases = Releases%>%
