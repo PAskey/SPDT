@@ -33,8 +33,6 @@
 #Open channel to SLD and download data
 linkClips <- function(Sampled_only = TRUE, Data_source = TRUE){
 
-SLD2R()
-  
 if(Data_source == TRUE){SLD2R()}
 if(!exists("Biological")|!exists("Releases")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
 
