@@ -132,7 +132,7 @@ Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_cod
 #Similar minor adjustments
 
 
-#Create column for sampleyear
+#Create column for sample year
 Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake-year that can match Biological and Releases
 Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
@@ -149,7 +149,8 @@ Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","
 Assessments = Assessments%>%
   dplyr::rowwise()%>%
   dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))%>%
-  suppressWarnings()
+  suppressWarnings()%>%
+  ungroup()
 
 
 #Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)

@@ -79,7 +79,8 @@ Releases = Releases%>%
 
 Releases = Releases%>%
   dplyr::inner_join(dplyr::select(Lakes,WBID, Area),by = "WBID")%>%
-  dplyr::mutate(Quantity_ha = Quantity/Area, Biom_ha = (Weight/Area))
+  dplyr::mutate(Quantity_ha = Quantity/Area, Biom_ha = (Weight/Area))%>%
+  ungroup()
 
 #Store a copy of all releases in case of interest
 All_Releases = Releases
