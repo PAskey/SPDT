@@ -4,11 +4,13 @@
 \alias{linkClips}
 \title{linkClips}
 \usage{
-linkClips(Sampled_only = TRUE)
+linkClips(Sampled_only = TRUE, Data_source = TRUE)
 }
 \arguments{
 \item{Sampled_only}{a logical TRUE/FALSE indicating whether to reduce data tables to records associated with a sampling event with Biological data. 
 If true (default) then Assessments, Nets, Lakes and Releases tables are all reduced to Lake-years that can cross reference to Biological records.}
+
+\item{Data_source}{a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.}
 }
 \description{
 A function to load, clean and standardize SLD data for SPDT analysis. 

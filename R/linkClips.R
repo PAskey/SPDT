@@ -19,6 +19,7 @@
 #' @export
 #' @param Sampled_only a logical TRUE/FALSE indicating whether to reduce data tables to records associated with a sampling event with Biological data. 
 #' If true (default) then Assessments, Nets, Lakes and Releases tables are all reduced to Lake-years that can cross reference to Biological records.
+#' @param Data_source a TRUE FALSE value to indicate whether to load data form the SLD, or just use data tables in the Environment.
 #' @examples
 #' #' Must be connected to VPN if working remotely
 #' 
@@ -30,11 +31,12 @@
 
 #_______________________________________________________________________________
 #Open channel to SLD and download data
-linkClips <- function(Sampled_only = TRUE){
+linkClips <- function(Sampled_only = TRUE, Data_source = TRUE){
 
 SLD2R()
   
-
+if(Data_source == TRUE){SLD2R()}
+if(!exists("Biological")|!exists("Releases")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
 
 #Create a grouping variable for lake and brood year to evaluate co-stocking and linkages to Biological data. 
 #Add age when released to facilitate linking to ages within Biological data
