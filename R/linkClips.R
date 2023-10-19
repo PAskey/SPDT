@@ -70,15 +70,17 @@ Releases = Releases%>%
   dplyr::group_by(dplyr::across(c(-rel_id,-rel_Date, -stock_source_loc_name, -Quantity, -Weight, -g_size,-rel_waterbody_temp_c,-rel_waterbody_ph)))%>%
   dplyr::summarize(rel_id = paste(unique(.data$rel_id),collapse = ","), 
             rel_Date = mean(.data$rel_Date, na.rm = TRUE), 
+            rel_temp = mean(.data$rel_waterbody_temp_c, na.rm = TRUE),
+            rel_ph = mean(.data$rel_waterbody_ph, na.rm = TRUE),
             stock_source_loc_name = paste(unique(.data$stock_source_loc_name),collapse = ","),
             Quantity = sum(Quantity), Weight = sum(Weight), g_size = sum(Quantity*g_size)/sum(Quantity))%>%
-  dplyr::select(-Qtr, ag_description)
+  dplyr::select(-c(Qtr, ag_description, mtd_code))
 
 
 Releases = Releases%>%
   dplyr::inner_join(dplyr::select(Lakes,WBID, Area),by = "WBID")%>%
   dplyr::mutate(Quantity_ha = Quantity/Area, Biom_ha = (Weight/Area))%>%
-  ungroup()
+  dplyr::ungroup()
 
 #Store a copy of all releases in case of interest
 All_Releases = Releases

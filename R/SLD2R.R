@@ -150,7 +150,7 @@ Assessments = Assessments%>%
   dplyr::rowwise()%>%
   dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))%>%
   suppressWarnings()%>%
-  ungroup()
+  dplyr::ungroup()
 
 
 #Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
