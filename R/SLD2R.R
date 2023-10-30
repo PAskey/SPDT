@@ -107,7 +107,8 @@ Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
 
 #Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
 Releases$Waterbody_Name = Lakes$Waterbody_Name[match(Releases$WBID, Lakes$WBID)]
-
+#Add region
+Releases$Region = Lakes$Region[match(Releases$WBID, Lakes$WBID)]
 
 #Lookup strain codes and insert into releases to make consistent with Biological strain codes
 Releases<-Releases%>%
