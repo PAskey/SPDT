@@ -138,13 +138,18 @@ Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake-year that can match Biological and Releases
 Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
 
+#This is necessary to link to Bio data - 3 names for method among tables should be fixed
+Nets = merge(Nets, Assessments[,c("Assessment_Key", "Method")], by = "Assessment_Key")%>%
+  dplyr::rename(Capture_Method = Method)
+
 
 #_______________________________________________________________________________
 #filter down to assessed fishery lakes and merge lake dimension info
 
 
 #Gets rid of assessments that may have nothing to do with fish
-Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","WQ")))%>%droplevels()
+Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","WQ")))%>%
+                              droplevels()
 
 #Add lake year for cross-referencing although not ideal, there are a few cases than span years or have no dates (hence suppresswarnings())
 Assessments = Assessments%>%

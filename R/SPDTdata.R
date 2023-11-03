@@ -200,7 +200,7 @@ Nets = Nets%>%dplyr::filter(sample_design_code == "SGN")%>%
 Nets$overnight_yn = stringr::str_to_upper(Nets$overnight_yn)
 
 Net_effort = Nets%>%
-              dplyr::filter(Lk_yr %in% gdf$Lk_yr, method == "Gillnet", sample_design_code == "SGN")%>%#This should be changed to "GN" to match other tables
+              dplyr::filter(Lk_yr %in% gdf$Lk_yr, Capture_Method == "GN", sample_design_code == "SGN")%>%#This should be changed to "GN" to match other tables
               dplyr::group_by(Waterbody_Name, Lk_yr, Start_Date, net_id, no_net_panels)%>%
               dplyr::summarize(soak_hrs = mean(soak_hrs))#corrects for different soak times for same net with different species
 
