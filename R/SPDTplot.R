@@ -82,7 +82,7 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
     ggplot2::scale_y_continuous(trans='log10')+#,expand=c(0.1,0.1))+
     ggplot2::labs(y = "Relative survival",shape  = controls[1], colour = "Age", fill = "Age")+
     ggplot2::scale_shape_manual(values = rep(21:25, 5))+
-    ggplot2::facet_wrap(~.data$Comparison)+#, scales = "free")+
+    ggplot2::facet_wrap(~.data$Comparison, scales = "free_x")+
     #ggplot2::facet_grid(.data$b~.data$a)+
     ggplot2::theme_bw()+
     ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))+

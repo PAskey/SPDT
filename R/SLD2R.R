@@ -98,7 +98,9 @@ Releases$Genotype = dplyr::recode(Releases$Genotype, '2N'='2n','3N'='3n', 'AF3N'
 #Also seems to be an error with redside shiners being coded incorrectly as RSS
 Biological$Species[Biological$Species == "RSS"] = "RSC"
 Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
-
+#Buchanan has NSC incorrectly coded as NP
+Biological$Species[Biological$Species == "NP" & Biological$WBID == "01492TWAC"] = "NSC"
+Nets$species_caught[Nets$species_caught == "NP" & Nets$WBID == "01492TWAC"] = "NSC"
 
 #########################################################################################################################
 #_______________________________________________________________________________
@@ -133,8 +135,17 @@ Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_cod
 #Similar minor adjustments
 
 
-#Create column for sample year
-Nets$Year<-as.integer(format(as.Date(Nets$End_Date, format = "%Y-%m-%d"), "%Y"))
+#Create column for sample year.Sometimes start date or end date is missing.
+
+Nets <- Nets %>%
+  dplyr::mutate(
+    Year = pmax(
+      as.integer(format(as.Date(Start_Date, format = "%Y-%m-%d"), "%Y")),
+      as.integer(format(as.Date(End_Date, format = "%Y-%m-%d"), "%Y")),
+      na.rm = TRUE
+    )
+  )
+
 #Add in lake-year that can match Biological and Releases
 Nets <- Nets%>%dplyr::mutate(Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""))
 
@@ -153,9 +164,11 @@ Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","
 
 #Add lake year for cross-referencing although not ideal, there are a few cases than span years or have no dates (hence suppresswarnings())
 Assessments = Assessments%>%
-  dplyr::rowwise()%>%
-  dplyr::mutate(Lk_yr = paste0(.data$WBID, "_", max(.data$Start_Year, lubridate::year(.data$End_Date), na.rm = TRUE)))%>%
-  suppressWarnings()%>%
+  #dplyr::rowwise()%>%
+  dplyr::mutate(
+    Year = pmax(Start_Year,lubridate::year(End_Date), na.rm = TRUE),
+    Lk_yr = paste0(WBID, "_", Year))%>%
+  #suppressWarnings()%>%
   dplyr::ungroup()
 
 
@@ -208,8 +221,37 @@ Lake_dim = Lake_dim%>%dplyr::select(c("WBID", "Area", "Perimeter", "Max_Depth", 
 Lakes<-dplyr::left_join(Lakes, Lake_dim, by = "WBID")
 
 #We can now remove the Lake_dim data frame as we have incorporated the data into Lakes.
-rm(Lake_dim)
 
+##________________________________________________________________________________________
+#Add in species composition as a lake characteristic
+#Species are sometimes not recorded in Biological but in Net summary (and vice-versa)
+BioSpp = Biological%>%dplyr::group_by(WBID,Year,Species)%>%dplyr::summarize(Nb = dplyr::n())
+NetSpp = Nets%>%dplyr::group_by(WBID,Year,species_caught)%>%dplyr::summarize(Nn = sum(no_fish))
+
+#All species captured summary
+Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "species_caught"))%>%
+  #rowwise()%>%
+  dplyr::filter(!is.na(Species),
+                !Species %in% c("NFC", "NFP", "UNK", "SP"), 
+                rowSums(cbind(Nb,Nn), na.rm = TRUE)>0)%>%
+  dplyr::mutate(N = pmax(Nb,Nn, na.rm = T),
+                Lk_yr = paste0(WBID,"_",Year),
+                Subfamily = Spp_code_group_LU$Subfamily[match(.data$Species,Spp_code_group_LU$species_code)])%>%
+  dplyr::group_by(WBID)%>% 
+  dplyr::mutate(All_spp = paste(sort(unique(Species)), collapse = ','),
+                Spp_class = paste(sort(unique(Subfamily)), collapse = ','),
+                Non_salm = paste(sort(unique(Species[.data$Subfamily!="Salmoninae"])), collapse = ','))%>%
+  dplyr::group_by(WBID, All_spp, Spp_class, Non_salm, Year, Lk_yr)%>%
+  dplyr::summarize(
+    Spp_caught = paste(sort(unique(Species)), collapse = ','),
+    Dominant_spp = Species[which.max(N)], 
+    Dominant_spp_p = max(N)/sum(N),
+    .groups = "drop")
+  
+
+Lakes = dplyr::left_join(Lakes,unique(Lake_Spp[,c("WBID","All_spp")]), by = "WBID")
+
+rm(Lake_dim,BioSpp,NetSpp)
 
 #_______________________________________________________________________________
 #filter biological data to gillnet information, add age interpretation and delete or flag data errors
@@ -271,20 +313,12 @@ Biological <- Biological%>%
 
 
 #_______________________________________________________________________________
-
-#Use droplevels() to make sure not retaining any factor levels that are no longer in use after filtering steps above
-Assessments = droplevels(Assessments)
-Lakes = droplevels(Lakes)
-Nets = droplevels(Nets)
-Biological = droplevels(Biological)
-Releases = droplevels(Releases)
-
-#_______________________________________________________________________________
 #Initial data download complete
 Assessments <<- Assessments
 Lakes<<-Lakes
 Nets<<-Nets
 Biological<<-Biological
 Releases<<-Releases
+Lake_Spp<<-Lake_Spp
 
 }

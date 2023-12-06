@@ -67,7 +67,7 @@ SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NU
 
  #The Biological Table from the SLD through linkClips() is always the same regardless of other parameters, and be used as a raw data check. 
   #Alternatively if Data_source is set to "FALSE" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
-idf = Biological  
+idf = Biological#%>%dplyr::filter(get(Contrast)!="UNK")
   
 
 
@@ -147,15 +147,18 @@ clipsum = dplyr::left_join(uni_events, clipsum, by = 'Lk_yr')%>%
           dplyr::mutate(Dec.Age = round(Int.Age+as.numeric(Season)/4, 2))%>%#this add dec.age to 0 counts
           dplyr::filter(!is.na(Species))#Remove cases that did not match a stocking event.
 ###################################################################################################################
-gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel","Rel_ha", "SAR", "cur_life_stage_code","avg_rel_date")], 
+gdf = dplyr::full_join(gdf, clipsum[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "avg_sample_date", "Int.Age", "Dec.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel","Rel_ha", "SAR", "cur_life_stage_code","avg_rel_date")], 
                        by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Dec.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel","Rel_ha", "SAR"))%>%
   dplyr::filter(Lk_yr%in%idf$Lk_yr)%>%#Clip != "", Pulled this out to keep species comparisons
   dplyr::filter(dplyr::case_when(Contrast != "Species"~ Clip != "", TRUE ~ !is.na(N_rel) ))%>%#, TRUE ~ Clip %in% unique(Clip)
   dplyr::mutate(N = replace(N, is.na(N), 0), 
                 NetXN = replace(NetXN, is.na(NetXN), 0),
                 avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE),
-                SAR_cat = SAR_cat(SAR))%>%
+                SAR_cat = SAR_cat(SAR),
+                Delta_t = as.numeric(difftime(avg_sample_date,avg_rel_date, units = "days")))%>%
   dplyr::select(-c(avg_rel_date.x, avg_rel_date.y))
+  
+  # I guess we don't join by avg_rel_date, because does not appear in one or the other? Perhaps 0 obs cases.
 #####################################################################################################################
 
 #Have to add in average sample data at this point, otherwise it is NA for all cases of non-clips, etc.
@@ -188,8 +191,8 @@ exps <- gdf%>%
     droplevels() 
 }
 
-idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
-gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)))
+idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)),!is.na(get(Contrast)), get(Contrast)!="UNK")
+gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)),!is.na(get(Contrast)), get(Contrast)!="UNK")
 
 #Let's try an effort table for standard gillnet data only for now. Data looks terrible quality.
 #Assume 7 panels and overnight when not recorded but SGN indicated

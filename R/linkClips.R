@@ -242,9 +242,10 @@ clipsum <- Xnew%>%dplyr::group_by(!!!rlang::syms(group_cols))%>%
 
 #Identify unique stocking groups, in order to remove summary stats from non-unique groups
 Uniqueclips <-clipsum%>%
-  dplyr::filter(!paste0(Lk_yr,Species,NA)%in%paste0(NA_nonuniques,NA))%>%
-  dplyr::filter_at(dplyr::vars(.data$n_sby, .data$n_sry, .data$nStrains, .data$nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
+  dplyr::filter(!paste0(Lk_yr,Species,Clip)%in%paste0(NA_nonuniques,NA))%>%
+  dplyr::filter_at(dplyr::vars(n_sby, n_sry, nStrains, nGenos), dplyr::all_vars(. == 1))%>%#Filters to cases where all of the listed columns are unique. A value of 1.
   droplevels()#Drop all levels not in the list so we correctly filter Biological
+
 
 nonunique <- dplyr::anti_join(clipsum, Uniqueclips)%>%
                 dplyr::mutate(N_rel = as.integer(NA),
