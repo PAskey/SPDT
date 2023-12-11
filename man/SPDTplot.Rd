@@ -4,7 +4,13 @@
 \alias{SPDTplot}
 \title{SPDTplot}
 \usage{
-SPDTplot(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE)
+SPDTplot(
+  Metric = NULL,
+  Method = "GN",
+  min_N = 0,
+  filters = NULL,
+  save_png = FALSE
+)
 }
 \arguments{
 \item{Metric}{a character string that describes the performance metric (dependent variable) to be plotted.This must be entered for function to work.
@@ -43,8 +49,10 @@ In all cases the data will be grouped by the "Contrast" stated during the SPDT d
 
 \item{Method}{a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.}
 
-\item{min_N}{an integer to set a minimum sample size to include in plots. This sample size applies to the overall sample across contrast groups.
-In other words a minimum sample size of 5 would still include a stocked cohort where one group had 5 fish and the other contrast group had 0.}
+\item{min_N}{an integer to set a minimum sample size to include in plots. This sample size applies to each contrast group.
+In other words, even if one group meets the minimum sample size, if the gourp it is being contrasted against does not, then that contrast (Lk_yr_age) will be removed.}
+
+\item{filters}{a vector of lake-years returned from the SPDTfilter() function. SPDTfilter() allows for filtering to various non-biological aspects to the data, lakes, years, regions, et.c See?SPDTfilter()}
 
 \item{save_png}{a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png}
 }

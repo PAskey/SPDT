@@ -41,6 +41,13 @@ if(!exists("Biological")|!exists("Releases")){stop("Need to start with a data lo
 spring_spwn = as.character(expression(ACT, BS, CRS, CT, GR, MG, RB, ST, TR, WCT, WP, WSG))#expression adds quotations to each element
 fall_spwn = as.character(expression(AS, BL, BT, DV, EB, GB, KO, LT, LW))
 
+#The Sampled_only variable filters lakes and releases to cases where a lake has been assessed (data exists in the Biological Table). However, some cases in the Biological table are not true in-lake sampling events.We will remove these from here and all further analyses. If they are wanted use SLD2R() only.
+
+Biological = Biological%>%
+  dplyr::filter(!Capture_Method %in% c("UNK","Pre-Release Len_Wt", "HATCH","LAB"))%>%
+  droplevels()
+#Other tables are filtered to match Biological at end.
+
 #INclude age at release when it is a straight forward calculation
 #In "case, when" statement, later statements do not replace earlier, so go from specific to general. Basically start with the exceptions
 Releases <- Releases%>%dplyr::mutate(
@@ -277,6 +284,7 @@ Biological<-suppressWarnings(Biological%>%
   dplyr::mutate(
   sby_code = dplyr::if_else(!is.na(Clip)&.data$n_sby == 1L&!is.na(as.integer(.data$clipsbys)), as.integer(.data$clipsbys), .data$sby_code),
   Int.Age = dplyr::if_else(!is.na(Clip)&.data$n_sby == 1L&!is.na(as.integer(.data$clipAges)), as.integer(.data$clipAges), .data$Int.Age),
+  Dec.Age = round(.data$Int.Age+(lubridate::decimal_date(.data$Date) - lubridate::year(.data$Date)),2),
   #Strain = dplyr::if_else(.data$nStrains == 1L&!is.na(.data$clipStrains), .data$clipStrains, .data$Strain),
   #Genotype = dplyr::if_else(.data$nGenos == 1L&!is.na(.data$clipGenos), .data$clipGenos, .data$Genotype)
   #Because of known cases of mix of AF and 2N with same clip but recorded as one in data (see Premier 2014), replace data clips with true mix

@@ -43,8 +43,9 @@
 #' 
 #' In all cases the data will be grouped by the "Contrast" stated during the SPDT data call.
 #' @param Method a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.
-#' @param min_N an integer to set a minimum sample size to include in plots. This sample size applies to the overall sample across contrast groups.
-#' In other words a minimum sample size of 5 would still include a stocked cohort where one group had 5 fish and the other contrast group had 0.
+#' @param min_N an integer to set a minimum sample size to include in plots. This sample size applies to each contrast group.
+#' In other words, even if one group meets the minimum sample size, if the gourp it is being contrasted against does not, then that contrast (Lk_yr_age) will be removed.
+#' @param filters a vector of lake-years returned from the SPDTfilter() function. SPDTfilter() allows for filtering to various non-biological aspects to the data, lakes, years, regions, et.c See?SPDTfilter()
 #' @param save_png a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png
 #' @examples
 #' #Must be connected to VPN if working remotely
@@ -60,7 +61,7 @@
 #' @importFrom rlang .data
 
 
-SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
+SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, filters = NULL, save_png = FALSE){
 
   #If no specific contrast is given in SPDT data, then make defaults for colouring and shape schemes
   
@@ -69,11 +70,22 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
     controls = c("Strain")
   }
   
+  plot_wide = wide_df%>%dplyr::filter(Capture_Method %in% Method)
+  plot_idf = idf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_rel))
+  plot_gdf = gdf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_rel))
   
-  #The survival plot uses a different data set than all the other plots.min_N is irrelevant becasue are return of 0 is a valid observation for survival.
+  if (!is.null(filters)) {
+    plot_wide = dplyr::filter(wide_df, Lk_yr %in% filters)
+    plot_idf = dplyr::filter(plot_idf, Lk_yr %in% filters)
+    plot_gdf = dplyr::filter(plot_gdf, Lk_yr %in% filters)
+  }
+  
+  
+  
+  #The survival plot uses a different data set than all the other plots.min_N is irrelevant because N = 0 is a valid observation for survival.
   if (Metric == "survival"){ 
     
- p =  ggplot2::ggplot(data = wide_df[wide_df$Capture_Method %in% Method,], ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, colour = as.factor(.data$Int.Age), fill = as.factor(Int.Age),  shape = get(controls[1])))+
+ p =  ggplot2::ggplot(data = plot_wide, ggplot2::aes(x = .data$Waterbody_Name, group = Int.Age, colour = as.factor(.data$Int.Age), fill = as.factor(Int.Age),  shape = get(controls[1])))+
     ggplot2::geom_hline(yintercept = 1)+
     ggplot2::geom_point(ggplot2::aes(y = .data$surv_diff, size = .data$N), stroke = 1, alpha = 0.7, position = ggplot2::position_dodge(width = 0.5))+
     viridis::scale_fill_viridis(discrete = TRUE)+
@@ -95,19 +107,17 @@ SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, save_png = FALSE){
   #Filter to min_N requirements at level of Lk_yr, age, season
 
   
-  plot_gdf <- gdf%>%
-    dplyr::filter(Capture_Method %in% Method, !is.na(N_rel), N >= min_N)%>%
+  plot_gdf <- plot_gdf%>%
+    dplyr::filter(N >= min_N)%>%
     dplyr::mutate(Year_Season = paste0(Year,"_",Season),
                   SAR_cat = as.factor(SAR_cat))%>%
     dplyr::group_by(Lk_yr_age, Season)%>%
-    dplyr::filter(1<length(unique(get(Contrast))), sum(N)>0)%>%#If min_N is ) still need at least one group to be > 0
-    #dplyr::group_by(Lk_yr,season)%>%#Add these conditions, so that not left with single group after min_N requirements above
-    #dplyr::filter(max(uniq)>1)
+    dplyr::filter(1<length(unique(get(Contrast))))%>%#, sum(N)>min_N*length(unique(get(Contrast)))%>%#If min_N is ) still need at least one group to be > 0
     dplyr::ungroup()
+  #The filter above should ensure there are at least 2 groups in contrast above the min_N
   
   #min_N for idf does not filter out individual age classes (because the x-axis is usually just length), and binned by Lk_yr and season. So min_N is by Lk_yr and season
-  plot_idf <- idf%>%
-    dplyr::filter(Capture_Method %in% Method, !is.na(N_rel))%>%
+  plot_idf <- plot_idf%>%
     dplyr::mutate(Year_Season = paste0(Year,"_",Season),
                   SAR_cat = as.factor(SAR_cat))%>%
     dplyr::group_by(Lk_yr, Season)%>%
