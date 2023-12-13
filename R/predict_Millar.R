@@ -14,14 +14,16 @@
 #'    
 #'  @param meshSizes a vector of gillnet mesh sizes in mm
 #'  @param classes a vector of fork lengths (mm) for which you want to calculate selectivity
-#'  @param th a vector of selectivity parameters
+#'  @param theta a vector of selectivity parameters
+#'  @param rel.power a vector of the relative fishing power of each mesh size
+#'  @param theta_min_mesh the smallest mesh used in the fitting process to acquire theta values. Defaults to 1 which is RIC net smallest mesh used to fit BC nets.
 #'
 #' @source https://www.stat.auckland.ac.nz/~millar/selectware/
 #'
 #' @details Function adapted from TropFishR and the selectivity functions provided by
 #'   Prof. Dr. Russell Millar (https://www.stat.auckland.ac.nz/~millar/).
 #'   This function might be useful if you are trying to use published fit values instead of your own fit.
-#'   Otherwise, yo ucan access predictions within model fit attributes. e.g. models[[5]]$selection_ogive_mat
+#'   Otherwise, you can access predictions within model fit attributes. e.g. models[[5]]$selection_ogive_mat
 #'   Until now following curves are incorporated:
 #'   \code{"norm.loc"} for a normal curve with common spread,
 #'    \code{"norm.sca"} for a normal curve with variable spread,
@@ -35,7 +37,7 @@
 #'  using log-linear models. \emph{ICES Journal of Marine Science: Journal du Conseil},
 #'  54(3), 471-477.
 
-predict_Millar <- function(rtype, classes, meshSizes, theta, rel.power = NULL) {
+predict_Millar <- function(rtype, classes, meshSizes, theta, rel.power = NULL, theta_min_mesh = 1) {
 
 #you need to use the $par instead of $estimates from model fit in order to make predictions.  
 # If for some reason you only have access to estimates, then need to check source code and back transform.
@@ -52,7 +54,7 @@ predict_Millar <- function(rtype, classes, meshSizes, theta, rel.power = NULL) {
   if(!is.null(rel.power) & length(rel.power) != length(meshSizes))
     stop("Length of rel.power should match length meshSizes")
   
-  r <- TropFishR:::rtypes_Millar(rtype) #Get selection curve function
+  r <- rtypes_Millar(rtype, theta_min_mesh) #Get selection curve function
   
   all_classes = c(75:650)#The full range in possible fish sizes
   rmatrix = outer(all_classes, meshSizes, r, theta)

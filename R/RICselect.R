@@ -38,9 +38,9 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
 
  if(Millar_model == TRUE){
       
-  RIC_meshes <- c(1,1.25,1.5,2,2.5,3,3.5)
+  #RIC_meshes <- c(1,1.25,1.5,2,2.5,3,3.5)
   if(is.null(meshSizes_in)) meshSizes_in <- SPDT::RIC_param$RIC_meshes
-  meshSizes = 25.4*meshSizes_in
+  meshSizes = meshSizes_in#25.4*meshSizes_in
   
   if(sum(sort(meshSizes)==meshSizes) != length(meshSizes))
     stop("Mesh size must be in ascending order!")
@@ -49,8 +49,8 @@ RICselect<- function(FLengths_mm, Millar_model = FALSE, meshSizes_in = NULL){
  
   #Use model 5 fit from Gillnet_Selectivity.RMD
   theta = SPDT::RIC_param$theta
-  rel.power = SPDT::RIC_param$rel.power
-  rel.power = rel.power[match(RIC_meshes[meshSizes_in], RIC_meshes)]
+  rel.power = SPDT::RIC_param$rel.power[match(meshSizes_in, SPDT::RIC_param$RIC_meshes)]
+  rel.power[is.na(rel.power)]<-1#For mesh sizes without data
   
   p = predict_Millar(rtype = "bilognorm", classes = FLengths_mm, meshSizes = meshSizes, theta = theta, rel.power = rel.power)
 
