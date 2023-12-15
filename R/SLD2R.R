@@ -228,6 +228,10 @@ Lakes<-dplyr::left_join(Lakes, Lake_dim, by = "WBID")
 BioSpp = Biological%>%dplyr::group_by(WBID,Year,Species)%>%dplyr::summarize(Nb = dplyr::n())
 NetSpp = Nets%>%dplyr::group_by(WBID,Year,species_caught)%>%dplyr::summarize(Nn = sum(no_fish))
 
+StockedSpp = Releases%>%dplyr::group_by(WBID)%>%
+                        dplyr::summarize(First_stocked = min(Year),
+                                         All_Spp_stocked = paste(sort(unique(Species)),collapse = ","))
+
 #All species captured summary
 Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "species_caught"))%>%
   #rowwise()%>%
@@ -247,9 +251,12 @@ Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "
     Dominant_spp = Species[which.max(N)], 
     Dominant_spp_p = max(N)/sum(N),
     .groups = "drop")
-  
 
-Lakes = dplyr::left_join(Lakes,unique(Lake_Spp[,c("WBID","All_spp")]), by = "WBID")
+Lake_Spp = dplyr::full_join(Lake_Spp, StockedSpp, by = "WBID")
+
+Spp = dplyr::left_join(StockedSpp, unique(Lake_Spp[,c("WBID","All_spp", "All_spp_stocked")]), by = "WBID")
+  
+Lakes = dplyr::left_join(Lakes,Spp, by = "WBID")
 
 rm(Lake_dim,BioSpp,NetSpp)
 
