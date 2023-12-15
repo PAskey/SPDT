@@ -254,7 +254,7 @@ Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "
 
 Lake_Spp = dplyr::full_join(Lake_Spp, StockedSpp, by = "WBID")
 
-Spp = dplyr::left_join(StockedSpp, unique(Lake_Spp[,c("WBID","All_spp", "All_spp_stocked")]), by = "WBID")
+Spp = dplyr::left_join(StockedSpp, unique(Lake_Spp[,c("WBID","All_spp", "All_Spp_stocked")]), by = "WBID")
   
 Lakes = dplyr::left_join(Lakes,Spp, by = "WBID")
 
