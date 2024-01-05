@@ -46,7 +46,7 @@
 #' @param min_N an integer to set a minimum sample size to include in plots. This sample size applies to each contrast group.
 #' In other words, even if one group meets the minimum sample size, if the gourp it is being contrasted against does not, then that contrast (Lk_yr_age) will be removed.
 #' @param filters a vector of lake-years returned from the SPDTfilter() function. SPDTfilter() allows for filtering to various non-biological aspects to the data, lakes, years, regions, et.c See?SPDTfilter()
-#' @param save_png a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png
+#' @param save_pdf a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.pdf
 #' @examples
 #' #Must be connected to VPN if working remotely
 #' 
@@ -61,7 +61,7 @@
 #' @importFrom rlang .data
 
 
-SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, filters = NULL, save_png = FALSE){
+SPDTplot <- function(Metric = NULL, Method = "GN", min_N = 0, filters = NULL, save_pdf = FALSE){
 
   #If no specific contrast is given in SPDT data, then make defaults for colouring and shape schemes
   
@@ -338,28 +338,29 @@ if (Metric == "FL_hist"){
   
   
   
- 
+#Save a .png of plot  
+
+if(save_pdf == TRUE){
+  filename = paste0("plot_",Metric,".pdf")
+  
+  #In all cases above the Waterbody is used to facet, so the plot facets are arranged as:   
+  facets = 1
+  if(class(p$facet)[1] != "FacetNull"){
+    facets = length(unique(p$data$Waterbody_Name)) 
+  }
+  ncol <- ceiling(sqrt(facets))
+  nrow <- ceiling(facets/ncol)   
+  
+  
+  ggplot2::ggsave(filename, p, dpi = "print", width = 7, height = 7*(nrow/ncol)*.95, units = "in", device = "pdf")
+  
+} 
 
   #print(p)   
   return(p)
 
  
-#Save a .png of plot  
-  
-if(save_png == TRUE){
-  filename = paste0("plot_",Metric,".png")
-   
-#In all cases above the Waterbody is used to facet, so the plot facets are arranged as:   
-  facets = 1
-  if(class(p$facet)[1] != "FacetNull"){
-  facets = length(unique(p$data$Waterbody_Name)) 
-  }
-  ncol <- ceiling(sqrt(facets))
-  nrow <- ceiling(facets/ncol)   
- 
 
- ggplot2::ggsave(filename, p, dpi = "print", width = 7, height = 7*(nrow/ncol)*.95, units = "in")
-}
  
 }
   
