@@ -42,6 +42,6 @@ SPDTfilter<- function(Projects = NULL, Lk_yrs = NULL, Waterbody_Names = NULL, WB
     Yearsly = Biological$Lk_yr[Biological$Year%in%Years]
     Regionsly = Biological$Lk_yr[Biological$Region%in%Regions]
     
-    return(unique(c(Projly, Lakely,WBIDly, Yearsly, Regionsly)))
+    return(unique(c(Projly, Lakely, WBIDly, Yearsly, Regionsly)))
     
 }

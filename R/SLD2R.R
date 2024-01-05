@@ -240,7 +240,7 @@ Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "
                 rowSums(cbind(Nb,Nn), na.rm = TRUE)>0)%>%
   dplyr::mutate(N = pmax(Nb,Nn, na.rm = T),
                 Lk_yr = paste0(WBID,"_",Year),
-                Subfamily = Spp_code_group_LU$Subfamily[match(.data$Species,Spp_code_group_LU$species_code)])%>%
+                Subfamily = SPDT::Spp_code_group_LU$Subfamily[match(.data$Species,SPDT::Spp_code_group_LU$species_code)])%>%
   dplyr::group_by(WBID)%>% 
   dplyr::mutate(All_spp = paste(sort(unique(Species)), collapse = ','),
                 Spp_class = paste(sort(unique(Subfamily)), collapse = ','),

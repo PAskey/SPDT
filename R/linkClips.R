@@ -74,7 +74,7 @@ Releases <- Releases%>%dplyr::mutate(
 #this seems quite slow.
 Releases = Releases%>%
   dplyr::select(-c(ag_description, mtd_code))%>%#don't seem like any value of info in these columns
-  dplyr::mutate(Qtr = lubridate::quarter(rel_Date))%>%#group by quarter in case 2 trips on different days of same fish
+  dplyr::mutate(SprFall = dplyr::if_else(lubridate::month(rel_Date)>8,"Fall","Spr"))%>%#group by quarter in case 2 trips on different days of same fish
   dplyr::group_by(dplyr::across(c(-rel_id,-rel_Date, -stock_source_loc_name, -Quantity, -Weight, -g_size,-rel_waterbody_temp_c,-rel_waterbody_ph)))%>%
   dplyr::summarize(rel_id = paste(unique(.data$rel_id),collapse = ","), 
             rel_Date = mean(.data$rel_Date, na.rm = TRUE), 
@@ -98,6 +98,36 @@ Releases <- Releases[Releases$WBID%in%Biological$WBID,]
 #Only Releases that have brood year or release size info included.
 Releases <- Releases[!(Releases$sby_code==0&Releases$g_size==0),]
 
+
+#Summarize the number of years the stocking prescription has remained constant/stable
+Stable = Releases%>%
+  dplyr::mutate(SAR_cat = SAR_cat(g_size))%>%
+  dplyr::group_by(Waterbody_Name, WBID, Year, Species, Genotype, Strain, cur_life_stage_code, SAR_cat, Lk_sry)%>%
+  dplyr::summarize(rel_groups = dplyr::n(), Quantity = sum(Quantity))%>%
+  dplyr::group_by(Species, WBID, Year, Lk_sry)%>%
+  dplyr::summarize(
+    Strain_rel = paste(sort(unique(Strain)),collapse = ','),
+    Geno_rel = paste(sort(unique(Genotype)),collapse = ','),
+    Ngeno = length(unique(Genotype)),
+    NSAR = length(unique(SAR_cat)),
+    Total_Quantity = round(sum(Quantity),-2))%>%
+  dplyr::ungroup() 
+
+Stable = transform(Stable, Stblyrs = ave(Total_Quantity, data.table::rleid(WBID,Geno_rel, Total_Quantity), FUN = seq_along))
+
+#Across species minimum stable years
+Stable = Stable%>%
+  dplyr::group_by(WBID, Year)%>%
+  dplyr::summarize(Stable_yrs = min(Stblyrs),
+            Spp_rel = paste(sort(unique(Species)),collapse = ','),
+            Total_Quantity = sum(Total_Quantity))%>%
+  #dplyr::filter(Stable_yrs >=4)%>%
+  #ungroup()%>%
+  dplyr::select(WBID, Year, Stable_yrs)
+
+#Add Stable years back into biological and releases
+Biological = dplyr::left_join(Biological, Stable, by = c('WBID','Year'))
+Releases= dplyr::left_join(Releases, Stable, by = c('WBID','Year'))
 
 #Expand releases dataframe into future, so we create a row of data for each potential age that a release group may exist in a lake
 #All possible lake_years where a given release may be observed "xage" years into the future
