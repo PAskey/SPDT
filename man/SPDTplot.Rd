@@ -7,9 +7,11 @@
 SPDTplot(
   Metric = NULL,
   Method = "GN",
+  Ages = c(0:100),
   min_N = 0,
+  min_groups = 1,
   filters = NULL,
-  save_png = FALSE
+  save_pdf = FALSE
 )
 }
 \arguments{
@@ -49,12 +51,16 @@ In all cases the data will be grouped by the "Contrast" stated during the SPDT d
 
 \item{Method}{a character string describing the capture method. Defaults to "GN" (gillnet), but any other capture method code fo rmthe database is acceptable.}
 
+\item{Ages}{a numeric vector or value of the ages to include in plotting}
+
 \item{min_N}{an integer to set a minimum sample size to include in plots. This sample size applies to each contrast group.
 In other words, even if one group meets the minimum sample size, if the gourp it is being contrasted against does not, then that contrast (Lk_yr_age) will be removed.}
 
+\item{min_groups}{an integer to set a minimum number of contrast groups meeting the minimum sample size(min_N) within the grouping levels of the gdf data frame (lake, year, age) to include in plots.}
+
 \item{filters}{a vector of lake-years returned from the SPDTfilter() function. SPDTfilter() allows for filtering to various non-biological aspects to the data, lakes, years, regions, et.c See?SPDTfilter()}
 
-\item{save_png}{a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.png}
+\item{save_pdf}{a logical TRUE/FALSE indicating whether a copy of the plot should be saved with the filename Metric.pdf}
 }
 \description{
 A plot function for SPDT data when a contrast has been specified.

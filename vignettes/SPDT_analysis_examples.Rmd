@@ -27,10 +27,10 @@ See  https://github.com/PAskey/SPDT#readme to get instructions on how to install
 library(SPDT)
 ```
 
-OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips>
+OK, now we use the primary function SPDTdata() to download and clean all the small lakes data that is from stocked fish with identifiable clips. SPDTdata is meant to look at experimental contrasts of strain, genotype, species, or size at release. Using an example of size at release we use categories of release sizes for comparison which is denoted SAR_cat.
 
 ```{r}
-SPDTdata()
+SPDTdata(Contrast = "SAR_cat")
 ```
 
 This creates several different data frames that may be of use for data analyses. Most of the data frames are simply cleaned and standardized versions of tables already existing in the SLD. However, two tables that are a bit more refined are "idf" which is the "individual data frame" resulting form the SLD Biological table and "gdf" (grouped data frame) which summarizes the individual data by the stocking group (same brood year, lake, year, clip, etc.), which is the typical unit of measurement for SPDT when looking at survival, etc. To see how we use these tables, let's take an example data set and analyze it. 

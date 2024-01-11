@@ -90,6 +90,9 @@ Biological$Weight_g[Biological$Weight_g==0]<-NA
 #Change to consistent capitalization
 Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
 
+#Remove 'life_stage' as this was an error to include it in the upload template, has no useful meaning in the biological and will confuse with releases table except potentially when hatchery data is included.
+Biological <- Biological%>%dplyr::select(-life_stage)
+
 #To fix alternate codes for same thing change all Biological to "AF" because Releases uses "AF"
 Biological$Genotype[Biological$Genotype == "AF2n"] = "AF"
 #Match case in Releases
@@ -98,6 +101,7 @@ Releases$Genotype = dplyr::recode(Releases$Genotype, '2N'='2n','3N'='3n', 'AF3N'
 #Also seems to be an error with redside shiners being coded incorrectly as RSS
 Biological$Species[Biological$Species == "RSS"] = "RSC"
 Nets$species_caught[Nets$species_caught == "RSS"] = "RSC"
+
 #Buchanan has NSC incorrectly coded as NP
 Biological$Species[Biological$Species == "NP" & Biological$WBID == "01492TWAC"] = "NSC"
 Nets$species_caught[Nets$species_caught == "NP" & Nets$WBID == "01492TWAC"] = "NSC"

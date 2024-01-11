@@ -27,8 +27,9 @@
 #' @keywords SPDT
 #' @export
 #' @param Spp an optional character string or character vector for BC species code (e.g. "RB" or c("KO", "EB"), etc.). This will filter data to only that species.
-#' @param Contrast an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
+#' @param Contrast a required character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Species", "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 #' Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.
+#' @param Controls an optional character vector to assign controls (grouping variables) that must be met to compare the "Contrast" groups. Default is the full list of potential contrasts. Using all controls may be restrictive for some contrasts (eg. Comparing species it would be difficulat to control for size-at-release SAR_cat becasue they are released at differnet stage-sizes)
 #' @param Strains an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed
 #' @param Genotypes an optional character string or character vector to filter data to specific genotypes (e.g. 2n or AF3n)
 #' @param filters a vector of lake-years returned from the SPDTfilter() function. SPDTfilter() allows for filtering to various non-biological aspects to the data, lakes, years, regions, et.c See?SPDTfilter()
@@ -52,7 +53,7 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Contrast = NULL, Strains = NULL, Genotypes = NULL, filters = NULL, Data_source = TRUE){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Controls = c("Species","Genotype","Strain","SAR_cat"), Strains = NULL, Genotypes = NULL, filters = NULL, Data_source = TRUE){
 
   if(is.null(Contrast)){stop("Must define a 'Contrast' for SPDTdata() function, see ?SPDTdata, for all data use SLD2R() instead")}
   
@@ -164,31 +165,44 @@ gdf = dplyr::left_join(gdf, uni_events, by = c("Lk_yr", "Season", "Capture_Metho
     Delta_t = as.numeric(difftime(avg_sample_date,avg_rel_date, units = "days")))
 
 #Sections to pull specific contrast years
-if (!is.null(Contrast)) {
+#if (!is.null(Contrast)) {
 
-Contrast_possible = c("Genotype", "Strain", "SAR_cat")
+#Contrast_possible = c("Genotype", "Strain", "SAR_cat")
 
-controls = dplyr::setdiff(Contrast_possible, Contrast)
+#controls = dplyr::setdiff(Contrast_possible, Contrast)
 
 #Find set of experiments 'exps' comparing the contrast of interest that exist in the database
 #If the contrast is species, then not worth worrying about other controls (Maybe Genotype?Add later if want) and clips
-if(Contrast != "Species"){
+#if(Contrast != "Species"){
 ##MAYBE USE N_DISTINCT TO CONTROL FOR FACTOR LEVELS BEING COUNTED INSTEAD OF VALUES?
+#exps <- gdf%>%
+ # dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
+#  dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
+#  dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = #length(unique(na.omit(Clip))))%>%
+#  dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
+#  droplevels()
+#}else{
+#  Contrast_possible = c("Species", "Genotype")#Could add genotype later
+#  exps <- gdf%>%
+#    dplyr::filter(!grepl(",",get(Contrast)))%>%
+#    dplyr::group_by(Lk_yr, Int.Age)%>%
+#    dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))))%>%
+#    dplyr::filter(Ncontrasts>1)%>%
+#    droplevels() 
+#}
+
+if(Data_source == "Species"&"SAR_cat"%in%Controls){warning("Having SAR_cat as a control for species or other contrasts may limit experiments")}
+
+controls = dplyr::setdiff(Controls, Contrast)
+
 exps <- gdf%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
   dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = length(unique(na.omit(Clip))))%>%
   dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
   droplevels()
-}else{
-  Contrast_possible = c("Species", "Genotype")#Could add genotype later
-  exps <- gdf%>%
-    dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
-    dplyr::group_by(Lk_yr, Int.Age)%>%
-    dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))))%>%
-    dplyr::filter(Ncontrasts>1)%>%
-    droplevels() 
-}
+
+
 
 idf<-subset(idf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)),!is.na(get(Contrast)), get(Contrast)!="UNK")
 gdf<-subset(gdf, Lk_yr%in%exps$Lk_yr)%>%dplyr::filter(!grepl(",",get(Contrast)),!is.na(get(Contrast)), get(Contrast)!="UNK")
@@ -216,7 +230,7 @@ SGN_E = Net_effort%>%
 #First only use groups that are recruited to gillnets (>150mm).
 predf = gdf%>%
   #dplyr::filter(mean_FL>150)%>%
-  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Capture_Method, Int.Age, !!!rlang::syms(Contrast_possible))%>%#, sby_code
+  dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Capture_Method, Int.Age, !!!rlang::syms(Controls))%>%#, sby_code
   dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
   dplyr::arrange(desc(get(Contrast)))%>%
@@ -252,7 +266,7 @@ for(i in 1:(length(cats)-1)){
       dplyr::rename(a_xN = maxcols-5, b_xN = maxcols-4, a_Nr=maxcols-3, b_Nr = maxcols-2, a_N = maxcols-1, b_N = maxcols)%>%
       dplyr::rowwise()%>%
       dplyr::filter(0<(sum(a_xN, b_xN)), !is.na(sum(a_xN, b_xN, a_Nr, b_Nr)))%>%
-      dplyr::mutate(Recap_Ratio = a_xN/(b_xN), Release_Ratio = a_Nr/(b_Nr), a = cats[i], b = cats[j], N = sum(a_N, b_N))%>%
+      dplyr::mutate(Recap_p = a_xN/(a_xN+b_xN), Release_p = a_Nr/(a_Nr+b_Nr), a = cats[i], b = cats[j], N = sum(a_N, b_N))%>%
       dplyr::ungroup()
     df = rbind(df, dfnew)
     
@@ -262,25 +276,28 @@ for(i in 1:(length(cats)-1)){
 if(nrow(df)>0){
 wide_df = df%>%
   dplyr::rowwise()%>%
-  dplyr::mutate(surv_diff=Recap_Ratio/Release_Ratio,
-                LCI = stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0), a_Nr/(a_Nr+b_Nr))$conf.int[1], 
-                UCI = stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0), a_Nr/(a_Nr+b_Nr))$conf.int[2],
-                Sig_p = 0.05>stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0),a_Nr/(a_Nr+b_Nr))$p.value)%>%
-  dplyr::mutate(LCI = LCI/(1-LCI), 
-                UCI = UCI/(1-UCI))
+  dplyr::mutate(surv_diff=Recap_p/Release_p,
+                LCI = stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0), Release_p)$conf.int[1], 
+                UCI = stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0), Release_p)$conf.int[2],
+                Sig_p = 0.05>stats::binom.test(round(a_xN,0),round((a_xN+b_xN),0),Release_p)$p.value)#%>%
+ # dplyr::mutate(LCI = LCI/(1-LCI), 
+ #               UCI = UCI/(1-UCI)) Relic from converting CI intervals to CI intervals of ratios and not proportions
 
 #Add in average relative survival (log odds) for each comparison.
 wide_df = wide_df%>%
   dplyr::group_by(Comparison, Int.Age)%>%
-  dplyr::mutate(avg_surv = exp(mean(log(surv_diff))))%>%
+  dplyr::mutate(avg_surv = exp(mean(log(surv_diff))))%>%#Not sure if this is valid now that it is a ratio of proportions
   dplyr::ungroup()
+
+#Add species data as typically important to survival
+wide_df = merge(wide_df,Lake_Spp, all.x = T)
 
 #Put into global environment. These only appear if Contrast is not NULL.
 wide_df<<-wide_df
 }
 controls<<-controls
 
-}
+#}
 
 #Removes cohorts years where nothing is observed> STILL WANT THIS?
 #This coding should be used earlier to remove strain experiments that appear with size experiments

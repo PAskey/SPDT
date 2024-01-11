@@ -7,6 +7,7 @@
 SPDTdata(
   Spp = NULL,
   Contrast = NULL,
+  Controls = c("Species", "Genotype", "Strain", "SAR_cat"),
   Strains = NULL,
   Genotypes = NULL,
   filters = NULL,
@@ -16,8 +17,10 @@ SPDTdata(
 \arguments{
 \item{Spp}{an optional character string or character vector for BC species code (e.g. "RB" or c("KO", "EB"), etc.). This will filter data to only that species.}
 
-\item{Contrast}{an optional character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
+\item{Contrast}{a required character string describing the experimental contrast, which must be a field in the SPDTdata (e.g. "Species", "Strain", "SAR_cat", "Genotype" are the 3 possibilities now).
 Entering a value for contrast will filter to lake years that had fish present from a co-stocking event of groups varying in your contrast variable.}
+
+\item{Controls}{an optional character vector to assign controls (grouping variables) that must be met to compare the "Contrast" groups. Default is the full list of potential contrasts. Using all controls may be restrictive for some contrasts (eg. Comparing species it would be difficulat to control for size-at-release SAR_cat becasue they are released at differnet stage-sizes)}
 
 \item{Strains}{an optional character string or character vector describing the strain code (SPDTdata format e.g. "RB" for Rainbow Trout) for source population. This will filter to only those strains listed}
 
