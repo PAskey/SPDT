@@ -12,6 +12,6 @@
 #' Next install the SPDT package from PAskey Github repo as:
 #' devtools::install_github("PAskey/SPDT").
 #' 
-#' @docType package
+# @docType package
 #' @name SPDT
 NULL
