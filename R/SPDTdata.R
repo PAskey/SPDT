@@ -59,7 +59,7 @@ SPDTdata <- function(Spp = NULL, Contrast = NULL, Controls = c("Species","Geno_r
   
   if(Data_source == TRUE){linkClips()}
   
-  if(!exists("Biological")|!exists("Link_rel")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
+  if(Data_source ==FALSE&(!exists("Biological")|!exists("Link_rel"))){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
   if("Strain"%in%Controls|"SAR_cat"%in%Controls){warning("Having SAR_cat or Strain included in controls for broad contrasts like species may limit experiments")}
   
