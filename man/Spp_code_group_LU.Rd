@@ -3,15 +3,34 @@
 \docType{data}
 \name{Spp_code_group_LU}
 \alias{Spp_code_group_LU}
-\title{Lookup table with species codes and additional column for grouping species according to whether a sportfish, coarse fish, invasive, etc.}
+\title{BC Fish Naming Codes and Data}
 \format{
-A data frame with 170 rows and 5 variables:
+A data frame with 174 rows and 23 variables:
 \describe{
   \item{species_id}{Species identification key from SMall Lakes Database (SLD) numeric}
   \item{species_former_name}{Character string describing any former names fo rthe same species}
   \item{species_name}{charater string of current accpeted species name}
   \item{species_code}{character string for standard ( BC RISC) accepted code abbreviation for species name}
   \item{sportfish_group}{character string classifying species by the recreational, invasive, etc. values}
+  \item{subfamily}{character string classifying species by the subfamily}
+  \item{stocked_species}{A logical indicating whether the species has been stocked in BC at least once}
+  \item{spawn_season}{character string describing whether the species spawn period is in spring or fall}
+  \item{Code}{A character vector of the unique provincial fish code.}
+\item{CommonName}{A character vector of the common name.}
+\item{Class}{A character vector of the class.}
+\item{Order}{A character vector of the order.}
+\item{Family}{A character vector of the family.}
+\item{Genus}{A character vector of the genus.}
+\item{Species}{A character vector of the species.}
+\item{Subspecies}{A character vector of the subspecies.}
+\item{Species2}{A character vector of the second species if a hybrid.}
+\item{Extant}{A logical vector indicating whether any of the fishes are extant in British Columbia.}
+\item{Native}{A logical vector indicating whether any of the fishes are native to British Columbia.}
+\item{Marine}{A logical vector indicating whether a life-stage of any of the fishes occur in saltwater in British Columbia.}
+\item{Yellow}{A logical vector indicating whether any of the fishes are yellow listed in British Columbia.}
+\item{Blue}{A logical vector indicating whether any of the fishes are blue listed in British Columbia.}
+\item{Red}{A logical vector indicating whether any of the fishes are red listed in British Columbia.}
+\item{CDCode}{A character vector specifying the BC Conservation Data Centre species code.}
 }
 }
 \source{
@@ -21,6 +40,6 @@ PAskey personal copy with .csv stored in data-raw
 Spp_code_group_LU
 }
 \description{
-Aids in describing the recreational value or competitive nature of species composition in a lake.
+Lookup table with species codes and additional grouping columns for scientific naming, spawn timing, recreational, invasive and/or conservation values, etc. Also see fishbc package (https://github.com/poissonconsulting/fishbc).
 }
 \keyword{datasets}

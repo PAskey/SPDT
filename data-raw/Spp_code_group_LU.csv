@@ -1,171 +1,175 @@
-﻿species_id,species_former_name,species_name,species_code,sportfish_group,Subfamily
-1,,Anadromous Bull Trout,ABT,salmonid_sportfish,Salmoninae
-2,,Coastal Cutthroat (anadromous),ACT,salmonid_sportfish,Salmoninae
-3,,Atlantic Salmon,AS,salmonid_sportfish,Salmoninae
-4,,Burbot,BB,native_sportfish,Lotidae
-5,,Catfish,BH,invasive_coarsefish,Ictaluridae
-6,Brown Bullhead,Brown Catfish,BNH,invasive_coarsefish,Ictaluridae
-7,,Bass/ Sunfish,BS,spiny_sportfish,Lepominae
-8,,Bridgelip Sucker,BSU,native_nongamefish,Catostominae
-9,,Bulltrout,BT,salmonid_sportfish,Salmoninae
-10,,Minnow (general),C,native_nongamefish,Leuciscinae
-11,Aleutian Sculpin,Coastrange Sculpin,CAL,native_nongamefish,Cottidae
-12,,Prickly Sculpin,CAS,native_nongamefish,Cottidae
-13,,Mottled Sculpin,CBA,native_nongamefish,Cottidae
-14,,Sculpin,CC,native_nongamefish,Cottidae
-15,,Slimy Sculpin,CCG,native_nongamefish,Cottidae
-16,,Shorthead Sculpin,CCN,native_nongamefish,Cottidae
-17,Chiselmouth Chub,Chiselmouth,CMC,native_nongamefish,Leuciscinae
-18,,Coho Salmon,CO,salmonid_sportfish,Salmoninae
-19,,Carp,CP,invasive_nongamefish,Cyprininae
-20,,Torrent Sculpin,CRH,native_nongamefish,Cottidae
-21,,Large Scale Sucker,CSU,native_nongamefish,Catostominae
-22,,Coastal Cutthroat (non-anadromous),CT,salmonid_sportfish,Salmoninae
-23,,Dace (general),DC,native_nongamefish,Leuciscinae
-24,,Dolly Varden,DV,salmonid_sportfish,Salmoninae
-25,,Eastern Brook Trout,EB,salmonid_sportfish,Salmoninae
-26,,Finescale Dace,FDC,native_nongamefish,Leuciscinae
-27,,Brown Trout,GB,salmonid_sportfish,Salmoninae
-28,,Kokanee,KO,salmonid_sportfish,Salmoninae
-29,,Leopard Dace,LDC,native_nongamefish,Leuciscinae
-30,,Lake Chub,LKC,native_nongamefish,Leuciscinae
-31,,Large Mouth Bass,LMB,spiny_sportfish,Lepominae
-32,,Longnose Sucker,LSU,native_nongamefish,Catostominae
-33,,Lake Trout,LT,salmonid_sportfish,Salmoninae
-34,,Lake Whitefish,LW,salmonid_sportfish,Coregoninae
-35,,Mountain Whitefish,MW,salmonid_sportfish,Coregoninae
-36,,No Fish Caught,NFC,native_nongamefish,
-37,Squawfish,Northern Pike Minnow,NSC,native_nongamefish,Leuciscinae
-38,,Coarse or non-game fish,OS,native_nongamefish,Leuciscinae
-39,,Peamouth Chub,PCC,native_nongamefish,Leuciscinae
-40,,Pumpkinseed,PMB,spiny_nongamefish,Lepominae
-41,,Pygmy Whitefish,PW,native_nongamefish,Coregoninae
-42,,Rainbow Trout,RB,salmonid_sportfish,Salmoninae
-43,,Northern Redbelly Dace,RDC,native_nongamefish,Leuciscinae
-44,,Redside Shiner,RSC,native_nongamefish,Leuciscinae
-45,,Redside Shiner,RSS,native_nongamefish,Leuciscinae
-46,,Stickleback (general),SB,native_nongamefish,Gasterosteoidae
-47,,Sturgeon (general),SG,native_nongamefish,Acipenseridae
-48,,American Shad,SH,native_nongamefish,
-49,,Sockeye Salmon,SK,salmonid_sportfish,Salmoninae
-50,,Small Mouth Bass,SMB,spiny_sportfish,Lepominae
-51,,Unidentified Species,SP,native_nongamefish,
-52,,Steelhead,ST,salmonid_sportfish,Salmoninae
-53,,Sucker,SU,native_nongamefish,Catostominae
-54,,Unidentified Trout,TR,salmonid_sportfish,Salmoninae
-55,,Three Spine Stickleback,TSB,native_nongamefish,Gasterosteoidae
-56,,Umatilla Dace,UDC,native_nongamefish,Leuciscinae
-57,,Westslope Cutthroat,WCT,salmonid_sportfish,Salmoninae
-58,,Whitefish (general),WF,salmonid_sportfish,Coregoninae
-59,,White Sturgeon,WSG,native_nongamefish,Acipenseridae
-60,,White Sucker,WSU,native_nongamefish,Catostominae
-61,,Yellow Perch,YP,spiny_sportfish,Lepominae
-62,,Unknown,UNK,native_nongamefish,
-63,,Sunfish,SF,spiny_nongamefish,Lepominae
-64,,Mixed,MX,native_nongamefish,
-65,,Rainbow Cutthroat,RBCT,salmonid_sportfish,Salmoninae
-66,,Northwest Salamander,A-AMGR,native_nongamefish,
-69,,All Species,AF,native_nongamefish,
-70,,No Fish Present,NFP,native_nongamefish,
-71,,Salmon (General),SA,salmonid_sportfish,Salmoninae
-72,,All Salmon,AO,salmonid_sportfish,Salmoninae
-73,,"Pink Salmon, Humpback Salmon",PK,salmonid_sportfish,Salmoninae
-74,,"Chum Salmon, Dog Salmon",CM,salmonid_sportfish,Salmoninae
-75,,"Chinook Salmon, Spring Salmon, King Salmon, Tyee",CH,salmonid_sportfish,Salmoninae
-76,,Coastal Cutthroat Trout,CCT,salmonid_sportfish,Salmoninae
-77,,Steelhead (Summer-run),SST,salmonid_sportfish,Salmoninae
-78,,Steelhead (Winter-run),WST,salmonid_sportfish,Salmoninae
-79,,"Anadromous Brown Trout, Anadromous German Brown Trout",AGB,salmonid_sportfish,Salmoninae
-80,,Arctic Char,AC,salmonid_sportfish,Salmoninae
-81,,Anadromous Eastern Brook Trout,AEB,salmonid_sportfish,Salmoninae
-82,,Splake,SPK,salmonid_sportfish,Salmoninae
-83,,"Anadromous Dolly Varden, Anadromous Dolly Varden Char",ADV,salmonid_sportfish,Salmoninae
-84,,Green Sturgeon,GSG,native_nongamefish,Acipenseridae
-85,,White Sturgeon (Kootenay River Pop),WSK,native_nongamefish,Acipenseridae
-86,,Giant Pygmy Whitefish,GPW,native_nongamefish,Coregoninae
-87,,Round Whitefish,RW,native_nongamefish,Coregoninae
-88,,Dragon Lake Whitefish,DLW,native_nongamefish,Coregoninae
-89,,"Broad Whitefish, Round-nosed Whitefish, Sheep-nose Whitefish",BW,native_nongamefish,Coregoninae
-90,,Squanga,SQ,native_nongamefish,
-91,,Lake Cisco,CL,native_nongamefish,Coregoninae
-92,,Arctic Cisco,CA,native_nongamefish,Coregoninae
-93,,Least Cisco,CS,native_nongamefish,Coregoninae
-94,,Bering Cisco,CB,native_nongamefish,Coregoninae
-95,,"Inconnu, Sheefish, Conny",IN,salmonid_sportfish,Coregoninae
-96,,Lampreys (General),L,native_nongamefish,
-97,,Arctic Lamprey,AL,native_nongamefish,
-98,,"River Lamprey, Western Lamprey",RL,native_nongamefish,
-99,,"Lake Lamprey, Cowichan Lamprey",LL,native_nongamefish,
-100,,Western Brook Lamprey,BL,native_nongamefish,
-101,,Morrison Creek Lamprey,MCL,native_nongamefish,
-102,,"Pacific Lamprey, Sea Lamprey",PL,native_nongamefish,
-103,,Arctic Grayling,GR,salmonid_sportfish,Thymallinae
-104,,Goldeye,GE,native_nongamefish,
-105,,Goldfish,GC,invasive_nongamefish,Cyprininae
-106,,Tench,TC,invasive_nongamefish,
-107,,Emerald Shiner,ESC,native_nongamefish,Leuciscinae
-108,,Spottail Shiner,STC,native_nongamefish,Leuciscinae
-109,,"Chub, General",CBC,native_nongamefish,Leuciscinae
-110,,Flathead Chub,FHC,native_nongamefish,Leuciscinae
-111,,Brassy Minnow,BMC,native_nongamefish,Leuciscinae
-112,,"Nooksack Dace, Nooky Dace",NDC,native_nongamefish,Leuciscinae
-113,,Longnose Dace,LNC,native_nongamefish,Leuciscinae
-114,,Speckled Dace,SDC,native_nongamefish,Leuciscinae
-115,,Northern Redbelly Dace x Finescale Dace,XDC,native_nongamefish,Leuciscinae
-116,,"Pearl Dace, Northern Pearl Dace",PDC,native_nongamefish,Leuciscinae
-117,,Fathead Minnow,FM,native_nongamefish,Leuciscinae
-118,,Salish Sucker,SSU,native_nongamefish,Catostominae
-119,,"Mountain Sucker, Northern/Plains Mountain Sucker",MSU,native_nongamefish,Catostominae
-120,,"Black Bullhead, Black Catfish",BKH,native_nongamefish,Ictaluridae
-121,,"Northern Pike, Jackfish, Jack",NP,invasive_sportfish,Escocidae
-122,,"Smelts, General",SM,native_nongamefish,
-123,,Rainbow Smelt,RSM,native_nongamefish,
-124,,"Eulachon, Candlefish",EU,native_nongamefish,
-125,,Pygmy Longfin Smelt,PLS,native_nongamefish,
-126,,Longfin Smelt,LSM,native_nongamefish,
-127,,Surf Smelt,SSM,native_nongamefish,
-128,,Unarmoured Stickleback,CSB,native_nongamefish,Gasterosteoidae
-129,,Charlotte Unarmoured Stickleback,SB3,native_nongamefish,Gasterosteoidae
-130,,Lake Sticklebacks,SB11,native_nongamefish,Gasterosteoidae
-131,,Balkwill Lake Benthic Stickleback,SB1,native_nongamefish,Gasterosteoidae
-132,,Balkwill Lake Limnetic Sticleback,SB2,native_nongamefish,Gasterosteoidae
-133,,Emily Lake Benthic Stickleback,SB4,native_nongamefish,Gasterosteoidae
-134,,Emily Lake Limnetic Stickleback,SB5,native_nongamefish,Gasterosteoidae
-135,,Enos Lake Benthic Stickleback,SB6,native_nongamefish,Gasterosteoidae
-136,,Enos Lake Limnetic Stickleback,SB7,native_nongamefish,Gasterosteoidae
-137,,Hadley Lake Benthic Stickleback,SB9,native_nongamefish,Gasterosteoidae
-138,,Hadley Lake Limnetic Stickleback,SB10,native_nongamefish,Gasterosteoidae
-139,,Paxton Lake Benthic Stickleback,SB12,native_nongamefish,Gasterosteoidae
-140,,Paxton Lake Limnetic Stickleback,SB13,native_nongamefish,Gasterosteoidae
-141,,Priest Lake Benthic Stickleback,SBB,native_nongamefish,Gasterosteoidae
-142,,Priest Lake Limnetic Stickleback,SBP,native_nongamefish,Gasterosteoidae
-143,,Giant Black,GSB,native_nongamefish,
-144,,Giant Stickleback,SB8,native_nongamefish,Gasterosteoidae
-145,,Brook Stickleback,BSB,native_nongamefish,Gasterosteoidae
-146,,Ninespine Stickleback,NSB,native_nongamefish,Gasterosteoidae
-147,,Sharpnose Sculpin,CCA,native_nongamefish,Cottidae
-148,,Tidepool Sculpin,COM,native_nongamefish,Cottidae
-149,,"Pacific Staghorn Sculpin, Staghorn Sculpin",CLA,native_nongamefish,Cottidae
-150,,Deepwater Sculpin,CMT,native_nongamefish,Cottidae
-151,,Cultus Lake Sculpin,CCL,native_nongamefish,Cottidae
-152,,"Spoonhead Sculpin, Spoonhead Muddler",CRI,native_nongamefish,Cottidae
-153,,"Black Crappie, Calico Bass",BCB,spiny_sportfish,Lepominae
-154,,"Perch, General",P,spiny_sportfish,Lepominae
-155,,"Walleye, Pike-perch, Pickerel, Dore, many others",WP,spiny_sportfish,Lepominae
-156,,Starry Flounder,SFL,native_nongamefish,
-157,,Troutperch,TP,native_nongamefish,
-158,,"Mosquitofish, Gambusia",GAM,,
-159,,,RB/YP,,
-160,,,YP/SF,,
-161,,,RB/CT,,
-162,,,RB/BS,,
-163,,,RB/EB,,
-164,,,RB/KO,,
-165,,,YP/SF,,
-166,,,RB/BT,,
-167,,,RB/LT,,
-168,,,KO/LT,,
-169,,,KO/BT,,
-170,,,KO/WF,,
-171,,,RB/BB,,
-172,,,RB/PCC,,
+﻿species_id,species_former_name,species_name,species_code,sportfish_group,Subfamily,Stocked_species,Spawn_season,diff_by,CommonName,Class,Order,Family,Genus,Species,Subspecies,Species2,Extant,Native,Marine,Yellow,Blue,Red,CDCode
+1,,Anadromous Bull Trout,ABT,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Bull Trout (Anadromous),Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,confluentus,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-SACO
+69,,All Species,AF,native_nongamefish,,FALSE,,,All Fish,NA,NA,NA,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,NA
+2,,Coastal Cutthroat (anadromous),ACT,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Cutthroat Trout (Anadromous),Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,clarkii,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-ONCL
+51,,Unidentified Species,SP,native_nongamefish,,FALSE,,,Fish Unidentified Species,NA,NA,NA,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,NA
+3,,Atlantic Salmon,AS,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Atlantic Salmon,Actinopterygii,Salmoniformes,Salmonidae,Salmo,salar,NA,NA,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,F-SASA
+47,,Sturgeon (general),SG,native_nongamefish,Acipenseridae,FALSE,Spring,0,Sturgeon (General),Actinopterygii,Acipenseriformes,Acipenseridae,Acipenser,NA,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,NA
+4,,Burbot,BB,native_sportfish,Lotidae,TRUE,Winter,0,Burbot,Actinopterygii,Gadiformes,Gadidae,Lota,lota,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,F-LOLO
+84,,Green Sturgeon,GSG,native_nongamefish,Acipenseridae,FALSE,Spring,0,Green Sturgeon,Actinopterygii,Acipenseriformes,Acipenseridae,Acipenser,medirostris,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-ACME
+5,,Catfish,BH,invasive_coarsefish,Ictaluridae,FALSE,Spring,0,Bullhead (General),Actinopterygii,Siluriformes,Ictaluridae,Ameiurus,NA,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+59,,White Sturgeon,WSG,native_nongamefish,Acipenseridae,TRUE,Spring,0,White Sturgeon,Actinopterygii,Acipenseriformes,Acipenseridae,Acipenser,transmontanus,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,F-ACTR
+6,Brown Bullhead,Brown Catfish,BNH,invasive_coarsefish,Ictaluridae,FALSE,Spring,0,Brown Bullhead,Actinopterygii,Siluriformes,Ictaluridae,Ameiurus,nebulosus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-AMNE
+48,,American Shad,SH,native_nongamefish,,FALSE,Spring,0,American Shad,Actinopterygii,Clupeiformes,Clupeidae,Alosa,sapidissima,NA,NA,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,F-ALSA
+7,,Bass/ Sunfish,BS,spiny_sportfish,Lepominae,FALSE,Spring,0,Bass/Sunfish (General),Actinopterygii,Perciformes,Centrarchidae,NA,NA,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+53,,Sucker,SU,native_nongamefish,Catostominae,FALSE,Spring,0,Sucker (General),Actinopterygii,Cypriniformes,Catostomidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,NA
+8,,Bridgelip Sucker,BSU,native_nongamefish,Catostominae,FALSE,Spring,0,Bridgelip Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,columbianus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CACO
+32,,Longnose Sucker,LSU,native_nongamefish,Catostominae,FALSE,Spring,0,Longnose Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,catostomus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CACT
+9,,Bulltrout,BT,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Bull Trout,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,confluentus,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-SACO
+10,,Minnow (general),C,native_nongamefish,Leuciscinae,FALSE,,,Minnow (General),Actinopterygii,Cypriniformes,Cyprinidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,TRUE,FALSE,NA
+60,,White Sucker,WSU,native_nongamefish,Catostominae,FALSE,Spring,0,White Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,commersonii,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CACM
+11,Aleutian Sculpin,Coastrange Sculpin,CAL,native_nongamefish,Cottidae,FALSE,Spring,0,Coastrange Sculpin (formerly Aleutian Sculpin),Actinopterygii,Scorpaeniformes,Cottidae,Cottus,aleuticus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-COAL
+21,,Large Scale Sucker,CSU,native_nongamefish,Catostominae,FALSE,Spring,0,Largescale Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,macrocheilus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CAMA
+12,,Prickly Sculpin,CAS,native_nongamefish,Cottidae,FALSE,Spring,0,Prickly Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,asper,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-COAS
+119,,"Mountain Sucker, Northern/Plains Mountain Sucker",MSU,native_nongamefish,Catostominae,FALSE,Spring,0,Northern Mountain Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,platyrhynchus,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-CAPL
+13,,Mottled Sculpin,CBA,native_nongamefish,Cottidae,FALSE,Spring,0,Mottled Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,bairdi,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,NA
+118,,Salish Sucker,SSU,native_nongamefish,Catostominae,FALSE,Spring,0,Salish Sucker,Actinopterygii,Cypriniformes,Catostomidae,Catostomus,sp. 4,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-CASP-04
+14,,Sculpin,CC,native_nongamefish,Cottidae,FALSE,Spring,0,Sculpin (General),Actinopterygii,Scorpaeniformes,Cottidae,NA,NA,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,NA
+,,Oriental Weatherfish,OWF,invasive_nongamefish,Cobitidae,FALSE,,,Oriental Weatherfish,Actinopterygii,Cypriniformes,Cobitidae,Misgurnus,anguillicaudatus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+15,,Slimy Sculpin,CCG,native_nongamefish,Cottidae,FALSE,Spring,0,Slimy Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,cognatus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-COCO
+16,,Shorthead Sculpin,CCN,native_nongamefish,Cottidae,FALSE,Spring,0,Shorthead Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,confusus,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-COCN
+109,,"Chub, General",CBC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Chub (General),Actinopterygii,Cypriniformes,Cyprinidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,NA
+17,Chiselmouth Chub,Chiselmouth,CMC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Chiselmouth,Actinopterygii,Cypriniformes,Cyprinidae,Acrocheilus,alutaceus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-ACAL
+,,Carp (General),CPG,invasive_nongamefish,Cyprininae,FALSE,Spring,0,Carp (General),Actinopterygii,Cypriniformes,Cyprinidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,NA
+18,,Coho Salmon,CO,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Coho Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,kisutch,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ONKI
+23,,Dace (general),DC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Dace (General),Actinopterygii,Cypriniformes,Cyprinidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,TRUE,NA
+19,,Carp,CP,invasive_nongamefish,Cyprininae,FALSE,Spring,0,Carp,Actinopterygii,Cypriniformes,Cyprinidae,Cyprinus,carpio,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-CYCA
+20,,Torrent Sculpin,CRH,native_nongamefish,Cottidae,FALSE,Spring,0,Torrent Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,rhotheus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CORH
+105,,Goldfish,GC,invasive_nongamefish,Cyprininae,FALSE,,,Goldfish,Actinopterygii,Cypriniformes,Cyprinidae,Carassius,auratus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-CAAU
+43,,Northern Redbelly Dace,RDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Northern Redbelly Dace,Actinopterygii,Cypriniformes,Cyprinidae,Chrosomus,eos,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CHEO
+22,,Coastal Cutthroat (non-anadromous),CT,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Cutthroat Trout,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,clarkii,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,F-ONCL
+115,,Northern Redbelly Dace x Finescale Dace,XDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Northern Redbelly Dace x Finescale Dace,Actinopterygii,Cypriniformes,Cyprinidae,Chrosomus,eos,NA,neogaeus,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-CHEOxCHNE
+26,,Finescale Dace,FDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Finescale Dace,Actinopterygii,Cypriniformes,Cyprinidae,Chrosomus,neogaeus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CHNE
+24,,Dolly Varden,DV,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Dolly Varden,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,malma,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-SAMA
+30,,Lake Chub,LKC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Lake Chub,Actinopterygii,Cypriniformes,Cyprinidae,Couesius,plumbeus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-COPL
+25,,Eastern Brook Trout,EB,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Brook Trout,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,fontinalis,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-SAFO
+111,,Brassy Minnow,BMC,native_nongamefish,Leuciscinae,FALSE,,,Brassy Minnow,Actinopterygii,Cypriniformes,Cyprinidae,Hybognathus,hankinsoni,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,F-HYHA
+27,,Brown Trout,GB,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Brown Trout,Actinopterygii,Salmoniformes,Salmonidae,Salmo,trutta,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-SATR
+116,,"Pearl Dace, Northern Pearl Dace",PDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Northern Pearl Dace,Actinopterygii,Cypriniformes,Cyprinidae,Margariscus,margarita,NA,nachtriebi,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,NA
+28,,Kokanee,KO,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Kokanee,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,nerka,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,F-ONNE
+39,,Peamouth Chub,PCC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Peamouth Chub,Actinopterygii,Cypriniformes,Cyprinidae,Mylocheilus,caurinus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-MYCA
+29,,Leopard Dace,LDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Leopard Dace,Actinopterygii,Cypriniformes,Cyprinidae,Rhinichthys,falcatus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-RHFA
+107,,Emerald Shiner,ESC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Emerald Shiner,Actinopterygii,Cypriniformes,Cyprinidae,Notropis,atherinoides,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,F-NOAT
+108,,Spottail Shiner,STC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Spottail Shiner,Actinopterygii,Cypriniformes,Cyprinidae,Notropis,hudsonius,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-NOHU
+31,,Large Mouth Bass,LMB,spiny_sportfish,Lepominae,FALSE,Spring,0,Largemouth Bass,Actinopterygii,Perciformes,Centrarchidae,Micropterus,salmoides,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-MISA
+117,,Fathead Minnow,FM,native_nongamefish,Leuciscinae,FALSE,,,Fathead Minnow,Actinopterygii,Cypriniformes,Cyprinidae,Pimephales,promelas,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-PIPR
+110,,Flathead Chub,FHC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Flathead Chub,Actinopterygii,Cypriniformes,Cyprinidae,Platygobio,gracilis,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PLGR
+33,,Lake Trout,LT,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Lake Trout,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,namaycush,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-SANA
+37,Squawfish,Northern Pike Minnow,NSC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Northern Pikeminnow,Actinopterygii,Cypriniformes,Cyprinidae,Ptychocheilus,oregonensis,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PTOR
+34,,Lake Whitefish,LW,salmonid_sportfish,Coregoninae,TRUE,Fall,1,Lake Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,clupeaformis,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-COCL
+113,,Longnose Dace,LNC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Longnose Dace,Actinopterygii,Cypriniformes,Cyprinidae,Rhinichthys,cataractae,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-RHCA
+35,,Mountain Whitefish,MW,salmonid_sportfish,Coregoninae,FALSE,Fall,1,Mountain Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Prosopium,williamsoni,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PRWI
+112,,"Nooksack Dace, Nooky Dace",NDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Nooksack Dace,Actinopterygii,Cypriniformes,Cyprinidae,Rhinichthys,cataractae,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-RHCA-CH
+114,,Speckled Dace,SDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Speckled Dace,Actinopterygii,Cypriniformes,Cyprinidae,Rhinichthys,osculus,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-RHOS
+56,,Umatilla Dace,UDC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Umatilla Dace,Actinopterygii,Cypriniformes,Cyprinidae,Rhinichthys,umatilla,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-RHUM
+44,,Redside Shiner,RSC,native_nongamefish,Leuciscinae,FALSE,Spring,0,Redside Shiner,Actinopterygii,Cypriniformes,Cyprinidae,Richardsonius,balteatus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-RIBA
+40,,Pumpkinseed,PMB,spiny_nongamefish,Lepominae,FALSE,Spring,0,Pumpkinseed,Actinopterygii,Perciformes,Centrarchidae,Lepomis,gibbosus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-LEGI
+106,,Tench,TC,invasive_nongamefish,,FALSE,Spring,0,Tench,Actinopterygii,Cypriniformes,Cyprinidae,Tinca,tinca,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-TITI
+41,,Pygmy Whitefish,PW,native_nongamefish,Coregoninae,FALSE,Fall,1,Pygmy Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Prosopium,coulterii,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PRCO
+158,,"Mosquitofish, Gambusia",GAM,invasive_nongamefish,Poeciliidae,FALSE,,,Mosquitofish,Actinopterygii,Cyprinodontiformes,Poeciliidae,Gambusia,affinis,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+42,,Rainbow Trout,RB,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Rainbow Trout,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,mykiss,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-ONMY
+121,,"Northern Pike, Jackfish, Jack",NP,invasive_sportfish,Escocidae,FALSE,Spring,0,Northern Pike,Actinopterygii,Esociformes,Esocidae,Esox,lucius,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-ESLU
+,,Tiger Muskellunge,TMP,invasive_sportfish,Escocidae,FALSE,Spring,0,Tiger Muskellunge,Actinopterygii,Esociformes,Esocidae,Esox,lucius,NA,masquinongy,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,NA
+46,,Stickleback (general),SB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Stickleback (General),Actinopterygii,Gasterosteiformes,Gasterosteidae,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,NA
+145,,Brook Stickleback,BSB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Brook Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Culaea,inconstans,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CUIN
+129,,Charlotte Unarmoured Stickleback,SB3,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Charlotte Unarmoured Threespine Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,aculeatus,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GAAC-01
+55,,Three Spine Stickleback,TSB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Threespine Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,aculeatus,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-GAAC
+49,,Sockeye Salmon,SK,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Sockeye Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,nerka,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ONNE
+128,,Unarmoured Stickleback,CSB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Unarmoured Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+50,,Small Mouth Bass,SMB,spiny_sportfish,Lepominae,FALSE,Spring,0,Smallmouth Bass,Actinopterygii,Perciformes,Centrarchidae,Micropterus,dolomieui,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-MIDO
+131,,Balkwill Lake Benthic Stickleback,SB1,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Balkwill Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+130,,Lake Sticklebacks,SB11,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Lake Sticklebacks,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,NA
+52,,Steelhead,ST,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Steelhead,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,mykiss,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,F-ONMY
+132,,Balkwill Lake Limnetic Sticleback,SB2,native_nongamefish,Gasterosteoidae,FALSE,,,Balkwill Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+133,,Emily Lake Benthic Stickleback,SB4,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Emily Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+54,,Unidentified Trout,TR,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Unidentifiable Trout - only fry <70mm in length,Actinopterygii,Salmoniformes,Salmonidae,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,NA
+134,,Emily Lake Limnetic Stickleback,SB5,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Emily Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+141,,Priest Lake Benthic Stickleback,SBB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Priest Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+142,,Priest Lake Limnetic Stickleback,SBP,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Priest Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+57,,Westslope Cutthroat,WCT,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Westslope Cutthroat Trout,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,clarkii,lewisi,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-ONCL-LE
+144,,Giant Stickleback,SB8,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Giant Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 1,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-01
+58,,Whitefish (general),WF,salmonid_sportfish,Coregoninae,FALSE,Fall,1,Whitefish (General),Actinopterygii,Salmoniformes,Salmonidae,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,NA
+138,,Hadley Lake Limnetic Stickleback,SB10,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Hadley Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 12,NA,NA,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,F-GASP-12
+137,,Hadley Lake Benthic Stickleback,SB9,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Hadley Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 13,NA,NA,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,F-GASP-13
+,,Misty Lake Lake Stickleback,SB14,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Misty Lake Lake Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 18,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-18
+61,,Yellow Perch,YP,spiny_sportfish,Lepominae,FALSE,Spring,0,Yellow Perch,Actinopterygii,Perciformes,Percidae,Perca,flavescens,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PEFL
+,,Misty Lake Stream Stickleback,SB15,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Misty Lake Stream Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 19,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-19
+136,,Enos Lake Limnetic Stickleback,SB7,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Enos Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 2,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-02
+135,,Enos Lake Benthic Stickleback,SB6,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Enos Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 3,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-03
+140,,Paxton Lake Limnetic Stickleback,SB13,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Paxton Lake Limnetic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 4,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-04
+139,,Paxton Lake Benthic Stickleback,SB12,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Paxton Lake Benthic Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,sp. 5,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-GASP-05
+146,,Ninespine Stickleback,NSB,native_nongamefish,Gasterosteoidae,FALSE,Spring,0,Ninespine Stickleback,Actinopterygii,Gasterosteiformes,Gasterosteidae,Pungitius,pungitius,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-PUPU
+104,,Goldeye,GE,native_nongamefish,,FALSE,,,Goldeye,Actinopterygii,Hiodontiformes,Hiodontidae,Hiodon,alosoides,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-HIAL
+122,,"Smelts, General",SM,native_nongamefish,,FALSE,,,Smelt (General),Actinopterygii,Osmeriformes,Osmeridae,NA,NA,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,TRUE,NA
+71,,Salmon (General),SA,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Salmon (General),Actinopterygii,Salmoniformes,Salmonidae,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,NA
+127,,Surf Smelt,SSM,native_nongamefish,,FALSE,,,Surf Smelt,Actinopterygii,Osmeriformes,Osmeridae,Hypomesus,pretiosus,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-HYPR
+72,,All Salmon,AO,salmonid_sportfish,Salmoninae,FALSE,Fall,1,All Pacific Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,NA
+123,,Rainbow Smelt,RSM,native_nongamefish,,FALSE,,,Rainbow Smelt,Actinopterygii,Osmeriformes,Osmeridae,Osmerus,dentex,NA,mordax,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-OSDE
+73,,"Pink Salmon, Humpback Salmon",PK,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Pink Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,gorbuscha,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ONGO
+126,,Longfin Smelt,LSM,native_nongamefish,,FALSE,,,Longfin Smelt,Actinopterygii,Osmeriformes,Osmeridae,Spirinchus,thaleichthys,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-SPTH
+74,,"Chum Salmon, Dog Salmon",CM,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Chum Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,keta,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ONKE
+125,,Pygmy Longfin Smelt,PLS,native_nongamefish,,FALSE,,,Pygmy Longfin Smelt,Actinopterygii,Osmeriformes,Osmeridae,Spirincus,sp. 1,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-SPSP-01
+75,,"Chinook Salmon, Spring Salmon, King Salmon, Tyee",CH,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Chinook Salmon,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,tshawytscha,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ONTS
+124,,"Eulachon, Candlefish",EU,native_nongamefish,,FALSE,,,Eulachon,Actinopterygii,Osmeriformes,Osmeridae,Thaleichthys,pacificus,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-THPA
+76,,Coastal Cutthroat Trout,CCT,salmonid_sportfish,Salmoninae,FALSE,Spring,0,Coastal Cutthroat Trout,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,clarkii,clarkii,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-ONCL-CL
+77,,Steelhead (Summer-run),SST,salmonid_sportfish,Salmoninae,FALSE,Spring,0,Steelhead (Summer-run),Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,mykiss,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,F-ONMY
+78,,Steelhead (Winter-run),WST,salmonid_sportfish,Salmoninae,FALSE,Spring,0,Steelhead (Winter-run),Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,mykiss,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,F-ONMY
+,,Bluegill,BG,spiny_sportfish,Lepominae,FALSE,Spring,0,Bluegill,Actinopterygii,Perciformes,Centrarchidae,Lepomis,macrochirus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-LPMA
+79,,"Anadromous Brown Trout, Anadromous German Brown Trout",AGB,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Brown Trout (Anadromous),Actinopterygii,Salmoniformes,Salmonidae,Salmo,trutta,NA,NA,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,F-SATR
+80,,Arctic Char,AC,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Arctic Char,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,alpinus,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,NA
+81,,Anadromous Eastern Brook Trout,AEB,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Brook Trout (Anadromous),Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,fontinalis,NA,NA,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,F-SAFO
+153,,"Black Crappie, Calico Bass",BCB,spiny_sportfish,Lepominae,FALSE,Spring,0,Black Crappie,Actinopterygii,Perciformes,Centrarchidae,Pomoxis,nigromaculatus,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-PONI
+82,,Splake,SPK,salmonid_sportfish,Salmoninae,TRUE,Fall,1,Splake,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,fontinalis,NA,namaycush,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+,,Blotched Snakehead,CHMC,invasive_nongamefish,Channidae,FALSE,,,Blotched Snakehead,Actinopterygii,Perciformes,Channidae,Channa,maculata,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,NA
+83,,"Anadromous Dolly Varden, Anadromous Dolly Varden Char",ADV,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Dolly Varden (Anadromous),Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,malma,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-SAMA
+,,Shiner Perch,CYAG,invasive_nongamefish,Embiotocidae,FALSE,,,Shiner Perch,Actinopterygii,Perciformes,Embiotocidae,Cymatogaster,aggregata,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-CYAG
+154,,"Perch, General",P,spiny_sportfish,Lepominae,FALSE,Spring,0,Perch (General),Actinopterygii,Perciformes,Percidae,NA,NA,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,NA
+86,,Giant Pygmy Whitefish,GPW,native_nongamefish,Coregoninae,FALSE,Fall,1,Giant Pygmy Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Prosopium,coulterii,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PRCO-03
+155,,"Walleye, Pike-perch, Pickerel, Dore, many others",WP,spiny_sportfish,Lepominae,FALSE,Spring,0,Walleye,Actinopterygii,Perciformes,Percidae,Sander,vitreus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-SAVI
+87,,Round Whitefish,RW,native_nongamefish,Coregoninae,FALSE,Fall,1,Round Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Prosopium,cyclindraceum,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PRCY
+157,,Troutperch,TP,native_nongamefish,,FALSE,,,Trout-Perch,Actinopterygii,Percopsiformes,Percopsidae,Percopsis,omiscomaycus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-PEOM
+88,,Dragon Lake Whitefish,DLW,native_nongamefish,Coregoninae,FALSE,,,Dragon Lake Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,sp,NA,NA,FALSE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+89,,"Broad Whitefish, Round-nosed Whitefish, Sheep-nose Whitefish",BW,native_nongamefish,Coregoninae,FALSE,Fall,1,Broad Whitefish,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,nasus,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-CONA
+90,,Squanga,SQ,native_nongamefish,,FALSE,,,Squanga,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,sp,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+91,,Lake Cisco,CL,native_nongamefish,Coregoninae,FALSE,,,Cisco,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,artedi,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,F-COAR
+92,,Arctic Cisco,CA,native_nongamefish,Coregoninae,FALSE,,,Arctic Cisco,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,autumnalis,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,TRUE,F-COAU
+93,,Least Cisco,CS,native_nongamefish,Coregoninae,FALSE,,,Least Cisco,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,sardinella,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-COSR
+94,,Bering Cisco,CB,native_nongamefish,Coregoninae,FALSE,,,Bering Cisco,Actinopterygii,Salmoniformes,Salmonidae,Coregonus,laurettae,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,NA
+95,,"Inconnu, Sheefish, Conny",IN,salmonid_sportfish,Coregoninae,FALSE,,,Inconnu,Actinopterygii,Salmoniformes,Salmonidae,Stenodus,leucichthys,NA,NA,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,F-STLU
+96,,Lampreys (General),L,native_nongamefish,,FALSE,,,Lamprey (General),Petromyzontida,Petromyzontiformes,NA,NA,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE,NA
+98,,"River Lamprey, Western Lamprey",RL,native_nongamefish,,FALSE,,,River Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,ayresii,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-LAAY
+99,,"Lake Lamprey, Cowichan Lamprey",LL,native_nongamefish,,FALSE,,,Cowichan Lake Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,macrostoma,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-ENMA
+100,,Western Brook Lamprey,BL,native_nongamefish,,FALSE,,,Western Brook Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,richardsoni,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-LARC
+101,,Morrison Creek Lamprey,MCL,native_nongamefish,,FALSE,,,Morrison Creek Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,richardsoni,marifaga,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-LARC-01
+159,,Cutthraot/Rainbow Cross,CRS,salmonid_sportfish,Salmoninae,TRUE,Spring,0,Cutthroat/Rainbow cross,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,clarkii,NA,mykiss,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,NA
+103,,Arctic Grayling,GR,salmonid_sportfish,Thymallinae,TRUE,Spring,0,Arctic Grayling,Actinopterygii,Salmoniformes,Salmonidae,Thymallus,arcticus,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-THAR
+,,Golden Trout,GT,salmonid_sportfish,Salmoninae,FALSE,Spring,0,Golden Trout,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,mykiss,aguabonita,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-ONMY
+120,,"Black Bullhead, Black Catfish",BKH,native_nongamefish,Ictaluridae,FALSE,Spring,0,Black Bullhead,Actinopterygii,Siluriformes,Ictaluridae,Ameiurus,melas,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-AMME
+,,Mountain x Round Whitefish hybrid,MWxRW,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Mountain x Round Whitefish hybrid,Actinopterygii,Salmoniformes,Salmonidae,Prosopium,williamsoni,NA,cyclindraceum,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,NA
+,,Char (General),SLV,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Char (General),Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,NA,NA,NA,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,NA
+,,Verified DV BT hybrid,DVxBT,salmonid_sportfish,Salmoninae,FALSE,Fall,1,Verified DV BT hybrid,Actinopterygii,Salmoniformes,Salmonidae,Salvelinus,malma,NA,confluentus,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,NA
+160,,Montana Grayling,MG,salmonid_sportfish,Thymallinae,TRUE,Spring,0,Montana Grayling,Actinopterygii,Salmoniformes,Salmonidae,Thymallus,arcticus,montanus,NA,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,NA
+147,,Sharpnose Sculpin,CCA,native_nongamefish,Cottidae,FALSE,Spring,0,Sharpnose Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Clinocottus,acuticeps,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-CLAC
+151,,Cultus Lake Sculpin,CCL,native_nongamefish,Cottidae,FALSE,Spring,0,Cultus Lake Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,aleuticus,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-COSP-02
+,,Malheur Mottled Sculpin,CMM,native_nongamefish,Cottidae,FALSE,Spring,0,Malheur Mottled Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,bendirei,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+,,Columbia Sculpin,CCH,native_nongamefish,Cottidae,FALSE,Spring,0,Columbia Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,hubbsi,NA,NA,TRUE,TRUE,FALSE,FALSE,TRUE,FALSE,F-COHU
+149,,"Pacific Staghorn Sculpin, Staghorn Sculpin",CLA,native_nongamefish,Cottidae,FALSE,Spring,0,Staghorn Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Leptocottus,armatus,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,F-LEAR
+152,,"Spoonhead Sculpin, Spoonhead Muddler",CRI,native_nongamefish,Cottidae,FALSE,Spring,0,Spoonhead Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,ricei,NA,NA,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,F-CORI
+150,,Deepwater Sculpin,CMT,native_nongamefish,Cottidae,FALSE,Spring,0,Deepwater Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Myoxocephalus,thompsoni,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,NA
+,,Rocky Mountain Sculpin,CRM,native_nongamefish,Cottidae,FALSE,Spring,0,Rocky Mountain Sculpin,Actinopterygii,Scorpaeniformes,Cottidae,Cottus,sp. 9,NA,NA,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,F-COSP-04
+,,Yellow Bullhead,YB,invasive_coarsefish,Ictaluridae,FALSE,Spring,0,Yellow Bullhead,Actinopterygii,Siluriformes,Ictaluridae,Ameiurus,natalis,NA,NA,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,F-ICNA
+97,,Arctic Lamprey,AL,native_nongamefish,,FALSE,,,Arctic Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,sp,NA,NA,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,NA
+102,,"Pacific Lamprey, Sea Lamprey",PL,native_nongamefish,,FALSE,,,Pacific Lamprey,Petromyzontida,Petromyzontiformes,Petromyzontidae,Lampetra,tridentata,NA,NA,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,F-ENTR
+36,,No Fish Caught,NFC,native_nongamefish,,FALSE,,,No Fish Caught,,,,,,,,,,,,,,
+38,,Coarse or non-game fish,OS,native_nongamefish,Leuciscinae,FALSE,,,Coarse or non-game fish,,,,,,,,,,,,,,
+45,,Redside Shiner,RSS,native_nongamefish,Leuciscinae,FALSE,Spring,0,Redside Shiner,Actinopterygii,Cypriniformes,Cyprinidae,Richardsonius,balteatus,,,,,,,,,
+62,,Unknown,UNK,native_nongamefish,,FALSE,,,Unknown,,,,,,,,,,,,,,
+63,,Sunfish,SF,spiny_nongamefish,Lepominae,FALSE,Spring,0,Sunfish,Actinopterygii,Perciformes,Centrarchidae,Lepomis,,,,,,,,,,
+64,,Mixed,MX,native_nongamefish,,FALSE,,,Mixed,,,,,,,,,,,,,,
+65,,Rainbow Cutthroat,RBCT,salmonid_sportfish,Salmoninae,FALSE,Spring,0,Rainbow Cutthroat,Actinopterygii,Salmoniformes,Salmonidae,Oncorhynchus,,,,,,,,,,
+66,,Northwest Salamander,A-AMGR,native_nongamefish,,FALSE,,,Northwest Salamander,,,,,,,,,,,,,,
+70,,No Fish Present,NFP,native_nongamefish,,FALSE,,,No Fish Present,,,,,,,,,,,,,,
+85,,White Sturgeon (Kootenay River Pop),WSK,native_nongamefish,Acipenseridae,FALSE,Spring,0,White Sturgeon (Kootenay River Pop),,,,,,,,,,,,,,
+143,,Giant Black,GSB,native_nongamefish,,FALSE,,,Giant Black,,,,,,,,,,,,,,
+148,,Tidepool Sculpin,COM,native_nongamefish,Cottidae,FALSE,Spring,0,Tidepool Sculpin,,,,,,,,,,,,,,
+156,,Starry Flounder,SFL,native_nongamefish,,FALSE,,,Starry Flounder,,,,,,,,,,,,,,

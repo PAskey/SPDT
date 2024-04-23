@@ -53,22 +53,26 @@
 #' @importFrom rlang .data
 
 
-SPDTdata <- function(Spp = NULL, Contrast = NULL, Controls = c("Species","Genotype","Strain","SAR_cat"), Strains = NULL, Genotypes = NULL, filters = NULL, Data_source = TRUE){
+SPDTdata <- function(Spp = NULL, Contrast = NULL, Controls = c("Species","Geno_rel","Strain_rel","SAR_cat"), Strains = NULL, Genotypes = NULL, filters = NULL, Data_source = TRUE){
 
-  if(is.null(Contrast)){stop("Must define a 'Contrast' for SPDTdata() function, see ?SPDTdata, for all data use SLD2R() instead")}
+  if(is.null(Contrast)){stop("Must define a 'Contrast' for SPDTdata() function, see ?SPDTdata, for all data use SLD2R()  or linkClips() instead")}
   
   if(Data_source == TRUE){linkClips()}
   
-  if(!exists("Biological")|!exists("clipsum")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
+  if(!exists("Biological")|!exists("Link_rel")){stop("Need to start with a data load from SLD (i.e. Data_source = TRUE) at least once to start")}
   
-
+  if("Strain"%in%Controls|"SAR_cat"%in%Controls){warning("Having SAR_cat or Strain included in controls for broad contrasts like species may limit experiments")}
+  
+  if(Contrast == "Species"){Controls = Controls[!Controls == 'Strain_rel']}
+  
+  controls = dplyr::setdiff(Controls, Contrast)
 
 #Initial filters. Keep Clip == "NONE" because experimental fish in Yellow (KO) and maybe elsewhere were non-clips.
 
  #The Biological Table from the SLD through linkClips() is always the same regardless of other parameters, and be used as a raw data check. 
   #Alternatively if Data_source is set to "FALSE" then analyst uses a Biological Table that is loaded in the RStudio environment, which could be from the SLD or a spreadsheet, etc.
 idf = Biological
-clipsdf = clipsum
+clipsdf = Link_rel#clipsum
 
 if (!is.null(filters)) {
 idf = dplyr::filter(idf, Lk_yr %in% filters)
@@ -93,16 +97,18 @@ if (!is.null(Genotypes)) {
 #Categorize release size to facilitate finding true contrasts and analyzing
 #Code below create categories that increase in width as size increases.  
 idf <- idf%>%
-  dplyr::mutate(SAR_cat = SAR_cat(SAR),
+  dplyr::mutate(SAR_cat = SAR_cat(wt_rel),
                 Season = metR::season(Date),
-                Season = dplyr::recode_factor(Season, MAM = "Spring", JJA = "Summer", SON = "Fall", DJF = "Winter")
-                )
+                Season = dplyr::recode_factor(Season, MAM = "Spring", JJA = "Summer", SON = "Fall", DJF = "Winter"),
+                NetX = ifelse(.data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species %in% c("CT","EB","KO","RB","WCT"), 
+                              1/SPDT::RICselect(FLengths_mm = .data$Length_mm),1))%>%
+  tidyr::replace_na(list(NetX = 1))
 
 
 #Let's create a grouped data set
 #Summarize mean values for growth and tallies for numbers, etc. 
 gdf <- idf%>%
-  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season, .data$Capture_Method, .data$Species, .data$Strain, .data$Genotype, .data$Int.Age, .data$sby_code, .data$Clip, .data$N_rel, .data$Rel_ha, .data$SAR, .data$SAR_cat, .data$avg_rel_date)%>%
+  dplyr::group_by(.data$Waterbody_Name, .data$WBID, .data$Year, .data$Lk_yr, .data$Season, .data$Capture_Method, .data$Species, .data$Strain_rel,.data$Geno_rel, .data$Poss_Age, .data$Int.Age, .data$sby_code, .data$Clip, .data$N_ha_rel, .data$wt_rel, .data$SAR_cat)%>%
   dplyr::summarize( #Dec.Age = mean(.data$Dec.Age,na.rm = TRUE),
                     mean_FL = mean(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
                     sd_FL = sd(.data$Length_mm[.data$Outlier%in%c(0,NA)], na.rm = TRUE),
@@ -121,12 +127,15 @@ gdf <- idf%>%
 
 #The only reason for this next section that merges clipsdf
 #Is to track 0 counts for specific clips during sampling.
+##MAYBE A BETTER WAY IS TO JSUT DO A LEFT JOIN OF LINK CLIPS AND IDF_GDF?
 
 
 #Using clipsum instead of Xnew should keep release date and sample date and better cross reference when multiple release ids for one release group.
 clipsdf<-clipsdf%>%
-  dplyr::filter(n_sby == 1)%>%
-  dplyr::mutate(clipsbys = as.integer(clipsbys))
+  #dplyr::filter(n_sby == 1)%>%
+  #dplyr::mutate(clipsbys = as.integer(clipsbys))
+  dplyr::filter(!is.na(Int.Age)&sby_rel>0)%>%#Cases of a single defined cohort.
+  dplyr::mutate(sby_rel = as.integer(sby_rel))
 
 #Vector of unique sampling events by lake-year, season and method 
 #Can't add avg_sampling date within gdf, because will be different for each strain, age, etc.
@@ -134,24 +143,22 @@ uni_events = idf%>%
   #filter out indoor capture methods like HATCH, etc. and FFSBC "lakes"
   #dplyr::filter(!(Capture_Method%in%c('HATCH', 'LAB','UNK')))%>%#to filter out FFSBC lakes, !grepl("FFSBC",WBID)
   dplyr::group_by(Lk_yr, Season, Capture_Method)%>%
-  dplyr::summarize(avg_sample_date = mean(.data$Date,na.rm = TRUE))%>%
+  dplyr::summarize(avg_sample_date = round(mean(.data$Date,na.rm = TRUE), unit = "day"))%>%
   dplyr::ungroup()
 
-#MAYBE CHANGE THIS TO A RIGHT JOIN?
+#Gives same result with left or right join
 #Join this with clipsdf, so all releases that should appear in a sampling event are tracked.
-clipsdf = dplyr::left_join(uni_events, clipsdf, by = 'Lk_yr')%>%
-          #dplyr::mutate(Dec.Age = round(.data$Int.Age+(lubridate::decimal_date(.data$avg_sample_date) - Year),2))%>%#this add dec.age to 0 counts
+clipsdf = dplyr::left_join(uni_events[,c(1:3)], clipsdf, by = 'Lk_yr')%>%#Add sample date in below
           dplyr::filter(!is.na(Species))#Remove cases that did not match a stocking event.
 ###################################################################################################################
-gdf = dplyr::full_join(gdf, clipsdf[,c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "clipStrains","clipGenos", "clipsbys", "Clip", "N_rel","Rel_ha", "SAR", "cur_life_stage_code","avg_rel_date")], 
-                       by = c("Waterbody_Name", "WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "Strain"="clipStrains","Genotype"= "clipGenos", "sby_code"="clipsbys", "Clip", "N_rel","Rel_ha", "SAR"))%>%
+gdf = dplyr::full_join(gdf, clipsdf[,c("WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "Strain_rel","Geno_rel", "sby_rel", "Clip", "N_ha_rel","avg_rel_date", "wt_rel", "LS_rel")],
+                       by = c("WBID", "Lk_yr", "Year", "Season", "Capture_Method", "Int.Age", "Species", "Strain_rel","Geno_rel", "sby_code"="sby_rel", "Clip", "N_ha_rel","wt_rel"))%>%
   dplyr::filter(Lk_yr%in%idf$Lk_yr)%>%#Clip != "", Pulled this out to keep species comparisons
-  dplyr::filter(dplyr::case_when(Contrast != "Species"~ Clip != "", TRUE ~ !is.na(N_rel) ))%>%#, TRUE ~ Clip %in% unique(Clip)
+  dplyr::filter(dplyr::case_when(Contrast != "Species"~ Clip != "", TRUE ~ !is.na(N_ha_rel) ))%>%#, TRUE ~ Clip %in% unique(Clip)
   dplyr::mutate(N = replace(N, is.na(N), 0), 
                 NetXN = replace(NetXN, is.na(NetXN), 0),
-                avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE),
-                SAR_cat = SAR_cat(SAR))%>%
-  dplyr::select(-avg_rel_date.x, -avg_rel_date.y)
+                #avg_rel_date = pmax(avg_rel_date.x, avg_rel_date.y, na.rm = TRUE),
+                SAR_cat = SAR_cat(wt_rel))
 
 
 
@@ -191,15 +198,13 @@ gdf = dplyr::left_join(gdf, uni_events, by = c("Lk_yr", "Season", "Capture_Metho
 #    droplevels() 
 #}
 
-if(Data_source == "Species"&"SAR_cat"%in%Controls){warning("Having SAR_cat as a control for species or other contrasts may limit experiments")}
 
-controls = dplyr::setdiff(Controls, Contrast)
 
 exps <- gdf%>%
   dplyr::filter(!grepl(",",get(Contrast)))%>%#discount groups that included multiple levels within contrast (they are always separated by commas)
   dplyr::group_by(Lk_yr, Int.Age, !!!rlang::syms(controls))%>%
   dplyr::summarize(Ncontrasts = length(unique(na.omit(get(Contrast)))), Nclips = length(unique(na.omit(Clip))))%>%
-  dplyr::filter(Nclips>=Ncontrasts&Ncontrasts>1)%>%
+  dplyr::filter((Nclips>=Ncontrasts&Ncontrasts>1)|(Contrast == "Species"&Ncontrasts>1))%>%
   droplevels()
 
 
@@ -231,8 +236,9 @@ SGN_E = Net_effort%>%
 predf = gdf%>%
   #dplyr::filter(mean_FL>150)%>%
   dplyr::group_by(Lk_yr, Waterbody_Name,Year, Season, Capture_Method, Int.Age, !!!rlang::syms(Controls))%>%#, sby_code
-  dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_rel))%>%
-  dplyr::filter(!grepl(",",get(Contrast)))%>%#remove group that included multiple levels within contrast
+  dplyr::filter(!grepl(",",get(Contrast)), !is.na(N_ha_rel))%>%#remove group that included multiple levels within contrast. REmove fish that do not llink to stocking records
+  dplyr::summarize(groups = dplyr::n(), N = sum(N), xN = sum(NetXN), Nr = sum(N_ha_rel))%>%
+  
   dplyr::arrange(desc(get(Contrast)))%>%
   dplyr::ungroup()
 
@@ -327,3 +333,4 @@ if(!exists("wide_df")){message("WARNING: There were no controlled co-stocking ev
 
 invisible(gc())
 }
+

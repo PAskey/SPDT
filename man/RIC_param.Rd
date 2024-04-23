@@ -14,7 +14,7 @@ A list with 4 parts: RIC_meshes, theta, rel.power are for using predict_Millar()
 }
 }
 \source{
-PAskey personal copy. Estiamtion process described in Gillnet selectivity RMarkdown document on tech committees sharepoint.
+PAskey personal copy. Estimation process described in Gillnet selectivity RMarkdown document on tech committees sharepoint.
 }
 \usage{
 RIC_param

@@ -32,21 +32,27 @@ ch <- RODBC::odbcDriverConnect('driver={SQL Server};server=FFSBCSQL06;
                         DSN=SMALL_LAKES-TEST;DATABASE=SMALL_LAKES-TEST;
                         Trusted_Connection=TRUE')
 
-Assessments<-RODBC::sqlFetch(ch, "ffsbc.vw_Assessment_Summary")
+Assessments<-RODBC::sqlFetch(ch, "ffsbc.vw_Assessment_Summary", na.strings=c("","NA"))
 
-Nets <-RODBC::sqlFetch(ch,"ffsbc.vw_Net_Summary")
+Nets <-RODBC::sqlFetch(ch,"ffsbc.vw_Net_Summary", na.strings=c("","NA"))
 
-Lakes<-RODBC::sqlFetch(ch,"ffsbc.vw_Lakes")
+Lakes<-RODBC::sqlFetch(ch,"ffsbc.vw_Lakes", na.strings=c("","NA"))
 
-Lake_dim <-RODBC::sqlFetch(ch, "ffsbc.vw_Lake_Dimensions")
+Lake_dim <-RODBC::sqlFetch(ch, "ffsbc.vw_Lake_Dimensions", na.strings=c("","NA"))
 
-Biological <- RODBC::sqlFetch(ch, "ffsbc.vw_Biological_Data")
+Biological <- RODBC::sqlFetch(ch, "ffsbc.vw_Biological_Data", na.strings=c("","NA"))
 
-Releases <-RODBC::sqlFetch(ch,"ffsbc.vw_paris_releases")
+Releases <-RODBC::sqlFetch(ch,"ffsbc.vw_paris_releases", na.strings=c("","NA"))
 
 close(ch)
 
+#_______________________________________________________________________________
+#Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
+Fishery_WBID <- unique(c(Assessments$WBID, Nets$WBID, Biological$WBID, Releases$WBID))
 
+#Create the set of in-lake sampling methods that result in biological data from the lakes (omit any effort, pre-release or in-lab data)
+Methods = c("AN","CR","FK","GN","MT", "TN")
+#FIltered to these methods at end after all data cleaning and standardization of methods and other aspects complete.
 #_______________________________________________________________________________
 #Date re-formatting
 
@@ -54,8 +60,6 @@ close(ch)
 #(e.g. end_date in year 1899)
 Nets$Start_Date<-as.POSIXct(Nets$Start_Date, format="%Y-%m-%d")
 Nets$End_Date<-as.POSIXct(Nets$End_Date, format="%Y-%m-%d")
-
-#Lakes and Lake_dim no date data, other than date added.
 
 #Biological dates have been uploaded as factors with some possible errors (e.g. year 1905)
 Biological$Date<-as.POSIXct(Biological$Date, format="%Y-%m-%d")
@@ -78,6 +82,8 @@ Releases <- Releases%>%dplyr::rename(WBID = loc_msrm_waterbody_identifier,
 
 ########################################################################################################################
 ###CLEANING TASKS IN THIS SECTION SHOULD BE REMOVED EVENTUALLY
+#REmove non-relevant columns for clear viewing
+Biological = Biological%>%dplyr::select(-c("Net_Summary_ID","creel_survey_id","Assessment_Key", "source","Otolith","Scale","DNA_ID","ATUS","Family_Group","date_added"))
 
 #Data entry error for Duffy and Harper in Biological fix for now
 Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
@@ -85,7 +91,8 @@ Biological$Capture_Method[Biological$Capture_Method == "CAM"] = "GN"
 #Replace 0s with NA
 Biological$Length_mm[Biological$Length_mm==0]<-NA
 Biological$Weight_g[Biological$Weight_g==0]<-NA
-
+#Replace "NONE" clips with NA as many NA obs.
+Biological$Clip[Biological$Clip=="NONE"]<-NA
 
 #Change to consistent capitalization
 Biological <- Biological%>%dplyr::mutate(Sex = toupper(Sex))
@@ -97,6 +104,7 @@ Biological <- Biological%>%dplyr::select(-life_stage)
 Biological$Genotype[Biological$Genotype == "AF2n"] = "AF"
 #Match case in Releases
 Releases$Genotype = dplyr::recode(Releases$Genotype, '2N'='2n','3N'='3n', 'AF3N' = 'AF3n', 'MT3N'='MT3n')
+Releases$Species[Releases$Species=="BL"] = "SPK"
 
 #Also seems to be an error with redside shiners being coded incorrectly as RSS
 Biological$Species[Biological$Species == "RSS"] = "RSC"
@@ -111,27 +119,38 @@ Nets$species_caught[Nets$species_caught == "NP" & Nets$WBID == "01492TWAC"] = "N
 #RELEASES
 #Several minor adjustments
 
+#Remove stream releases as generally do not apply to SPDT type analyses
+Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
+
 #Lake names were not exactly matching between releases and biological data, which required this code to use Biological Waterbody names
 Releases$Waterbody_Name = Lakes$Waterbody_Name[match(Releases$WBID, Lakes$WBID)]
 #Add region
 Releases$Region = Lakes$Region[match(Releases$WBID, Lakes$WBID)]
 
-#Lookup strain codes and insert into releases to make consistent with Biological strain codes
+correct_FV_sby = function(so_origin_code, sby_code){
+  x = dplyr::case_when(so_origin_code != "BR"&sby_code<2013~sby_code-1,
+                       TRUE ~ sby_code)
+  return(x)
+}
+#Lookup strain codes and insert into releases to make consistent with Biological strain codes. Add Year variable for release year
 Releases<-Releases%>%
             dplyr::mutate(Strain = as.character(plyr::mapvalues(stock_strain_loc_name,
-                                                                from=as.character(SPDT::Strain_code_LU$stock_strain_loc_name),
-                                                                to=as.character(SPDT::Strain_code_LU$Strain), warn_missing = FALSE)))
+                          from=as.character(SPDT::Strain_code_LU$stock_strain_loc_name),
+                          to=as.character(SPDT::Strain_code_LU$Strain),
+                          warn_missing = FALSE)),
+                          Year = as.integer(format(as.Date(Releases$rel_Date,
+                                                           format = "%Y-%m-%d"), "%Y")),
+                          #sbycode = dplyr::if_else(Strain=="FV",correct_FV_sby(so_origin_code,sby_code),sby_code)
+                          )
 
+#Releases[Releases==""] <- NA
 
-
-#Remove stream releases as generally do not apply to SPDT type analyses
-Releases <- Releases%>%dplyr::filter(!(grepl("00000",.data$WBID))&.data$WBID!="")%>%droplevels()
 #Create column for release year
-Releases$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
+#$Year<-as.integer(format(as.Date(Releases$rel_Date, format = "%Y-%m-%d"), "%Y"))
 #Add in lake brood year and lake stocking year grouping variables that can match Biological
-Releases <- Releases%>%dplyr::mutate(Lk_sby = paste(.data$WBID,"_",.data$sby_code, sep = ""), 
-                                     Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
-)
+#Releases <- Releases%>%dplyr::mutate( 
+#                                     Lk_sry = paste(.data$WBID,"_",.data$Year, sep = "")
+#)
 
 
 #_______________________________________________________________________________
@@ -164,6 +183,7 @@ Nets = merge(Nets, Assessments[,c("Assessment_Key", "Method")], by = "Assessment
 
 #Gets rid of assessments that may have nothing to do with fish
 Assessments <- Assessments%>%dplyr::filter(!(.data$Method%in%c("GC","UNK","UP","WQ")))%>%
+                              dplyr::rename(Capture_Method = Method)%>%
                               droplevels()
 
 #Add lake year for cross-referencing although not ideal, there are a few cases than span years or have no dates (hence suppresswarnings())
@@ -175,11 +195,8 @@ Assessments = Assessments%>%
   #suppressWarnings()%>%
   dplyr::ungroup()
 
-
-#Find the unique list of WBID that have been assessed or stocked (i.e. known fisheries)
-Fishery_WBID <- unique(c(Assessments$WBID, Releases$WBID))
-
-#Now filter the Lakes dataframe down to those WBIDs, and add a column to state whether stockd or not
+#______________________________________________________________________________________________________
+#Now filter the Lakes dataframe down to those WBIDs, and add a column to state whether stocked or not
 Lakes<-Lakes%>%
   dplyr::filter(.data$WBID%in%Fishery_WBID & .data$Waterbody_Type == "Lake" & !is.na(.data$WBID))%>%
   dplyr::mutate(Stocked = .data$WBID%in%Releases$WBID)%>%
@@ -232,9 +249,12 @@ Lakes<-dplyr::left_join(Lakes, Lake_dim, by = "WBID")
 BioSpp = Biological%>%dplyr::group_by(WBID,Year,Species)%>%dplyr::summarize(Nb = dplyr::n())
 NetSpp = Nets%>%dplyr::group_by(WBID,Year,species_caught)%>%dplyr::summarize(Nn = sum(no_fish))
 
-StockedSpp = Releases%>%dplyr::group_by(WBID)%>%
-                        dplyr::summarize(First_stocked = min(Year),
-                                         All_Spp_stocked = paste(sort(unique(Species)),collapse = ","))
+StockedSpp = Releases%>%
+  dplyr::group_by(WBID)%>%
+  dplyr::summarize(First_stocked = min(Year),
+                   Last_stocked = max(Year),
+                   All_Spp_stocked = paste(sort(unique(Species)),collapse = ","),
+                   Recent_Spp_stocked = paste(sort(unique(Species[Year >2020])),collapse = ","))
 
 #All species captured summary
 Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "species_caught"))%>%
@@ -257,10 +277,8 @@ Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "
     .groups = "drop")
 
 Lake_Spp = dplyr::full_join(Lake_Spp, StockedSpp, by = "WBID")
-
-Spp = dplyr::left_join(StockedSpp, unique(Lake_Spp[,c("WBID","All_spp", "All_Spp_stocked")]), by = "WBID")
   
-Lakes = dplyr::left_join(Lakes,Spp, by = "WBID")
+Lakes = dplyr::left_join(Lakes,unique(Lake_Spp[,c("WBID","All_spp", "All_Spp_stocked", "Recent_Spp_stocked")]), by = "WBID")
 
 rm(Lake_dim,BioSpp,NetSpp)
 
@@ -270,39 +288,33 @@ rm(Lake_dim,BioSpp,NetSpp)
 #Remove all spaces from age descriptions to reduce potential lookup options for converting to integers.
 Biological$Age <- gsub('\\s+', '', Biological$Age)
 
+FLbin = 25#length bin for age-length key
 
 
 #dplyr::filter out records without year or species and create a Lake_WBID and Region_Name column
 Biological <- Biological%>%
                 dplyr::filter(!is.na(.data$Year),!is.na(.data$Species))%>%
                 dplyr::mutate(#Lake_WBID = paste(.data$Waterbody_Name,"_",.data$WBID, sep = ""),
-                              Region_Name = plyr::mapvalues(Region, from=Lakes$Region,
-                                                                    to=as.character(Lakes$Region_Name),
-                                                                    warn_missing = FALSE),
-                              Int.Age = plyr::mapvalues(Age, from=SPDT::Ages$Ages, to=SPDT::Ages$Int.Ages, warn_missing = FALSE),
+                              #Region_Name = plyr::mapvalues(Region, from=Lakes$Region,
+                              #                                      to=as.character(Lakes$Region_Name),
+                              #                                      warn_missing = FALSE),
+                              Int.Age = as.integer(as.character(
+                                plyr::mapvalues(Age, from=SPDT::Ages$Ages, 
+                                                      to=SPDT::Ages$Int.Ages, warn_missing = FALSE))),
+                              lcat = FSA::lencat(.data$Length_mm, w = FLbin),#Create length categories
                               K = round(100000*.data$Weight_g/.data$Length_mm^3,2)
                               )%>%
   suppressWarnings()#for NAs introduced by coercion
 
-
-
-#mapvalues() leaves int.ages as factor class, so convert to integers data type
-Biological$Int.Age = as.integer(as.character(Biological$Int.Age))%>%suppressWarnings()
-
-#assign Species to spawning period to calculate brood year
-spring_spwn = as.character(expression(ACT, BS, CRS, CT, GR, MG, RB, ST, TR, WCT, WP, WSG))#expression adds quotations to each element
-fall_spwn = as.character(expression(AS, BL, BT, DV, EB, GB, KO, LT, LW))
-
-
 #Add in a lake year and a brood year column for filtering and matching to releases
+#Correct FV sby
 Biological<- Biological%>%
               dplyr::mutate(
                       Lk_yr = paste(.data$WBID,"_",.data$Year, sep = ""),
+                      Lk_yr_spp = paste0(Lk_yr,Species),
                       sby_code = dplyr::case_when(
-                        .data$Species %in% spring_spwn & .data$Strain == "FV"& .data$Year < 2013 ~ .data$Year - .data$Int.Age + 1L,
-                        .data$Species %in% fall_spwn ~ .data$Year - .data$Int.Age - 1L,#1L is integer type
-                          TRUE ~ .data$Year - .data$Int.Age),
-                      Lk_sby = paste(WBID,"_",sby_code, sep = "")
+                        .data$Strain == "FV"& .data$Year < 2013 ~ .data$Year - .data$Int.Age + 1L,
+                          TRUE ~ .data$Year - .data$Int.Age - Spp_code_group_LU$diff_by[match(Species, Spp_code_group_LU$species_code)])
                             )
 
 
@@ -314,22 +326,25 @@ Biological <- Biological%>%
   ))
 
 
-#Last, let's add an expansion factor for gillnet selectivity
-##THis is not longer working, so need to fix. Giving different answers for same sized fish!!Uhg
-Biological <- Biological%>%
-                dplyr::mutate(NetX = ifelse(
-                  .data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species == "RB",
-                  1/SPDT::RICselect(FLengths_mm = .data$Length_mm),1))%>%
-                tidyr::replace_na(list(NetX = 1))
+#FINALLY FILTER ALL CAPTURE DATA TO SELECT IN_LAKE CAPTURE METHODS________________________________________________
+#_________________________________________________________________________________________________________________
 
-
+Assessments <<- Assessments[Assessments$Capture_Method%in%Methods,]
+Nets <<- Nets[Assessments$Capture_Method%in%Methods,]
+Biological <<- Biological[Biological$Capture_Method%in%Methods,]
+Releases<<-Releases
+Lakes<<-Lakes
+Lake_Spp<<-Lake_Spp
 #_______________________________________________________________________________
 #Initial data download complete
-Assessments <<- Assessments
-Lakes<<-Lakes
-Nets<<-Nets
-Biological<<-Biological
-Releases<<-Releases
-Lake_Spp<<-Lake_Spp
+
+#Last, let's add an expansion factor for gillnet selectivity
+##THis is not longer working, so need to fix. Giving different answers for same sized fish!!Uhg
+#Biological <- Biological%>%
+#                dplyr::mutate(NetX = ifelse(
+#                  .data$Capture_Method == "GN"&.data$Length_mm>75&.data$Length_mm<650&.data$Species == "RB",
+#                  1/SPDT::RICselect(FLengths_mm = .data$Length_mm),1))%>%
+#                tidyr::replace_na(list(NetX = 1))
+
 
 }

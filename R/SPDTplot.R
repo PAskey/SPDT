@@ -73,16 +73,18 @@ SPDTplot <- function(Metric = NULL, Method = "GN", Ages = c(0:100), min_N = 0, m
   }
   
   
-  plot_wide = wide_df%>%dplyr::filter(Capture_Method %in% Method, Int.Age %in% Ages)
-  #Some name simplificaiton for plotting.
+  plot_wide = wide_df%>%dplyr::filter(Capture_Method %in% Method, Int.Age %in% Ages, N >=min_N)
+  
+  #Some name simplification for plotting.
   plot_wide = plot_wide%>%
     dplyr::rowwise()%>%
     dplyr::mutate(short_name = substr(Waterbody_Name, 1, 4),
            Other_spp = dplyr::if_else(grepl("NS",Spp_caught),"Pikeminnow",Spp_class))
   
   
-  plot_idf = idf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_rel))
-  plot_gdf = gdf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_rel))
+  plot_idf = idf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_ha_rel), Int.Age %in% Ages)#min_N is filtered by lake_yr later.
+  plot_gdf = gdf%>%dplyr::filter(Capture_Method %in% Method,!is.na(N_ha_rel), Int.Age %in% Ages, N >=min_N)
+  
   
   if (!is.null(filters)) {
     plot_wide = dplyr::filter(wide_df, Lk_yr %in% filters)
@@ -91,8 +93,9 @@ SPDTplot <- function(Metric = NULL, Method = "GN", Ages = c(0:100), min_N = 0, m
   }
   
   
+#The survival plot uses a different data set than all the other plots. min_N is less relevant at each strata because N = 0 is a valid observation for survival.
   
-  #The survival plot uses a different data set than all the other plots.min_N is irrelevant because N = 0 is a valid observation for survival.
+ 
   if (Metric == "survival"){ 
     
  p =  ggplot2::ggplot(data = plot_wide, ggplot2::aes(x = .data$short_name, y = .data$Recap_p, group = Int.Age, shape = get(controls[1])))+
@@ -121,7 +124,6 @@ SPDTplot <- function(Metric = NULL, Method = "GN", Ages = c(0:100), min_N = 0, m
 
   
   plot_gdf <- plot_gdf%>%
-    dplyr::filter(N >= min_N)%>%
     dplyr::mutate(Year_Season = paste0(Year,"_",Season),
                   SAR_cat = as.factor(SAR_cat))%>%
     dplyr::group_by(Lk_yr_age, Season)%>%

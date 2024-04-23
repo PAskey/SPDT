@@ -38,27 +38,25 @@
 #' 
 
 SAR_cat = function(SAR){
-  #Old code
-  #SAR_cat = dplyr::case_when(SAR<=5.5 ~ plyr::round_any(SAR,1),
-  #                           SAR>5.5&SAR<=22.5 ~ plyr::round_any(SAR,5),
-  #                           SAR>22.5&SAR<65 ~ plyr::round_any(SAR,10),
-  #                           TRUE ~ plyr::round_any(SAR, 25))
+
+  #new approach based on commerce rounding code from : https://andrewlandgraf.com/2012/06/15/rounding-in-r/ and here https://stackoverflow.com/questions/12688717/round-up-from-5
   
-  #new approach
   cround = function(x, n=0) {
     posneg = sign(x)
-    z = abs(x)*10^n
-    z = z + 0.5 + sqrt(.Machine$double.eps)
-    z = trunc(z)
-    z = z/10^n
-    z*posneg
+    z = trunc(abs(x) * 10^n + 0.5 + sqrt(.Machine$double.eps)) / 10^n
+    z * posneg
   }
  
-  SAR_cat = dplyr::case_when(SAR<=5.5 ~ cround(SAR/1)*1,
-                             SAR>5.5&SAR<=22.5 ~ cround(SAR/5)*5,
-                             SAR>22.5&SAR<75 ~ cround(SAR/10)*10,
-                             TRUE ~ cround(SAR/20)*20) 
+#Make categorization bins relative to the size of the fish 
+  bin = dplyr::case_when(
+    SAR <= 5.5 ~ 1,
+    SAR > 5.5 & SAR <= 22.5 ~ 5,
+    SAR > 22.5 & SAR < 75 ~ 10,
+    TRUE ~ 20
+  ) 
   
+  #ROund to nearest bin
+  SAR_cat = cround(SAR/bin)*bin
   
   return(SAR_cat)
 }
