@@ -314,7 +314,7 @@ Biological<- Biological%>%
                       Lk_yr_spp = paste0(Lk_yr,Species),
                       sby_code = dplyr::case_when(
                         .data$Strain == "FV"& .data$Year < 2013 ~ .data$Year - .data$Int.Age + 1L,
-                          TRUE ~ .data$Year - .data$Int.Age - Spp_code_group_LU$diff_by[match(Species, Spp_code_group_LU$species_code)])
+                          TRUE ~ .data$Year - .data$Int.Age - SPDT::Spp_code_group_LU$diff_by[match(Species, SPDT::Spp_code_group_LU$species_code)])
                             )
 
 
