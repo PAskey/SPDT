@@ -66,21 +66,29 @@ NR = dplyr::left_join(Biological,Link_rel, by = c(names(Link_rel)[1:5], "Lk_yr")
 
 #Create a NRT probability for each lake-species. Weight most recent assessment more heavily.
 NR_sum = NR%>%
-  dplyr::group_by(Waterbody_Name, WBID,Year,Species)%>%
+  dplyr::group_by(Region, Waterbody_Name, WBID,Year,Species)%>%
   dplyr::summarise(N = dplyr::n(), Nnr = sum(Poss_NR,na.rm = T), p = Nnr/N)%>%
   dplyr::filter(N>=20, Species%in%Spp_code_group_LU$species_code[Spp_code_group_LU$Stocked_species])%>%#At least 20 fish sampled to use data
-  dplyr::group_by(Waterbody_Name, WBID,Species)%>%
-  dplyr::summarise(pNR = round((mean(p)+p[Year == max(Year)])/2,2))
+  dplyr::group_by(Region, Waterbody_Name, WBID,Species)%>%
+  dplyr::summarise(pNR = round((mean(p)+p[Year == max(Year)])/2,2))%>%
+  dplyr::ungroup()
 
 #Specific lake-species combos where at least 30% of the fish could potentially be natural recruits
-NR_lakes = NR_sum%>%dplyr::filter(pNR>0.29)%>%dplyr::ungroup()
+NR_lakes = NR_sum%>%dplyr::filter(pNR>0.29)
 
 #Add in info on stock history
+#Multiple rows in Lake_Spp to account for changing species composition over time/assessments
 Stock = Lake_Spp%>%dplyr::group_by(WBID)%>%
   dplyr::summarise(Last_stocked = Last_stocked[1],
-                   Recent_Spp_stocked = Recent_Spp_stocked[1])
+                   Recent_Spp_stocked = Recent_Spp_stocked[1])%>%
+  dplyr::ungroup()
 
-NR_sum = dplyr::left_join(NR_sum,Stock, by = "WBID")%>%dplyr::ungroup()
+NR_sum = dplyr::left_join(NR_sum,Stock, by = "WBID")
+
+##Add in field to clarify when we might be stocking on top of natural recruits
+NR_sum = NR_sum%>%rowwise()%>%
+  dplyr::mutate(Stock_ontop =  pNR>=0.25&Last_stocked>2019&Species%in%(strsplit(Recent_Spp_stocked, ",")[[1]]))%>%
+  dplyr::ungroup()
 
 #Now that established which lakes have a reasonable proportion of potential NR fish species, all non-clipped fish from those lake-species groups need to be treated as suspect.
 Biological = dplyr::left_join(Biological,NR[,c("Biological_Data_ID","Poss_NR")], by = "Biological_Data_ID")%>%
