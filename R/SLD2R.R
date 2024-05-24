@@ -199,14 +199,17 @@ Assessments = Assessments%>%
 #Now filter the Lakes dataframe down to those WBIDs, and add a column to state whether stocked or not
 Lakes<-Lakes%>%
   dplyr::filter(.data$WBID%in%Fishery_WBID & .data$Waterbody_Type == "Lake" & !is.na(.data$WBID))%>%
-  dplyr::mutate(Stocked = .data$WBID%in%Releases$WBID)%>%
+  dplyr::mutate(Stocked = .data$WBID%in%Releases$WBID,
+                Assessed = .data$WBID%in%Biological$WBID)%>%
   droplevels()
 
 #Track year of last stocking into lake
-lastYRs = Releases%>%dplyr::group_by(WBID)%>%dplyr::summarize(Last_release = max(Year))
+lastrel = Releases%>%dplyr::group_by(WBID)%>%dplyr::summarize(Last_release = max(Year))
+lastassess = Biological%>%dplyr::group_by(WBID)%>%dplyr::summarize(Last_assess = max(Year))
 
-Lakes = dplyr::left_join(Lakes,lastYRs, by = 'WBID')
-rm(lastYRs)
+Lakes = dplyr::left_join(Lakes,lastrel, by = 'WBID')
+Lakes = dplyr::left_join(Lakes,lastassess, by = 'WBID')
+rm(lastrel,lastassess)
 
 #dplyr::filter lake dimensions data frame to same lakes
 Lake_dim <- Lake_dim%>%dplyr::filter(.data$WBID %in% Lakes$WBID)%>%droplevels()
@@ -234,7 +237,7 @@ Lake_dim$Area[Lake_dim$WBID == 'FFSBC3802']<-13.9
 
 #Select fields, can use dput(names(Lakes)) to get full list and reduce from there
 Lakes = Lakes%>%dplyr::select(c("Waterbody_Name", "Alias", "WBID", "Region", "Region_Name", "UTM_Easting", 
-  "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked", "Last_release"))
+  "UTM_Northing", "UTM_Zone", "Latitude", "Longitude", "Stocked", "Last_release", "Last_assess"))
 
 Lake_dim = Lake_dim%>%dplyr::select(c("WBID", "Area", "Perimeter", "Max_Depth", "Mean_Depth", "Area_Littoral", "Elevation", "Inlets", "Outlets"))
 
@@ -277,6 +280,7 @@ Lake_Spp  = dplyr::full_join(BioSpp,NetSpp, by = c("WBID", "Year", "Species" = "
     .groups = "drop")
 
 Lake_Spp = dplyr::full_join(Lake_Spp, StockedSpp, by = "WBID")
+
   
 Lakes = dplyr::left_join(Lakes,unique(Lake_Spp[,c("WBID","All_spp", "All_Spp_stocked", "Recent_Spp_stocked")]), by = "WBID")
 
