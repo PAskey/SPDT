@@ -4,7 +4,7 @@
 #' 
 #' 
 #' @title sby2age
-#' @name RICselect
+#' @name sby2age
 #' @keywords SPDT; age; brood year
 #' @export
 #' @param Spp_code an character string or vector describing a standard species code.
